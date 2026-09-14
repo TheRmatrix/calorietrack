@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="theme-color" content="#f7f9fc">
 <title>CalorieTrack</title>
-<script src="https://unpkg.com/html5-qrcode" defer></script>
+<script src="https://cdn.jsdelivr.net/npm/html5-qrcode@2.3.8/html5-qrcode.min.js" defer></script>
 <style>
 :root{--bg:#f7f9fc;--card:#fff;--ink:#172033;--muted:#7b8496;--line:#e9edf3;--blue:#2d6cdf;--blue2:#edf4ff;--navy:#182238;--teal:#d9f4ee;--tealink:#08786f;--red:#ffe1e7;--redink:#a51f3d;--green:#27a66f;--shadow:0 8px 28px rgba(25,42,70,.06)}
 *{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--ink);font-family:-apple-system,BlinkMacSystemFont,"SF Pro Display","Segoe UI",sans-serif}body.dark{--bg:#0d1422;--card:#151e2e;--ink:#f5f7fb;--muted:#a9b2c2;--line:#283448;--blue2:#1c2c4a;--navy:#0a1020;--teal:#173b3a;--tealink:#70d8c9;--red:#49202c;--redink:#ff9eb4;--shadow:none}
@@ -41,6 +41,17 @@ body{background:#f6f8fc}
 .check-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:7px}.check-tile{border:1px solid #e2e8f1;border-radius:14px;padding:10px 5px;min-height:78px;text-align:center}.check-tile .ci{font-size:19px}.check-tile b{display:block;font-size:11px;margin-top:3px}.check-tile small{display:block;color:#7b8496;font-size:9px;margin-top:4px}.check-circle{width:20px;height:20px;border:3px solid #bdc9d8;border-radius:50%;margin:5px auto 0}.check-tile.done .check-circle{background:#27c98a;border-color:#27c98a;position:relative}.check-tile.done .check-circle:after{content:"✓";color:#fff;font-size:12px;position:absolute;left:3px;top:-1px}
 .bottom{padding-top:7px}.bottom button{font-size:10px}.bottom button.active{color:#246ff2}
 @media(max-width:520px){.hero-dashboard{grid-template-columns:1fr;gap:8px;min-height:0}.calorie-ring{width:155px;height:155px}.calorie-ring:after{inset:11px}.calorie-ring strong{font-size:35px}.hero-macros{gap:10px}.stat-strip{grid-template-columns:repeat(4,1fr)}.mini-stat{padding:9px 2px}.mini-stat b{font-size:14px}.check-grid{grid-template-columns:repeat(4,1fr)}.mode-select{min-width:105px}.tagline{max-width:230px}.water-buttons button{font-size:10px}}
+</style>
+
+<style id="v22-scanner">
+#reader{border:1px solid var(--line);border-radius:18px;overflow:hidden;background:#0b1220;min-height:220px}
+#reader video{border-radius:14px}
+#reader__scan_region{background:#0b1220}
+.scanner-help{background:var(--blue2);padding:12px;border-radius:14px;margin-bottom:10px}
+</style>
+
+<style id="v23-camera-roll">
+#barcodePhoto{display:none!important}
 </style>
 </head>
 <body>
@@ -204,8 +215,103 @@ function foodSearch(){openM('Search food',`<input id="foodQ" placeholder="e.g. o
 async function searchOFF(){let q=document.getElementById('foodQ').value.trim();if(!q)return;let r=document.getElementById('foodResults');r.innerHTML='<div class="notice">Searching…</div>';try{let res=await fetch('https://world.openfoodfacts.org/api/v3/search?categories_tags_en='+encodeURIComponent(q)+'&page_size=10');let j=await res.json();let arr=j.products||[];if(!arr.length){r.innerHTML='<div class="notice">No results.</div>';return}r.innerHTML=arr.map((p,i)=>{let n=p.nutriments||{};return `<div class="listrow"><div><div class="foodname">${esc(p.product_name||p.generic_name||'Unknown')}</div><div class="foodmeta">${Math.round(n['energy-kcal_100g']||n['energy-kcal']||0)} kcal / 100g</div></div><button class="sm" onclick='useOFF(${JSON.stringify({name:p.product_name||p.generic_name||"Food",k:+(n["energy-kcal_100g"]||n["energy-kcal"]||0),p:+(n.proteins_100g||0),c:+(n.carbohydrates_100g||0),f:+(n.fat_100g||0),fi:+(n.fiber_100g||0),s:+(n.sugars_100g||0),sa:+(n["saturated-fat_100g"]||0)})})'>Add</button></div>`}).join('')}catch(e){r.innerHTML='<div class="notice">Could not reach Open Food Facts.</div>'}}
 function useOFF(f){openM('Amount eaten',`<div class="notice">Nutrition is per 100g.</div><label>Grams<input id="offg" type="number" value="100"></label><button onclick="addOFF(${JSON.stringify(f)})">Add</button>`)}
 function addOFF(f){let g=+offg.value||100,m=g/100;addFood({...f,name:f.name+' ('+g+'g)',k:f.k*m,p:f.p*m,c:f.c*m,f:f.f*m,fi:f.fi*m,s:f.s*m,sa:f.sa*m})}
-function scan(){openM('Scan barcode',`<div class="notice">Allow camera access, then point it at an EAN/UPC barcode.</div><div id="reader"></div><div id="scanResult"></div>`);setTimeout(()=>{if(!window.Html5Qrcode)return;let q=new Html5Qrcode("reader");window._scanner=q;q.start({facingMode:"environment"},{fps:10,qrbox:{width:250,height:120}},async code=>{q.stop();await barcode(code)})},250)}
-async function barcode(code){let r=document.getElementById('scanResult');if(r)r.innerHTML='<div class="notice">Looking up '+esc(code)+'…</div>';try{let res=await fetch('https://world.openfoodfacts.org/api/v3/product/'+encodeURIComponent(code)+'.json?fields=product_name,brands,serving_size,nutriments');let j=await res.json();let p=j.product||{},n=p.nutriments||{};if(!p.product_name)throw 0;useOFF({name:(p.brands?p.brands+' ':'')+p.product_name,k:+(n['energy-kcal_100g']||0),p:+(n.proteins_100g||0),c:+(n.carbohydrates_100g||0),f:+(n.fat_100g||0),fi:+(n.fiber_100g||0),s:+(n.sugars_100g||0),sa:+(n['saturated-fat_100g']||0)})}catch(e){if(r)r.innerHTML='<div class="notice">Product not found. Try Search food or Custom food.</div>'}}
+async function scan(){
+  openM('Scan barcode',`
+    <div class="scanner-help">
+      <b>Point your camera at the barcode</b>
+      <div class="notice">Use the rear camera. Keep the barcode inside the box and hold the phone steady.</div>
+    </div>
+    <div id="reader"></div>
+    <div id="scanStatus" class="notice" style="margin-top:10px">Starting camera…</div>
+    <div class="grid2" style="margin-top:8px">
+      <button class="light" onclick="stopScanner()">Stop camera</button>
+      <button class="light" onclick="document.getElementById('barcodePhoto').click()">🖼️ Camera Roll</button>
+    </div>
+    <input id="barcodePhoto" type="file" accept="image/*" class="hidden" onchange="scanBarcodePhoto(event)">
+  `);
+  const status=document.getElementById('scanStatus');
+  if(!window.Html5Qrcode){
+    status.textContent='Scanner library is still loading. Close this window and try again in a few seconds.';
+    return;
+  }
+  try{
+    window._scanner=new Html5Qrcode("reader");
+    const config={
+      fps:10,
+      qrbox:(w,h)=>({width:Math.min(280,Math.floor(w*0.82)),height:Math.min(150,Math.floor(h*0.45))}),
+      aspectRatio:1.777,
+      formatsToSupport:[
+        Html5QrcodeSupportedFormats.EAN_13,
+        Html5QrcodeSupportedFormats.EAN_8,
+        Html5QrcodeSupportedFormats.UPC_A,
+        Html5QrcodeSupportedFormats.UPC_E,
+        Html5QrcodeSupportedFormats.CODE_128
+      ],
+      rememberLastUsedCamera:true
+    };
+    await window._scanner.start({facingMode:{exact:"environment"}},config,
+      async code=>{
+        status.textContent='Barcode found: '+code+' — looking up product…';
+        await stopScanner();
+        await barcode(code);
+      },
+      errorMessage=>{
+        if(status && !status.textContent.includes('Barcode found')) status.textContent='Camera is active — line up the barcode inside the box.';
+      }
+    );
+    status.textContent='Camera ready. Point it at a barcode.';
+  }catch(e){
+    console.error(e);
+    // Some iPhones reject the exact environment constraint; retry with a generic camera request.
+    try{
+      if(window._scanner){
+        try{await window._scanner.clear()}catch(_){}
+      }
+      window._scanner=new Html5Qrcode("reader");
+      await window._scanner.start(
+        {facingMode:"environment"},
+        {fps:10,qrbox:250,rememberLastUsedCamera:true},
+        async code=>{
+          status.textContent='Barcode found: '+code+' — looking up product…';
+          await stopScanner();
+          await barcode(code);
+        }
+      );
+      status.textContent='Camera ready. Point it at a barcode.';
+    }catch(e2){
+      console.error(e2);
+      status.innerHTML='<b>Could not start the camera.</b><br>Make sure Safari/Brave has camera permission for this website, then reload the page. Also make sure you are opening the GitHub Pages HTTPS address, not a local file.';
+    }
+  }
+}
+async function stopScanner(){
+  if(window._scanner){
+    try{await window._scanner.stop()}catch(_){}
+    try{await window._scanner.clear()}catch(_){}
+    window._scanner=null;
+  }
+}
+async function scanBarcodePhoto(event){
+  const file=event.target.files && event.target.files[0];
+  if(!file || !window.Html5Qrcode)return;
+  const status=document.getElementById('scanStatus');
+  if(status)status.textContent='Reading barcode from your photo…';
+  try{
+    await stopScanner();
+    const readerId='reader';
+    const temp=new Html5Qrcode(readerId);
+    const code=await temp.scanFile(file,true);
+    try{await temp.clear()}catch(_){}
+    if(status)status.textContent='Barcode found: '+code+' — looking up product…';
+    await barcode(code);
+  }catch(e){
+    console.error(e);
+    if(status)status.innerHTML='<b>Couldn’t find a barcode in that photo.</b><br>Try a clear, close-up photo with the whole barcode visible.';
+  }finally{
+    event.target.value='';
+  }
+}
+function barcode(code){let r=document.getElementById('scanResult');if(r)r.innerHTML='<div class="notice">Looking up '+esc(code)+'…</div>';try{let res=await fetch('https://world.openfoodfacts.org/api/v3/product/'+encodeURIComponent(code)+'.json?fields=product_name,brands,serving_size,nutriments',{headers:{'Accept':'application/json'}});if(!res.ok)throw new Error('HTTP '+res.status);let j=await res.json();let p=j.product||{},n=p.nutriments||{};if(!p.product_name)throw new Error('Product not found');useOFF({name:(p.brands?p.brands+' ':'')+p.product_name,k:+(n['energy-kcal_100g']||n['energy-kcal_value']||0),p:+(n.proteins_100g||0),c:+(n.carbohydrates_100g||0),f:+(n.fat_100g||0),fi:+(n.fiber_100g||0),s:+(n.sugars_100g||0),sa:+(n['saturated-fat_100g']||0)})}catch(e){if(r)r.innerHTML='<div class="notice"><b>Product not found.</b><br>This barcode may not be in Open Food Facts yet. Try Search Food or Custom Food.</div>'}}
 function portion(){openM('Portion calculator',`<div class="grid2"><label>Package amount (g)<input id="pg" type="number"></label><label>Amount eaten (g)<input id="eg" type="number"></label><label>Package kcal<input id="pk" type="number"></label><label>Package protein<input id="pp" type="number"></label><label>Package carbs<input id="pc" type="number"></label><label>Package fat<input id="pf" type="number"></label></div><button onclick="calcPortion()">Calculate</button><div id="por"></div>`)}
 function calcPortion(){let m=(+eg.value||0)/(+pg.value||1);por.innerHTML=`<div class="card"><b>${Math.round((+pk.value||0)*m)} kcal</b><br>Protein ${Math.round((+pp.value||0)*m*10)/10}g · Carbs ${Math.round((+pc.value||0)*m*10)/10}g · Fat ${Math.round((+pf.value||0)*m*10)/10}g</div>`}
 function drinkForm(){openM('Add drink',`<div class="grid2"><label>Name<input id="dn"></label><label>Calories<input id="dk" type="number"></label><label>Volume (ml)<input id="dm" type="number"></label></div><button onclick="D().drinks.push({name:dn.value,k:+dk.value||0,ml:+dm.value||0});save();closeModal();renderToday()">Add drink</button>`)}
