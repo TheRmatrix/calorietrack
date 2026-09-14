@@ -86,6 +86,180 @@ canvas{border:1px solid #eef0f4}
 }
 </style>
 
+
+<style id="calorietrack-final-design">
+:root{
+  --ct-bg:#f4f6fa;
+  --ct-card:#ffffff;
+  --ct-ink:#101828;
+  --ct-muted:#667085;
+  --ct-blue:#2f6df6;
+  --ct-blue2:#5b8cff;
+  --ct-soft:#edf3ff;
+  --ct-line:#e7eaf0;
+  --ct-dark:#111827;
+  --ct-radius:22px;
+}
+*{box-sizing:border-box}
+html,body{margin:0;background:var(--ct-bg);color:var(--ct-ink)}
+body{
+  font-family:-apple-system,BlinkMacSystemFont,"SF Pro Display","SF Pro Text",
+  "Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+  -webkit-font-smoothing:antialiased;
+}
+main{max-width:820px!important;margin:0 auto;padding:18px 14px 118px!important}
+header{padding:4px 4px 12px!important}
+header h1{
+  font-size:38px!important;line-height:1.05!important;
+  letter-spacing:-1.8px!important;font-weight:850!important;margin:0 0 6px!important;
+}
+header .sub,.subtitle,.tagline{
+  color:var(--ct-muted)!important;font-size:16px!important;font-weight:600!important;
+}
+.card{
+  background:var(--ct-card)!important;border:1px solid rgba(16,24,40,.055)!important;
+  border-radius:var(--ct-radius)!important;
+  box-shadow:0 7px 24px rgba(16,24,40,.055)!important;
+  padding:18px!important;margin:12px 0!important;
+}
+.card h2{
+  font-size:21px!important;line-height:1.15!important;
+  letter-spacing:-.45px!important;margin:0 0 11px!important;
+}
+.quick-actions{
+  display:grid!important;grid-template-columns:1.2fr 1fr!important;
+  gap:9px!important;margin:4px 0 10px!important;
+}
+.quick-actions button{
+  min-height:58px!important;border-radius:17px!important;
+  font-size:15px!important;font-weight:800!important;
+}
+.quick-actions .scan-primary{
+  background:linear-gradient(135deg,var(--ct-blue2),var(--ct-blue))!important;
+  box-shadow:0 8px 18px rgba(47,109,246,.22)!important;
+}
+.quick-actions .quick-secondary{
+  background:#fff!important;color:var(--ct-ink)!important;
+  border:1px solid var(--ct-line)!important;
+}
+#barcodeScanner{
+  padding:0!important;background:transparent!important;
+  border:0!important;box-shadow:none!important;margin:0 0 12px!important;
+}
+#barcodeScanner h2{display:none!important}
+#barcodeScanner>p{display:none!important}
+#barcodeReader{
+  background:var(--ct-card)!important;border:1px solid var(--ct-line)!important;
+  border-radius:18px!important;padding:8px!important;overflow:hidden!important;
+}
+#barcodeReader video{border-radius:13px!important}
+#barcodeReader button{border-radius:12px!important;min-height:40px!important}
+.hero{
+  background:linear-gradient(145deg,#111827,#182337)!important;
+  border:0!important;color:#fff!important;
+  border-radius:26px!important;padding:21px!important;
+  box-shadow:0 10px 28px rgba(17,24,39,.15)!important;
+}
+.hero *{color:inherit}
+.stats{
+  display:grid!important;grid-template-columns:repeat(4,1fr)!important;gap:9px!important;
+}
+.stat{
+  background:#f4f6f9!important;border:1px solid #eef0f4!important;
+  border-radius:17px!important;padding:13px 7px!important;text-align:center!important;
+}
+.stat b{font-size:21px!important;letter-spacing:-.4px!important}
+.stat span{color:var(--ct-muted)!important;font-size:12px!important;font-weight:650!important}
+.bar{height:10px!important;border-radius:999px!important;background:#e7eaf0!important}
+.fill{background:var(--ct-blue)!important;border-radius:999px!important}
+button{
+  min-height:45px!important;border-radius:14px!important;
+  font-weight:750!important;
+}
+input,select,textarea{
+  min-height:46px!important;border:1px solid var(--ct-line)!important;
+  border-radius:14px!important;background:#fff!important;
+}
+.pill{
+  background:#f1f3f6!important;border:1px solid #eceef2!important;
+  border-radius:12px!important;
+}
+.food{
+  border-bottom:1px solid #eef0f3!important;padding:13px 0!important;
+}
+.food:last-child{border-bottom:0!important}
+.check-grid{display:grid!important;grid-template-columns:1fr 1fr!important;gap:9px!important}
+.check-grid label{
+  background:#f7f8fa!important;border:1px solid #eceef2!important;
+  border-radius:14px!important;padding:11px!important;font-weight:650!important;
+}
+.report-grid{display:grid!important;grid-template-columns:1fr 1fr!important;gap:9px!important}
+.report-item{
+  background:#f7f8fa!important;border:1px solid #edf0f3!important;
+  border-radius:15px!important;padding:12px!important;
+}
+#waterControls,#manageEntries{margin-top:10px!important}
+#waterControls button,#waterControls button:hover{
+  border-radius:15px!important;background:#f0f4ff!important;color:#164bc5!important;
+}
+#drinkTracker button,#quickFoods button{background:var(--ct-dark)!important}
+#productResult{background:var(--ct-soft)!important;border-radius:16px!important;padding:14px!important}
+.tabs{
+  position:fixed!important;left:0!important;right:0!important;bottom:0!important;
+  height:auto!important;min-height:76px!important;z-index:1000!important;
+  padding:9px 10px max(9px,env(safe-area-inset-bottom))!important;
+  background:rgba(255,255,255,.92)!important;
+  backdrop-filter:blur(18px)!important;-webkit-backdrop-filter:blur(18px)!important;
+  border-top:1px solid rgba(16,24,40,.08)!important;
+  box-shadow:0 -5px 20px rgba(16,24,40,.05)!important;
+}
+.tabs button{
+  background:#111827!important;color:#fff!important;
+  border-radius:15px!important;min-height:52px!important;
+  padding:7px 10px!important;font-size:13px!important;
+}
+.page{animation:ctFade .15s ease}
+@keyframes ctFade{from{opacity:.7;transform:translateY(3px)}to{opacity:1;transform:none}}
+:focus-visible{outline:3px solid #93c5fd!important;outline-offset:2px!important}
+.muted,.notice{color:var(--ct-muted)!important}
+@media(max-width:600px){
+  main{padding-left:12px!important;padding-right:12px!important}
+  header h1{font-size:34px!important}
+  .card{padding:17px!important;border-radius:20px!important}
+  .stats{grid-template-columns:repeat(2,1fr)!important}
+  .check-grid,.report-grid{grid-template-columns:1fr!important}
+  .quick-actions{grid-template-columns:1fr 1fr!important}
+}
+@media(prefers-reduced-motion:reduce){
+  *{scroll-behavior:auto!important;animation:none!important;transition:none!important}
+}
+</style>
+
+
+<style id="v19-mode-calendar">
+/* v19 male/female mode + cycle calendar */
+#sex { display:none !important; }
+#cycleSection .cycle-calendar-wrap { margin-top:14px; }
+.cycle-calendar-card { background:#fff; border:1px solid #e6ebf2; border-radius:20px; padding:14px; box-shadow:0 6px 20px rgba(20,35,60,.06); }
+.cycle-cal-head { display:flex; align-items:center; justify-content:space-between; margin-bottom:10px; }
+.cycle-cal-title { font-weight:800; font-size:17px; }
+.cycle-cal-nav { display:flex; gap:7px; }
+.cycle-cal-nav button { width:40px; height:40px; border-radius:12px; border:1px solid #dce3ed; background:#f7f9fc; font-size:20px; }
+.cycle-week, .cycle-grid { display:grid; grid-template-columns:repeat(7,1fr); gap:5px; }
+.cycle-week div { text-align:center; font-size:11px; font-weight:700; color:#7b8798; padding:5px 0; }
+.cycle-day { min-height:43px; border-radius:12px; display:flex; flex-direction:column; align-items:center; justify-content:center; font-size:13px; position:relative; background:#f8fafc; }
+.cycle-day.muted { opacity:.32; }
+.cycle-day.period { background:#ffe1e7; color:#a51d3b; font-weight:800; }
+.cycle-day.fertile { background:#d8f3ee; color:#087a70; font-weight:800; }
+.cycle-day.period.fertile { background:linear-gradient(135deg,#ffe1e7 0 50%,#d8f3ee 50%); }
+.cycle-day.today { outline:2px solid #1d4ed8; outline-offset:1px; }
+.cycle-day .dot { width:5px; height:5px; border-radius:50%; margin-top:3px; background:currentColor; }
+.cycle-legend { display:flex; flex-wrap:wrap; gap:10px 16px; margin-top:12px; font-size:12px; color:#5f6b7b; }
+.cycle-legend span { display:flex; align-items:center; gap:6px; }
+.cycle-legend i { width:11px; height:11px; border-radius:4px; display:inline-block; }
+.legend-period { background:#ffe1e7; } .legend-fertile { background:#d8f3ee; }
+#cycleSection { display:none; }
+
 </head>
 <body>
 <main>
@@ -877,6 +1051,126 @@ if('serviceWorker' in navigator)navigator.serviceWorker.register('sw.js').catch(
     box.appendChild(item);
   }
   summary.textContent='This week: '+training+' training day'+(training===1?'':'s')+' • '+rest+' rest day'+(rest===1?'':'s');
+})();
+</script>
+
+
+<div class="cycle-calendar-wrap" id="cycleCalendarWrap">
+  <div class="cycle-calendar-card">
+    <div class="cycle-cal-head">
+      <div class="cycle-cal-title" id="cycleCalTitle">Cycle calendar</div>
+      <div class="cycle-cal-nav">
+        <button type="button" id="cyclePrev" aria-label="Previous month">‹</button>
+        <button type="button" id="cycleNext" aria-label="Next month">›</button>
+      </div>
+    </div>
+    <div class="cycle-week">
+      <div>Sun</div><div>Mon</div><div>Tue</div><div>Wed</div><div>Thu</div><div>Fri</div><div>Sat</div>
+    </div>
+    <div class="cycle-grid" id="cycleCalendarGrid"></div>
+    <div class="cycle-legend">
+      <span><i class="legend-period"></i> Predicted period</span>
+      <span><i class="legend-fertile"></i> High fertility</span>
+    </div>
+  </div>
+</div>
+
+
+<script id="v19-mode-calendar-js">
+(function(){
+  const mode = document.getElementById('sexMode');
+  const sex = document.getElementById('sex');
+  const cycle = document.getElementById('cycleSection');
+  const grid = document.getElementById('cycleCalendarGrid');
+  const title = document.getElementById('cycleCalTitle');
+  if(!mode || !grid) return;
+
+  let calMonth = new Date();
+  calMonth.setDate(1);
+
+  function getCycle(){
+    try { return JSON.parse(localStorage.getItem('calorietrack_cycle') || '{}'); }
+    catch(e){ return {}; }
+  }
+  function setMode(v){
+    mode.value = v;
+    if(sex) sex.value = v === 'female' ? 'female' : 'male';
+    if(cycle) cycle.style.display = v === 'female' ? '' : 'none';
+    localStorage.setItem('calorietrack_sex_mode', v);
+    renderCal();
+  }
+  mode.addEventListener('change', ()=>setMode(mode.value));
+
+  const saved = localStorage.getItem('calorietrack_sex_mode');
+  setMode(saved === 'female' ? 'female' : 'male');
+
+  function dateOnly(s){
+    if(!s) return null;
+    const d = new Date(s+'T00:00:00');
+    return isNaN(d) ? null : d;
+  }
+  function diffDays(a,b){ return Math.round((a-b)/86400000); }
+  function predictedDates(){
+    const c = getCycle();
+    const start = dateOnly(c.startDate || c.periodStart || c.lastPeriod);
+    const cycleLen = Math.max(20, Math.min(45, Number(c.cycleLength || 28)));
+    const periodLen = Math.max(2, Math.min(10, Number(c.periodLength || 5)));
+    const out = {period:new Set(), fertile:new Set()};
+    if(!start) return out;
+
+    // Predict 12 months forward/backward from the recorded period start.
+    const anchor = new Date(start);
+    for(let i=-3;i<=12;i++){
+      const p = new Date(anchor);
+      p.setDate(anchor.getDate() + i*cycleLen);
+      for(let j=0;j<periodLen;j++){
+        const d=new Date(p); d.setDate(p.getDate()+j);
+        out.period.add(key(d));
+      }
+      // Approximate high-fertility window: 5 days before ovulation through 1 day after.
+      const ov = new Date(p); ov.setDate(p.getDate()+cycleLen-14);
+      for(let j=-5;j<=1;j++){
+        const d=new Date(ov); d.setDate(ov.getDate()+j);
+        out.fertile.add(key(d));
+      }
+    }
+    return out;
+  }
+  function key(d){
+    return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');
+  }
+  function renderCal(){
+    if(mode.value !== 'female') return;
+    const first = new Date(calMonth.getFullYear(), calMonth.getMonth(), 1);
+    const last = new Date(calMonth.getFullYear(), calMonth.getMonth()+1, 0);
+    title.textContent = first.toLocaleDateString(undefined,{month:'long',year:'numeric'});
+    const pred = predictedDates();
+    grid.innerHTML='';
+    const offset=first.getDay();
+    const total=Math.ceil((offset+last.getDate())/7)*7;
+    const todayKey=key(new Date());
+    for(let i=0;i<total;i++){
+      const d=new Date(first);
+      d.setDate(1 + i-offset);
+      const cell=document.createElement('div');
+      cell.className='cycle-day';
+      if(d.getMonth()!==first.getMonth()) cell.classList.add('muted');
+      const k=key(d);
+      const isP=pred.period.has(k), isF=pred.fertile.has(k);
+      if(isP) cell.classList.add('period');
+      if(isF) cell.classList.add('fertile');
+      if(k===todayKey) cell.classList.add('today');
+      cell.innerHTML='<span>'+d.getDate()+'</span>'+(isP||isF?'<span class="dot"></span>':'');
+      cell.title = isP && isF ? 'Predicted period / high fertility' : isP ? 'Predicted period' : isF ? 'High fertility' : '';
+      grid.appendChild(cell);
+    }
+  }
+  document.getElementById('cyclePrev')?.addEventListener('click',()=>{calMonth.setMonth(calMonth.getMonth()-1);renderCal();});
+  document.getElementById('cycleNext')?.addEventListener('click',()=>{calMonth.setMonth(calMonth.getMonth()+1);renderCal();});
+
+  // Re-render if the existing cycle tracker changes its stored data.
+  window.addEventListener('storage', renderCal);
+  renderCal();
 })();
 </script>
 
