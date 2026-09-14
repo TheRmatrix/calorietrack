@@ -10,7 +10,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="theme-color" content="#0d1422" id="themeColor">
-<title>CalorieTrack</title>
+<title>CalorieTrack 1.2</title>
 
 <style>
 /* ========================= BASE THEME ========================= */
@@ -229,7 +229,7 @@ html.dark .hero-dashboard{background:#0a1020!important}
 <div class="section card"><div class="sectiontitle">Tools & privacy</div><div class="notice">Your data is stored locally in this browser.</div><div class="grid2"><button onclick="backup()">Export backup</button><button class="light" onclick="document.getElementById('restore').click()">Restore backup</button></div><input id="restore" type="file" accept=".json" class="hidden" onchange="restore(event)"><button class="light" onclick="csv()">Export food CSV</button></div>
 </section>
 </div>
-<div class="app-version">CalorieTrack v1.1</div>
+<div class="app-version">CalorieTrack 1.2</div>
 </div>
 
 <nav class="bottom"><button onclick="go('pageToday',this)" class="active">Today</button><button onclick="go('pageProgress',this)">Progress</button><button onclick="go('pageFood',this)">Food</button><button onclick="go('pageWorkout',this)">Workout</button><button onclick="go('pageGoals',this)">Goals</button><button onclick="goMore(this)">More</button></nav>
@@ -362,6 +362,48 @@ async function fetchOFFBarcode(code,domain='world.openfoodfacts.org'){
   return {food:foodFromOFF(j.product,code),productType:j.product_type||'food'};
 }
 
+
+/* ============================================================
+   SECONDARY FOOD SOURCE — USDA FOODDATA CENTRAL
+   Open Food Facts remains the primary source. USDA is used as a
+   fallback for barcode/text searches, especially branded products.
+   The public DEMO_KEY is rate-limited, so CalorieTrack never depends
+   on it being available; manual entry and OFF remain fallbacks.
+   ============================================================ */
+const USDA_API='https://api.nal.usda.gov/fdc/v1';
+const USDA_KEY='DEMO_KEY';
+function foodFromUSDA(food,barcode=''){
+  const nutrients=Array.isArray(food?.foodNutrients)?food.foodNutrients:[];
+  const val=(ids)=>{
+    const n=nutrients.find(x=>ids.includes(Number(x.nutrientId)));
+    return Number(n?.value)||0;
+  };
+  const code=String(barcode||food?.gtinUpc||'').replace(/\D/g,'');
+  return {
+    name:String(food?.description||'USDA food').trim(),
+    k:val([1008]), p:val([1003]), c:val([1005]), f:val([1004]),
+    fi:val([1079]), s:val([2000]), sa:val([1258]),
+    barcode:code, source:'USDA FoodData Central', brand:String(food?.brandOwner||food?.brandName||'').trim()
+  };
+}
+async function fetchUSDAByBarcode(code){
+  const url=USDA_API+'/foods/search?api_key='+encodeURIComponent(USDA_KEY)+'&query='+encodeURIComponent(code)+'&pageSize=25&dataType=Branded,Foundation,SR%20Legacy';
+  const res=await fetch(url,{headers:{Accept:'application/json'}});
+  if(!res.ok)throw new Error('USDA search failed');
+  const j=await res.json();
+  const foods=Array.isArray(j.foods)?j.foods:[];
+  const wanted=normalizeBarcodeCandidates(code);
+  const exact=foods.find(f=>wanted.includes(String(f.gtinUpc||'').replace(/\D/g,'')));
+  return exact?foodFromUSDA(exact,exact.gtinUpc):null;
+}
+async function searchUSDA(q){
+  const url=USDA_API+'/foods/search?api_key='+encodeURIComponent(USDA_KEY)+'&query='+encodeURIComponent(q)+'&pageSize=12&dataType=Branded,Foundation,SR%20Legacy';
+  const res=await fetch(url,{headers:{Accept:'application/json'}});
+  if(!res.ok)throw new Error('USDA search failed');
+  const j=await res.json();
+  return (Array.isArray(j.foods)?j.foods:[]).map(f=>foodFromUSDA(f,f.gtinUpc||''));
+}
+
 async function searchOFF(){
   const q=(document.getElementById('foodQ')?.value||'').trim();
   const r=document.getElementById('foodResults');
@@ -387,6 +429,12 @@ async function searchOFF(){
       }
     }
     pendingSearchFoods=products.map(p=>foodFromOFF(p,p.code||''));
+    // Add USDA results as a secondary source, de-duplicating by barcode/name.
+    try{
+      const usda=await searchUSDA(q);
+      const seenFood=new Set(pendingSearchFoods.map(f=>(f.barcode||f.name).toLowerCase()));
+      usda.forEach(f=>{const key=(f.barcode||f.name).toLowerCase();if(!seenFood.has(key)){seenFood.add(key);pendingSearchFoods.push(f)}});
+    }catch(_){/* OFF results remain usable if USDA is unavailable. */}
     if(!pendingSearchFoods.length){r.innerHTML='<div class="notice"><b>No product found.</b><br>Try another name, scan the barcode, or add it manually. Anything you add manually can be remembered on this device.</div>';return}
     r.innerHTML=pendingSearchFoods.map((food,i)=>`<div class="listrow"><div><div class="foodname">${esc(food.name)}</div><div class="foodmeta">${Math.round(food.k)} kcal / 100g${food.barcode?' · '+esc(food.barcode):''}</div></div><button class="sm" type="button" onclick="selectSearchFood(${i})">Add</button></div>`).join('');
   }catch(e){console.error(e);r.innerHTML='<div class="notice">The food databases could not be reached. Try again or use Custom food.</div>'}
@@ -546,6 +594,12 @@ async function barcode(code){
           }
         }catch(_){/* Try the next database/region. */}
       }
+      // Secondary branded/reference lookup, following the multi-source model
+      // used by OpenNutriTracker and Fareloch.
+      try{
+        const usdaFood=await fetchUSDAByBarcode(candidate);
+        if(usdaFood){cacheFood(usdaFood);useOFF(usdaFood);return;}
+      }catch(_){/* Continue to manual entry if USDA is unavailable. */}
     }
     if(r)r.innerHTML='<div class="notice"><b>Barcode '+esc(candidates[0]||code)+' was read successfully.</b><br>It was not found in the available databases.<br><br><button type="button" onclick="manualProductFromBarcode('+JSON.stringify(candidates[0]||code)+')">＋ Add this product manually</button></div>';
   }catch(e){
@@ -595,7 +649,9 @@ function syncWeightHistory(){
 }
 
 function getLatestWeight(){
+  const before=JSON.stringify(S.weightHistory||[]);
   syncWeightHistory();
+  if(JSON.stringify(S.weightHistory||[])!==before){try{save()}catch(_){}}
   const today=localDateKey();
   const todayWeight=Number(S.days?.[today]?.weight);
   if(Number.isFinite(todayWeight)&&todayWeight>0) return {weight:todayWeight,date:today};
@@ -798,8 +854,19 @@ function setHeaderMode(v){
   const e=document.getElementById('sex'); if(e){e.value=v; saveProfile();}
   S.profile.sex=v; save(); updateMode(); renderAll();
 }
+function refreshHomeWeight(){
+  try{
+    syncWeightHistory();
+    const latest=getLatestWeight();
+    const homeW=byId('homeWeight'),homeWM=byId('homeWeightMeta');
+    if(homeW)homeW.textContent=latest?Number(latest.weight).toFixed(1)+' kg':'-- kg';
+    if(homeWM)homeWM.textContent=latest?'Latest weigh-in · '+latest.date:'No entry yet';
+  }catch(e){console.error('Home weight render error:',e)}
+}
 function renderHomeExtras(){
   const x=sums(), d=D(), p=S.profile;
+  // Render weight independently so another home widget can never hide a saved weigh-in.
+  refreshHomeWeight();
   const hp=document.getElementById('hp'),hc=document.getElementById('hc'),hf=document.getElementById('hf');
   const sm=getSuggestedMacros(),proteinGoal=+p.proteinGoal||sm.protein,carbGoal=+p.carbsGoal||sm.carbs,fatGoal=+p.fatGoal||sm.fat;
   if(hp)hp.textContent=Math.round(x.p)+' / '+proteinGoal+' g';
@@ -811,12 +878,6 @@ function renderHomeExtras(){
   const wt=document.getElementById('waterTxt'),wf=document.getElementById('waterFill'),wg=+p.waterGoal||1;
   if(wt)wt.textContent=((d.water||0)/1000).toFixed(1)+' L / '+(wg/1000).toFixed(1)+' L';
   if(wf)wf.style.width=Math.min(100,(d.water||0)/wg*100)+'%';
-  // Weight card: use the dedicated weight history as the source of truth.
-  // Older entries stored on daily records are imported so upgrades don't lose data.
-  const latest=getLatestWeight();
-  const homeW=byId('homeWeight'),homeWM=byId('homeWeightMeta');
-  if(homeW)homeW.textContent=latest?latest.weight.toFixed(1)+' kg':'-- kg';
-  if(homeWM)homeWM.textContent=latest?'Latest weigh-in · '+latest.date:'No entry yet';
   const names=['Creatine','Vitamin D3','Vitamin C','Magnesium','Zinc','Iron','B12','Omega-3','Multivitamin'],taken=names.filter(n=>S.supps[n]).length;
   if(document.getElementById('homeSupps'))document.getElementById('homeSupps').textContent=taken+' / '+names.length+' taken';
   if(document.getElementById('homeSuppBar'))document.getElementById('homeSuppBar').style.width=(taken/names.length*100)+'%';

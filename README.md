@@ -1,58 +1,22 @@
-# CalorieTrack 1.0
+# CalorieTrack 1.2
 
-CalorieTrack 1.0 is the new stable release line for the CalorieTrack web app.
+CalorieTrack is a local-first, iPhone-friendly nutrition tracker designed for GitHub Pages.
 
-## Release numbering
+## 1.2 highlights
 
-This release resets the project to **1.0**. Future releases will use:
+- Multi-source food lookup using Open Food Facts first and USDA FoodData Central as a secondary source.
+- Barcode lookup checks the local CalorieTrack product cache, global/regional Open Food Facts endpoints, then USDA branded/reference data.
+- Search combines Open Food Facts and USDA results with duplicate removal.
+- Common EAN/UPC barcode representations are normalized before lookup.
+- Products manually added after an unsuccessful scan are cached locally for future scans.
+- Home weight card is tied to the same dedicated weight history used by Progress.
+- Legacy daily weight records are migrated into the dedicated weight history.
+- Existing CalorieTrack local data is preserved.
 
-- 1.1 — feature/fix update
-- 1.2 — feature/fix update
-- 1.3 — feature/fix update
-- etc.
+## Data/privacy note
 
-We will no longer use the old v41/v42-style numbering for normal releases.
+Personal tracking data remains in the browser's local storage. Food lookups require network requests to the selected external food databases. USDA's public `DEMO_KEY` is used only as a best-effort secondary fallback and may be rate limited; the app never depends on it and manual entry remains available.
 
-## Design and architecture direction
+## Versioning
 
-The functionality roadmap is informed by the open-source nutrition tracker OpenNutriTracker, while the CalorieTrack implementation remains a web-first HTML/CSS/JavaScript application and keeps the existing CalorieTrack UI.
-
-OpenNutriTracker: https://github.com/simonoppowa/OpenNutriTracker
-
-CalorieTrack is not copying Flutter source code from OpenNutriTracker. Equivalent functionality is implemented for GitHub Pages/Safari using CalorieTrack's own code.
-
-## Included in 1.0
-
-- Calorie and macro tracking
-- Suggested calorie and macro targets
-- Cut / bulk / maintain goals
-- Goal-weight validation
-- Food search
-- Open Food Facts barcode lookup
-- Live barcode scanner
-- Camera Roll barcode scanning
-- Manual barcode entry
-- Custom foods
-- Saved meals
-- Recipes
-- Portion calculator
-- Drink tracking
-- Water tracking
-- Manual steps tracking
-- Weight history and trend
-- Workout tracking and PRs
-- Female menstrual-cycle tracker
-- Supplements
-- Dark mode
-- Local-first storage
-- JSON backup/restore
-- CSV food export
-- iPhone/Safari-focused UI
-
-## Privacy
-
-Personal tracker data is stored locally in the browser. There is no CalorieTrack account or central diary database.
-
-
-## v1.1 food lookup
-CalorieTrack now uses a multi-source/fallback food lookup strategy. Open Food Facts remains the primary open database, with global and regional endpoints for Chile, South America and Europe, barcode normalization, local barcode caching, and a manual save path for products that are not found.
+Release numbering now starts at 1.0 and increments as 1.1, 1.2, 1.3, etc.
