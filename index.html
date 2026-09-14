@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="theme-color" content="#0d1422" id="themeColor">
 <title>CalorieTrack</title>
-<script src="https://cdn.jsdelivr.net/npm/html5-qrcode@2.3.8/html5-qrcode.min.js" defer></script>
+<script src="https://cdn.jsdelivr.net/npm/@ericblade/quagga2@1.10.6/dist/quagga.min.js" defer></script>
 <style>
 :root{--bg:#f7f9fc;--card:#fff;--ink:#172033;--muted:#7b8496;--line:#e9edf3;--blue:#2d6cdf;--blue2:#edf4ff;--navy:#182238;--teal:#d9f4ee;--tealink:#08786f;--red:#ffe1e7;--redink:#a51f3d;--green:#27a66f;--shadow:0 8px 28px rgba(25,42,70,.06)}
 *{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--ink);font-family:-apple-system,BlinkMacSystemFont,"SF Pro Display","Segoe UI",sans-serif}body.dark{--bg:#0d1422;--card:#151e2e;--ink:#f5f7fb;--muted:#a9b2c2;--line:#283448;--blue2:#1c2c4a;--navy:#0a1020;--teal:#173b3a;--tealink:#70d8c9;--red:#49202c;--redink:#ff9eb4;--shadow:none}
@@ -265,101 +265,145 @@ async function searchOFF(){let q=document.getElementById('foodQ').value.trim();i
 function useOFF(f){openM('Amount eaten',`<div class="notice">Nutrition is per 100g.</div><label>Grams<input id="offg" type="number" value="100"></label><button onclick="addOFF(${JSON.stringify(f)})">Add</button>`)}
 function addOFF(f){let g=+offg.value||100,m=g/100;addFood({...f,name:f.name+' ('+g+'g)',k:f.k*m,p:f.p*m,c:f.c*m,f:f.f*m,fi:f.fi*m,s:f.s*m,sa:f.sa*m})}
 async function scan(){
-  openM('Scan barcode',`
-    <div class="scanner-help">
-      <b>Point your camera at the barcode</b>
-      <div class="notice">Use the rear camera. Keep the barcode inside the box and hold the phone steady.</div>
-    </div>
-    <div id="reader"></div>
-    <div id="scanStatus" class="notice" style="margin-top:10px">Starting camera…</div>
-    <div class="grid2" style="margin-top:8px">
-      <button class="light" onclick="stopScanner()">Stop camera</button>
-      <button class="light" onclick="document.getElementById('barcodePhoto').click()">🖼️ Camera Roll</button>
-    </div>
-    <input id="barcodePhoto" type="file" accept="image/*" class="hidden" onchange="scanBarcodePhoto(event)">
-  `);
+  openM('Scan supermarket barcode',`<div class="scanner-help"><b>Scan a supermarket barcode</b><div class="notice">Use a normal EAN/UPC barcode. Fill the box with the black bars, keep the phone steady, and move closer/farther until it focuses.</div></div><div id="reader" style="width:100%;min-height:260px;overflow:hidden;border-radius:16px;background:#111"></div><div id="scanStatus" class="notice" style="margin-top:10px">Starting camera…</div><div class="grid2" style="margin-top:8px"><button class="light" onclick="stopScanner()">Stop camera</button><button class="light" onclick="document.getElementById('barcodePhoto').click()">🖼️ Camera Roll</button></div><input id="barcodePhoto" type="file" accept="image/*" class="hidden" onchange="scanBarcodePhoto(event)"><div style="margin-top:10px"><input id="manualBarcode" inputmode="numeric" autocomplete="off" placeholder="Enter barcode manually"><button class="light" onclick="manualBarcode()">Enter barcode</button></div>`);
   const status=document.getElementById('scanStatus');
-  if(!window.Html5Qrcode){
-    status.textContent='Scanner library is still loading. Close this window and try again in a few seconds.';
-    return;
-  }
+  if(!window.Quagga){status.innerHTML='<b>Scanner library is still loading.</b><br>Close this window and try again in a few seconds.';return;}
   try{
-    window._scanner=new Html5Qrcode("reader");
-    const config={
-      fps:10,
-      qrbox:(w,h)=>({width:Math.min(280,Math.floor(w*0.82)),height:Math.min(150,Math.floor(h*0.45))}),
-      aspectRatio:1.777,
-      formatsToSupport:[
-        Html5QrcodeSupportedFormats.EAN_13,
-        Html5QrcodeSupportedFormats.EAN_8,
-        Html5QrcodeSupportedFormats.UPC_A,
-        Html5QrcodeSupportedFormats.UPC_E,
-        Html5QrcodeSupportedFormats.CODE_128
-      ],
-      rememberLastUsedCamera:true
+    await startQuaggaScanner(status);
+  }catch(e){console.error(e);status.innerHTML='<b>Could not start the scanner.</b><br>Make sure camera permission is allowed and you are using the HTTPS GitHub Pages address.';}
+}
+
+function startQuaggaScanner(status){
+  return new Promise((resolve,reject)=>{
+    const target=document.getElementById('reader');
+    if(!target) return reject(new Error('Scanner target missing'));
+    let finished=false;
+    const readers=['ean_reader','ean_8_reader','upc_reader','upc_e_reader','code_128_reader'];
+    const config={inputStream:{name:'Live',type:'LiveStream',target:target,constraints:{facingMode:{ideal:'environment'},width:{ideal:1280,min:640},height:{ideal:720,min:480},aspectRatio:{ideal:1.7778}},area:{top:'15%',right:'5%',left:'5%',bottom:'15%'}},locator:{patchSize:'medium',halfSample:true},numOfWorkers:2,frequency:10,decoder:{readers:readers,multiple:false},locate:true};
+    const cleanup=()=>{try{Quagga.offDetected(onDetected);Quagga.offProcessed(onProcessed)}catch(_){} };
+    const onDetected=result=>{
+      if(finished)return;
+      const code=result&&result.codeResult&&result.codeResult.code;
+      const format=result&&result.codeResult&&result.codeResult.format;
+      const digits=String(code||'').replace(/\D/g,'');
+      if(!digits || digits.length<8 || digits.length>14)return;
+      finished=true;cleanup();
+      status.textContent='Barcode found: '+digits+' — looking up product…';
+      try{Quagga.stop()}catch(_){}
+      barcode(digits);
     };
-    await window._scanner.start({facingMode:{exact:"environment"}},config,
-      async code=>{
-        status.textContent='Barcode found: '+code+' — looking up product…';
-        await stopScanner();
-        await barcode(code);
-      },
-      errorMessage=>{
-        if(status && !status.textContent.includes('Barcode found')) status.textContent='Camera is active — line up the barcode inside the box.';
-      }
-    );
-    status.textContent='Camera ready. Point it at a barcode.';
-  }catch(e){
-    console.error(e);
-    // Some iPhones reject the exact environment constraint; retry with a generic camera request.
-    try{
-      if(window._scanner){
-        try{await window._scanner.clear()}catch(_){}
-      }
-      window._scanner=new Html5Qrcode("reader");
-      await window._scanner.start(
-        {facingMode:"environment"},
-        {fps:10,qrbox:250,rememberLastUsedCamera:true},
-        async code=>{
-          status.textContent='Barcode found: '+code+' — looking up product…';
-          await stopScanner();
-          await barcode(code);
-        }
-      );
-      status.textContent='Camera ready. Point it at a barcode.';
-    }catch(e2){
-      console.error(e2);
-      status.innerHTML='<b>Could not start the camera.</b><br>Make sure Safari/Brave has camera permission for this website, then reload the page. Also make sure you are opening the GitHub Pages HTTPS address, not a local file.';
-    }
-  }
+    const onProcessed=result=>{
+      if(!status||finished)return;
+      status.textContent='Camera active — align the black barcode bars inside the box. Scanning…';
+    };
+    try{Quagga.offDetected(onDetected);Quagga.offProcessed(onProcessed)}catch(_){}
+    Quagga.onDetected(onDetected);Quagga.onProcessed(onProcessed);
+    Quagga.init(config,err=>{
+      if(err){cleanup();reject(err);return;}
+      Quagga.start();
+      window._scanner={stop:()=>{finished=true;cleanup();try{Quagga.stop()}catch(_){}},quagga:true};
+      status.textContent='Camera ready — hold the supermarket barcode inside the box.';
+      resolve();
+    });
+  });
 }
+
+function manualBarcode(){const el=document.getElementById('manualBarcode');const code=(el&&el.value||'').replace(/\D/g,'');if(code.length>=8)barcode(code);else alert('Please enter a valid supermarket barcode (usually 8–14 digits).');}
 async function stopScanner(){
-  if(window._scanner){
-    try{await window._scanner.stop()}catch(_){}
-    try{await window._scanner.clear()}catch(_){}
-    window._scanner=null;
+  if(window._scanner&&window._scanner.stop){try{await window._scanner.stop()}catch(_){} }
+  else {try{Quagga&&Quagga.stop()}catch(_){}
+    try{Quagga&&Quagga.offDetected()}catch(_){} try{Quagga&&Quagga.offProcessed()}catch(_){}
   }
+  window._scanner=null;
 }
-async function scanBarcodePhoto(event){
-  const file=event.target.files && event.target.files[0];
-  if(!file || !window.Html5Qrcode)return;
+
+async function barcode(code){let r=document.getElementById('scanResult');if(r)r.innerHTML='<div class="notice">Looking up '+esc(code)+'…</div>';try{let res=await fetch('https://world.openfoodfacts.org/api/v3/product/'+encodeURIComponent(code)+'.json?fields=product_name,brands,serving_size,nutriments',{headers:{'Accept':'application/json'}});if(!res.ok)throw new Error('HTTP '+res.status);let j=await res.json();let p=j.product||{},n=p.nutriments||{};if(!p.product_name)throw new Error('Product not found');useOFF({name:(p.brands?p.brands+' ':'')+p.product_name,k:+(n['energy-kcal_100g']||n['energy-kcal_value']||0),p:+(n.proteins_100g||0),c:+(n.carbohydrates_100g||0),f:+(n.fat_100g||0),fi:+(n.fiber_100g||0),s:+(n.sugars_100g||0),sa:+(n['saturated-fat_100g']||0)})}catch(e){if(r)r.innerHTML='<div class="notice"><b>Product not found.</b><br>This barcode may not be in Open Food Facts yet. Try Search Food or Custom Food.</div>'}}
+function portion(){openM('Portion calculator',`<div class="grid2"><label>Package amount (g)<input id="pg" type="number"></label><label>Amount eaten (g)<input id="eg" type="number"></label><label>Package kcal<input id="pk" type="number"></label><label>Package protein<input id="pp" type="number"></label><label>Package carbs<input id="pc" type="number"></label><label>Package fat<input id="pf" type="number"></label></div><button onclick="calcPortion()">Calculate</button><div id="por"></div>`)}
+function calcPortion(){let m=(+eg.value||0)/(+pg.value||1);por.innerHTML=`<div class="card"><b>${Math.round((+pk.value||0)*m)} kcal</b><br>Protein ${Math.round((+pp.value||0)*m*10)/10}g · Carbs ${Math.round((+pc.value||0)*m*10)/10}g · Fat ${Math.round((+pf.value||0)*m*10)/10}g</div>`}
+function drinkForm(){openM('Add drink',`<div class="grid2"><label>Name<input id="dn"></label><label>Calories<input id="dk" type="number"></label><label>Volume (ml)<input id="dm" type="number"></label></div><button onclick="D().drinks.push({name:dn.value,k:+dk.value||0,ml:+dm.value||0});save();closeModal();renderToday()">Add drink</button>`)}
+function weighIn(){openM('Weigh in',`<label>Weight (kg)<input id="wi" type="number" step=".1" value="${S.profile.weight}"></label><button onclick="D().weight=+wi.value;S.profile.weight=+wi.value;save();closeModal();renderAll()">Save</button>`)}
+function renderProgress(){let rows=Object.entries(S.days).filter(([,d])=>d.weight).sort((a,b)=>a[0].localeCompare(b[0]));let last=rows.at(-1)?.[1].weight, recent=rows.slice(-7).map(x=>x[1].weight);latestW.textContent=last?last.toFixed(1)+' kg':'—';avgW.textContent=recent.length?(recent.reduce((a,b)=>a+b,0)/recent.length).toFixed(1)+' kg':'—';goalW.textContent=(S.profile.goalWeight||0)+' kg';changeW.textContent=rows.length>1?((last-rows[0][1].weight)>0?'+':'')+(last-rows[0][1].weight).toFixed(1)+' kg':'—';weightRows.innerHTML=rows.slice().reverse().map(([d,x])=>`<div class="listrow"><span>${d}</span><b>${x.weight.toFixed(1)} kg</b></div>`).join('')||'<div class="notice">Log a weigh-in to see your trend.</div>';drawWeight(rows);let ds=Object.values(S.days).slice(-7),k=ds.reduce((a,d)=>{let x=d.foods.reduce((s,f)=>s+(+f.k||0),0);a.k+=x;a.p+=d.foods.reduce((s,f)=>s+(+f.p||0),0);a.w+=d.water||0;return a},{k:0,p:0,w:0});weekStats.innerHTML=`<div class="kpis"><div class="kpi"><b>${ds.length?Math.round(k.k/ds.length):0}</b><span>Avg kcal</span></div><div class="kpi"><b>${ds.length?Math.round(k.p/ds.length):0}g</b><span>Avg protein</span></div><div class="kpi"><b>${ds.length?Math.round(k.w/ds.length):0}</b><span>Avg water</span></div><div class="kpi"><b>${S.workouts.filter(w=>w.date>=new Date(Date.now()-6*864e5).toISOString().slice(0,10)).length}</b><span>Workouts</span></div></div>`;progressTraining.innerHTML=S.workouts.slice(-5).reverse().map(w=>`<div class="listrow"><span><b>${esc(w.name||'Workout')}</b><br><span class="foodmeta">${w.date} · ${esc(w.muscles||'')}</span></span><span>${w.duration||0} min</span></div>`).join('')||'<div class="notice">No workouts yet.</div>'}
+function drawWeight(rows){let c=document.getElementById('weightCanvas'),x=c.getContext('2d'),w=c.width=c.clientWidth*2,h=c.height=c.clientHeight*2;x.clearRect(0,0,w,h);if(rows.length<2)return;let vals=rows.map(r=>r[1].weight),mn=Math.min(...vals)-1,mx=Math.max(...vals)+1;x.beginPath();rows.forEach((r,i)=>{let px=20+i*(w-40)/(rows.length-1),py=h-20-(r[1].weight-mn)/(mx-mn)*(h-40);i?x.lineTo(px,py):x.moveTo(px,py)});x.strokeStyle=getComputedStyle(document.body).getPropertyValue('--blue');x.lineWidth=6;x.stroke()}
+function mealForm(){openM('Saved meal',`<label>Name<input id="mn"></label><div class="notice">Save the foods currently in today's diary as a meal.</div><button onclick="S.meals.push({name:mn.value,foods:JSON.parse(JSON.stringify(D().foods))});save();closeModal();renderFood()">Save meal</button>`)}
+function recipeForm(){openM('Recipe builder',`<label>Recipe name<input id="rn"></label><label>Servings<input id="rs" type="number" value="1"></label><div class="notice">Uses the foods currently in today's diary as ingredients. Save it and later add a serving.</div><button onclick="S.recipes.push({name:rn.value,servings:+rs.value||1,foods:JSON.parse(JSON.stringify(D().foods))});save();closeModal();renderFood()">Save recipe</button>`)}
+function renderFood(){favourites.innerHTML=S.foods.slice(0,12).map((f,i)=>`<div class="listrow"><div><div class="foodname">${esc(f.name)}</div><div class="foodmeta">${Math.round(f.k)} kcal</div></div><button class="sm" onclick="addFood(${JSON.stringify(f)})">Add</button></div>`).join('')||'<div class="notice">Your favourites will appear here.</div>';meals.innerHTML=S.meals.map((m,i)=>`<div class="listrow"><span class="foodname">${esc(m.name)}</span><button class="sm" onclick="addMeal(${i})">Add</button></div>`).join('')||'<div class="notice">No saved meals.</div>';recipes.innerHTML=S.recipes.map((r,i)=>`<div class="listrow"><span><b>${esc(r.name)}</b><br><span class="foodmeta">${r.servings} serving(s)</span></span><button class="sm" onclick="addRecipe(${i})">Add</button></div>`).join('')||'<div class="notice">No recipes.</div>'}
+function addMeal(i){let m=S.meals[i];m.foods.forEach(f=>addFoodSilent(f));save();renderAll()}function addRecipe(i){let r=S.recipes[i];r.foods.forEach(f=>addFoodSilent({...f,k:f.k/r.servings,p:f.p/r.servings,c:f.c/r.servings,f:f.f/r.servings,fi:f.fi/r.servings,s:f.s/r.servings,sa:f.sa/r.servings}));save();renderAll()}function addFoodSilent(f){D().foods.push({...f,id:Date.now()+Math.random()})}
+function exerciseForm(){openM('Exercise',`<label>Exercise name<input id="en"></label><label>Muscle group<select id="em"><option>Chest</option><option>Back</option><option>Shoulders</option><option>Biceps</option><option>Triceps</option><option>Legs</option><option>Glutes</option><option>Abs/Core</option><option>Calves</option></select></label><button onclick="S.exercises.push({name:en.value,muscle:em.value});save();closeModal();renderWorkout()">Save exercise</button>`)}
+function workoutForm(){openM('Log workout',`<label>Name<input id="wn" value="Workout"></label><label>Muscle groups<input id="wm" placeholder="Chest, triceps"></label><div class="grid2"><label>Duration (min)<input id="wd" type="number"></label><label>Notes<input id="wno"></label></div><h3>Exercises</h3><div id="setRows"></div><button class="light" onclick="addSetRow()">＋ Add exercise set</button><button onclick="saveWorkout()">Save workout</button>`);addSetRow()}
+function addSetRow(){let e=document.getElementById('setRows');if(!e)return;e.insertAdjacentHTML('beforeend',`<div class="grid3" style="margin:7px 0"><input class="sx" placeholder="Exercise"><input class="sr" type="number" placeholder="Reps"><input class="sw" type="number" step=".5" placeholder="kg"></div>`)}
+function saveWorkout(){let rows=[...document.querySelectorAll('#setRows>div')].map(r=>({exercise:r.querySelector('.sx').value,reps:+r.querySelector('.sr').value||0,weight:+r.querySelector('.sw').value||0}));S.workouts.push({date:new Date().toISOString().slice(0,10),name:wn.value,muscles:wm.value,duration:+wd.value||0,notes:wno.value,sets:rows});D().checks.workout=true;save();closeModal();renderAll()}
+function renderWorkout(){workouts.innerHTML=S.workouts.slice().reverse().map((w,i)=>`<div class="listrow"><span><b>${esc(w.name)}</b><br><span class="foodmeta">${w.date} · ${esc(w.muscles||'')} · ${w.duration||0} min · ${w.sets?.length||0} sets</span></span><button class="sm red" onclick="deleteWorkout(${S.workouts.length-1-i})">−</button></div>`).join('')||'<div class="notice">No workouts logged.</div>';let map={};S.workouts.forEach(w=>(w.sets||[]).forEach(s=>{if(s.exercise)map[s.exercise]=Math.max(map[s.exercise]||0,s.weight||0)}));prs.innerHTML=Object.entries(map).map(([n,v])=>`<div class="listrow"><span>${esc(n)}</span><b>${v} kg</b></div>`).join('')||'<div class="notice">Your best weights will appear here.</div>'}
+function deleteWorkout(i){S.workouts.splice(i,1);save();renderWorkout()}
+function saveProfile(){let p=S.profile;['age','height','weight','calGoal','goalWeight','proteinGoal','fibreGoal','waterGoal','stepsGoal'].forEach(k=>{let el=document.getElementById(k);if(el)p[k]=+el.value||0});p.sex=sex.value;p.activity=+activity.value;p.phase=phase.value;save();updateMode();renderAll()}
+function renderGoals(){let p=S.profile;['sex','age','height','weight','activity','phase','calGoal','goalWeight','proteinGoal','fibreGoal','waterGoal','stepsGoal'].forEach(k=>{let e=document.getElementById(k);if(e)e.value=p[k]});updateMode()}
+function calculate(){let p=S.profile,bmr=p.sex==='male'?10*p.weight+6.25*p.height-5*p.age+5:10*p.weight+6.25*p.height-5*p.age-161,maint=bmr*p.activity,goal=p.phase==='cut'?maint-400:p.phase==='bulk'?maint+300:maint;p.calGoal=Math.round(goal);save();renderGoals();calc.textContent='Suggested maintenance: '+Math.round(maint)+' kcal. Suggested '+p.phase+': '+Math.round(goal)+' kcal.'}
+function updateMode(){let female=S.profile.sex==='female';let sec=document.getElementById('pageCycle'),link=document.getElementById('cycleLink');sec.style.display=female?'block':'none';if(link)link.classList.toggle('hidden',!female)}
+let calMonth=new Date();calMonth.setDate(1);
+function moveMonth(n){calMonth.setMonth(calMonth.getMonth()+n);renderCycle()}
+function cycleDates(){let c=S.cycle,s=new Date((c.start||'')+'T00:00:00'),period=new Set(),fertile=new Set();if(isNaN(s))return{period,fertile};let len=+c.cycleLength||28,pl=+c.periodLength||5;for(let i=-3;i<=12;i++){let p=new Date(s);p.setDate(s.getDate()+i*len);for(let j=0;j<pl;j++){let d=new Date(p);d.setDate(p.getDate()+j);period.add(fmt(d))}let ov=new Date(p);ov.setDate(p.getDate()+len-14);for(let j=-5;j<=1;j++){let d=new Date(ov);d.setDate(ov.getDate()+j);fertile.add(fmt(d))}}return{period,fertile}}
+function fmt(d){return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0')}
+function renderCycle(){let sec=document.getElementById('pageCycle');if(S.profile.sex!=='female'){sec.style.display='none';return}else sec.style.display='block';periodStart.value=S.cycle.start||'';cycleLength.value=S.cycle.cycleLength||28;periodLength.value=S.cycle.periodLength||5;symptoms.value=S.cycle.symptoms||'';let first=new Date(calMonth.getFullYear(),calMonth.getMonth(),1),last=new Date(calMonth.getFullYear(),calMonth.getMonth()+1,0);calTitle.textContent=first.toLocaleDateString(undefined,{month:'long',year:'numeric'});let pr=cycleDates(),off=first.getDay(),total=Math.ceil((off+last.getDate())/7)*7,now=fmt(new Date());cycleCal.innerHTML='';for(let i=0;i<total;i++){let d=new Date(first);d.setDate(1+i-off);let k=fmt(d),el=document.createElement('div');el.className='calday'+(d.getMonth()!=first.getMonth()?' muted':'')+(pr.period.has(k)?' period':'')+(pr.fertile.has(k)?' fertile':'')+(k===now?' today':'');el.innerHTML='<span>'+d.getDate()+'</span>'+(pr.period.has(k)||pr.fertile.has(k)?'<span class="dot"></span>':'');cycleCal.appendChild(el)}}
+function saveCycle(){S.cycle={start:periodStart.value,cycleLength:+cycleLength.value||28,periodLength:+periodLength.value||5,symptoms:symptoms.value};save();renderCycle()}
+function renderSupps(){let names=['Creatine','Vitamin D3','Vitamin C','Magnesium','Zinc','Iron','B12','Omega-3','Multivitamin'];supps.innerHTML=names.map(n=>`<label class="check"><input type="checkbox" ${S.supps[n]?'checked':''} onchange="S.supps['${n}']=this.checked;save()"><span>${n}</span></label>`).join('')}
+function backup(){let a=document.createElement('a');a.href=URL.createObjectURL(new Blob([JSON.stringify(S,null,2)],{type:'application/json'}));a.download='calorietrack-backup.json';a.click()}
+function restore(e){let f=e.target.files[0];if(!f)return;let r=new FileReader();r.onload=()=>{try{S=JSON.parse(r.result);save();location.reload()}catch{alert('Invalid backup file')}};r.readAsText(f)}
+function csv(){let lines=['date,food,calories,protein,carbs,fat,fibre,sugar,saturated_fat'];Object.entries(S.days).forEach(([d,x])=>(x.foods||[]).forEach(f=>lines.push([d,f.name,f.k,f.p,f.c,f.f,f.fi,f.s,f.sa].map(v=>'"'+String(v??'').replaceAll('"','""')+'"').join(','))));let a=document.createElement('a');a.href=URL.createObjectURL(new Blob([lines.join('\\n')],{type:'text/csv'}));a.download='calorietrack-food.csv';a.click()}
+document.getElementById('todayDate').textContent=new Date().toLocaleDateString(undefined,{weekday:'long',month:'long',day:'numeric'});
+applyTheme();updateMode();renderAll();
+
+// v21 home dashboard synchronization
+function setHeaderMode(v){
+  const e=document.getElementById('sex'); if(e){e.value=v; saveProfile();}
+  S.profile.sex=v; save(); updateMode(); renderAll();
+}
+function renderHomeExtras(){
+  const x=sums(), d=D(), p=S.profile;
+  const hp=document.getElementById('hp'),hc=document.getElementById('hc'),hf=document.getElementById('hf');
+  if(hp)hp.textContent=Math.round(x.p)+' / '+(+p.proteinGoal||0)+' g';
+  if(hc)hc.textContent=Math.round(x.c)+' / '+Math.round((+p.calGoal||0)*.45/4)+' g';
+  if(hf)hf.textContent=Math.round(x.f)+' / '+Math.round((+p.calGoal||0)*.30/9)+' g';
+  [['hpbar',x.p,+p.proteinGoal||1],['hcbar',x.c,(+p.calGoal||0)*.45/4||1],['hfbar',x.f,(+p.calGoal||0)*.30/9||1]].forEach(a=>{let e=document.getElementById(a[0]);if(e)e.style.width=Math.min(100,a[1]/a[2]*100)+'%'});
+  const miniCal=document.getElementById('miniCal'),miniProtein=document.getElementById('miniProtein'),miniFibre=document.getElementById('miniFibre'),miniWater=document.getElementById('miniWater');
+  if(miniCal)miniCal.textContent=Math.round(x.k); if(miniProtein)miniProtein.textContent=Math.round(x.p)+'g'; if(miniFibre)miniFibre.textContent=Math.round(x.fi)+'g'; if(miniWater)miniWater.textContent=((d.water||0)/1000).toFixed(1)+' L';
+  const wt=document.getElementById('waterTxt'),wf=document.getElementById('waterFill'),wg=+p.waterGoal||1;
+  if(wt)wt.textContent=((d.water||0)/1000).toFixed(1)+' L / '+(wg/1000).toFixed(1)+' L';
+  if(wf)wf.style.width=Math.min(100,(d.water||0)/wg*100)+'%';
+  const ws=document.getElementById('homeWeight'),wm=document.getElementById('homeWeightMeta');
+  let wr=Object.entries(S.days).filter(([,v])=>v.weight).sort((a,b)=>a[0].localeCompare(b[0])); let last=wr.at(-1)?.[1].weight;
+  if(ws)ws.textContent=last?last.toFixed(1)+' kg':'-- kg'; if(wm)wm.textContent=last?'Latest weigh-in':'No entry yet';
+  const names=['Creatine','Vitamin D3','Vitamin C','Magnesium','Zinc','Iron','B12','Omega-3','Multivitamin'],taken=names.filter(n=>S.supps[n]).length;
+  if(document.getElementById('homeSupps'))document.getElementById('homeSupps').textContent=taken+' / '+names.length+' taken';
+  if(document.getElementById('homeSuppBar'))document.getElementById('homeSuppBar').style.width=(taken/names.length*100)+'%';
+  const tw=S.workouts.filter(w=>w.date===new Date().toISOString().slice(0,10)).at(-1);
+  document.getElementById('homeWorkoutName').textContent=tw?.name||'Rest Day';
+  document.getElementById('homeWorkoutMeta').textContent=tw?(tw.muscles||'Workout logged today'):'No workout logged today';
+  const c=d.checks||{}, checks=[['💧','Water',''+((d.water||0)/1000).toFixed(1)+' L / '+(wg/1000).toFixed(1)+' L','water'],['🏋️','Workout',tw?'Done':'Rest Day','workout'],['💊','Supplements',taken+'/'+names.length,'supp'],['🍎','Calories',Math.round(x.k)+' / '+(+p.calGoal||0),'cal']];
+  const hcEl=document.getElementById('homeChecks'); if(hcEl)hcEl.innerHTML=checks.map(q=>{let done=q[3]==='water'?(d.water||0)>=wg:q[3]==='supp'?taken===names.length:q[3]==='cal'?x.k<=p.calGoal&&x.k>0:!!c[q[3]];return `<div class="check-tile ${done?'done':''}"><div class="ci">${q[0]}</div><b>${q[1]}</b><small>${q[2]}</small><div class="check-circle"></div></div>`}).join('');
+}
+const _oldRenderToday=renderToday;
+renderToday=function(){_oldRenderToday();renderHomeExtras();};
+const _oldRenderGoals=renderGoals;
+renderGoals=function(){_oldRenderGoals();const h=document.getElementById('headerSex');if(h)h.value=S.profile.sex||'male';};
+</script>
+</body>
+</htmlasync function scanBarcodePhoto(event){
+  const file=event&&event.target&&event.target.files&&event.target.files[0];
   const status=document.getElementById('scanStatus');
+  if(!file||!window.Quagga){if(status)status.textContent='Scanner library is still loading.';return;}
   if(status)status.textContent='Reading barcode from your photo…';
+  const reader=document.getElementById('reader');
   try{
-    await stopScanner();
-    const readerId='reader';
-    const temp=new Html5Qrcode(readerId);
-    const code=await temp.scanFile(file,true);
-    try{await temp.clear()}catch(_){}
-    if(status)status.textContent='Barcode found: '+code+' — looking up product…';
-    await barcode(code);
-  }catch(e){
-    console.error(e);
-    if(status)status.innerHTML='<b>Couldn’t find a barcode in that photo.</b><br>Try a clear, close-up photo with the whole barcode visible.';
-  }finally{
-    event.target.value='';
-  }
+    const url=URL.createObjectURL(file);
+    Quagga.decodeSingle({src:url,numOfWorkers:0,inputStream:{size:1600,singleChannel:false},locator:{patchSize:'medium',halfSample:false},decoder:{readers:['ean_reader','ean_8_reader','upc_reader','upc_e_reader','code_128_reader']},locate:true},result=>{
+      URL.revokeObjectURL(url);
+      const code=result&&result.codeResult&&result.codeResult.code;
+      const digits=String(code||'').replace(/\D/g,'');
+      if(digits.length>=8){if(status)status.textContent='Barcode found: '+digits+' — looking up product…';barcode(digits)}
+      else if(status)status.innerHTML='<b>Couldn’t detect the barcode.</b><br>Use a clear, close-up photo showing the entire black-and-white barcode.';
+    });
+  }catch(e){console.error(e);if(status)status.textContent='Could not read that photo.';}
 }
+
 async function barcode(code){let r=document.getElementById('scanResult');if(r)r.innerHTML='<div class="notice">Looking up '+esc(code)+'…</div>';try{let res=await fetch('https://world.openfoodfacts.org/api/v3/product/'+encodeURIComponent(code)+'.json?fields=product_name,brands,serving_size,nutriments',{headers:{'Accept':'application/json'}});if(!res.ok)throw new Error('HTTP '+res.status);let j=await res.json();let p=j.product||{},n=p.nutriments||{};if(!p.product_name)throw new Error('Product not found');useOFF({name:(p.brands?p.brands+' ':'')+p.product_name,k:+(n['energy-kcal_100g']||n['energy-kcal_value']||0),p:+(n.proteins_100g||0),c:+(n.carbohydrates_100g||0),f:+(n.fat_100g||0),fi:+(n.fiber_100g||0),s:+(n.sugars_100g||0),sa:+(n['saturated-fat_100g']||0)})}catch(e){if(r)r.innerHTML='<div class="notice"><b>Product not found.</b><br>This barcode may not be in Open Food Facts yet. Try Search Food or Custom Food.</div>'}}
 function portion(){openM('Portion calculator',`<div class="grid2"><label>Package amount (g)<input id="pg" type="number"></label><label>Amount eaten (g)<input id="eg" type="number"></label><label>Package kcal<input id="pk" type="number"></label><label>Package protein<input id="pp" type="number"></label><label>Package carbs<input id="pc" type="number"></label><label>Package fat<input id="pf" type="number"></label></div><button onclick="calcPortion()">Calculate</button><div id="por"></div>`)}
 function calcPortion(){let m=(+eg.value||0)/(+pg.value||1);por.innerHTML=`<div class="card"><b>${Math.round((+pk.value||0)*m)} kcal</b><br>Protein ${Math.round((+pp.value||0)*m*10)/10}g · Carbs ${Math.round((+pc.value||0)*m*10)/10}g · Fat ${Math.round((+pf.value||0)*m*10)/10}g</div>`}
