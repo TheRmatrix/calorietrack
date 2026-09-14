@@ -31,7 +31,7 @@ button,input,select,textarea{font:inherit}button{border:0;background:var(--navy)
 .bottom{position:fixed;z-index:30;bottom:0;left:0;right:0;background:color-mix(in srgb,var(--card) 94%,transparent);backdrop-filter:blur(18px);border-top:1px solid var(--line);padding:7px 6px calc(7px + env(safe-area-inset-bottom));display:flex;justify-content:center;gap:4px}.bottom button{background:transparent;color:var(--muted);padding:8px 9px;font-size:10px}.bottom button.active{color:var(--blue);font-weight:850}
 canvas{width:100%;height:190px;background:var(--blue2);border-radius:15px}
 .calendar{display:grid;grid-template-columns:repeat(7,1fr);gap:5px}.week{display:grid;grid-template-columns:repeat(7,1fr);gap:5px;margin-bottom:5px}.week span{text-align:center;color:var(--muted);font-size:10px;font-weight:750}.calday{min-height:42px;border-radius:12px;background:var(--bg);display:flex;flex-direction:column;align-items:center;justify-content:center;font-size:12px}.calday.muted{opacity:.3}.calday.period{background:var(--red);color:var(--redink);font-weight:800}.calday.fertile{background:var(--teal);color:var(--tealink);font-weight:800}.calday.today{outline:2px solid var(--blue);outline-offset:1px}.dot{width:5px;height:5px;border-radius:50%;background:currentColor;margin-top:3px}.legend{display:flex;gap:14px;flex-wrap:wrap;font-size:11px;color:var(--muted);margin-top:10px}.legend i{display:inline-block;width:10px;height:10px;border-radius:4px;margin-right:5px}.lp{background:var(--red)}.lf{background:var(--teal)}
-.modal{position:fixed;inset:0;background:#0008;z-index:50;padding:14px;overflow:auto}.sheet{max-width:700px;margin:25px auto;background:var(--card);border-radius:24px;padding:17px}.sheethead{display:flex;justify-content:space-between;align-items:center}.sheet h2{margin:0 0 12px}.close{width:38px!important;height:38px!important;padding:0!important;background:var(--blue2)!important;color:var(--ink)!important}
+.modal{position:fixed;inset:0;background:#0008;z-index:50;padding:14px;overflow:auto}.sheet{max-width:700px;margin:25px auto;background:var(--card);border-radius:24px;padding:17px}.sheethead{display:flex;justify-content:space-between;align-items:center}.sheet h2{margin:0 0 12px}.macro-suggestion{margin-top:10px;padding:13px;border:1px dashed var(--line);background:var(--bg);border-radius:16px}.macro-suggestion b{font-size:14px}.macro-suggestion .msgrid{display:grid;grid-template-columns:repeat(3,1fr);gap:7px;margin-top:9px}.macro-suggestion .msitem{background:var(--card);border:1px solid var(--line);border-radius:13px;padding:9px;text-align:center}.macro-suggestion .msitem strong{display:block;font-size:17px}.macro-suggestion .msitem small{color:var(--muted);font-size:10px}.app-version{text-align:center;color:var(--muted);font-size:10px;font-weight:650;padding:20px 0 16px}.close{width:38px!important;height:38px!important;padding:0!important;background:var(--blue2)!important;color:var(--ink)!important}
 @media(max-width:430px){.app{padding-left:11px;padding-right:11px}.brand{font-size:25px}.hero .big{font-size:43px}.grid3{grid-template-columns:1fr 1fr}.bottom button{padding-left:7px;padding-right:7px}}
 </style>
 
@@ -39,7 +39,7 @@ canvas{width:100%;height:190px;background:var(--blue2);border-radius:15px}
 /* ================ IPHONE DASHBOARD DESIGN ==================== */
 body{background:var(--bg)}
 .top{align-items:flex-start;margin:8px 0 18px}.tagline{font-size:13px;color:var(--muted);font-weight:650;margin-top:2px}.head-actions{display:flex;gap:8px;align-items:center}.mode-select{width:auto;min-width:116px;margin:0;padding:11px 12px;border-radius:15px;background:var(--card);border:1px solid var(--line);font-weight:750}
-.hero-dashboard{display:grid;grid-template-columns:1.02fr 1fr;gap:18px;align-items:center;min-height:294px;padding:21px 22px;background:#18243b;border-radius:27px}.hero-left{min-width:0}.hero-left small{font-size:14px;color:#aeb9cb;font-weight:650}.calorie-ring{width:190px;height:190px;border-radius:50%;margin:5px auto 0;background:conic-gradient(#25d39b 0deg 125deg,#394861 125deg 360deg);display:grid;place-items:center;position:relative}.calorie-ring:after{content:"";position:absolute;inset:13px;border-radius:50%;background:#18243b}.calorie-ring>div{position:relative;z-index:1;text-align:center}.calorie-ring strong{display:block;font-size:42px;letter-spacing:-2px}.calorie-ring span{font-size:14px;color:#fff}.hero-total{display:flex;justify-content:space-around;color:#d5dce7;font-size:12px;margin-top:2px}.hero-macros{display:flex;flex-direction:column;gap:22px}.hmrow{display:flex;justify-content:space-between;color:#fff;font-size:13px}.hmrow span{font-size:12px;color:#e2e7ef}.hbar{height:9px;background:#3b4961;border-radius:99px;margin-top:6px;overflow:hidden}.hbar i{display:block;height:100%;width:0;background:#35d7a2;border-radius:99px}.hero-macros>div:nth-child(2) .hbar i{background:#5da4ff}.hero-macros>div:nth-child(3) .hbar i{background:#ffc84a}
+.hero-dashboard{display:grid;grid-template-columns:1.02fr 1fr;gap:18px;align-items:center;min-height:294px;padding:21px 22px;background:#18243b;border-radius:27px}.hero-left{min-width:0}.hero-left small{font-size:14px;color:#aeb9cb;font-weight:650}.calorie-ring{width:190px;height:190px;border-radius:50%;margin:5px auto 0;background:conic-gradient(#25d39b 0deg 0deg,#394861 0deg 360deg);display:grid;place-items:center;position:relative;transition:background .25s ease}.calorie-ring:after{content:"";position:absolute;inset:13px;border-radius:50%;background:#18243b}.calorie-ring>div{position:relative;z-index:1;text-align:center}.calorie-ring strong{display:block;font-size:42px;letter-spacing:-2px}.calorie-ring span{font-size:14px;color:#fff}.hero-total{display:flex;justify-content:space-around;color:#d5dce7;font-size:12px;margin-top:2px}.hero-macros{display:flex;flex-direction:column;gap:22px}.hmrow{display:flex;justify-content:space-between;color:#fff;font-size:13px}.hmrow span{font-size:12px;color:#e2e7ef}.hbar{height:9px;background:#3b4961;border-radius:99px;margin-top:6px;overflow:hidden}.hbar i{display:block;height:100%;width:0;background:#35d7a2;border-radius:99px}.hero-macros>div:nth-child(2) .hbar i{background:#5da4ff}.hero-macros>div:nth-child(3) .hbar i{background:#ffc84a}
 .quick{margin-top:14px}.quick button{height:72px;border-radius:19px;justify-content:flex-start;padding:12px 17px}.quick button span{display:flex;flex-direction:column}.quick button b{font-size:17px}.quick button small{font-size:11px;margin-top:2px;font-weight:550}.primary-action{background:#246ff2;color:#fff}.search-action{background:var(--blue2);color:var(--ink);border:1px solid var(--line)}.qa-icon,.search-icon{font-size:27px!important;margin-right:8px}.search-icon{font-size:34px!important}
 .macro-card{padding:17px}.macro-grid-large{display:grid;grid-template-columns:1fr 1fr;gap:9px}.macro-large{background:var(--blue2);border-radius:20px;padding:17px 15px}.macro-large b{font-size:26px}.macro-large span{display:block;color:var(--muted);font-size:13px;margin-top:4px}
 .stat-strip{display:grid;grid-template-columns:repeat(4,1fr);gap:8px}.mini-stat{background:var(--card);border:1px solid var(--line);border-radius:17px;text-align:center;padding:12px 4px;box-shadow:var(--shadow)}.mini-stat span{display:block;font-size:21px}.mini-stat b{display:block;font-size:17px;margin-top:3px}.mini-stat small{font-size:10px;color:var(--muted)}
@@ -86,7 +86,7 @@ html.dark .card,html.dark .mini-stat,html.dark .sheet,html.dark .info-card,html.
 html.dark input,html.dark select,html.dark textarea{background:#111a29!important;color:#f5f7fb!important;border-color:#344158!important;caret-color:#fff}
 html.dark input::placeholder,html.dark textarea::placeholder{color:#8f9bad!important}
 html.dark .mode-select,html.dark .iconbtn{background:#151e2e!important;color:#f5f7fb!important;border-color:#344158!important}
-html.dark button.light,html.dark .search-action,html.dark .macro-large,html.dark .workout-preview,html.dark .scanner-help,html.dark .kpi,html.dark .macro,html.dark .chip{background:#1c2c4a!important;color:#f5f7fb!important;border-color:#344158!important}
+html.dark .macro-suggestion .msitem{background:#151e2e!important;border-color:#344158!important}html.dark button.light,html.dark .search-action,html.dark .macro-large,html.dark .workout-preview,html.dark .scanner-help,html.dark .kpi,html.dark .macro,html.dark .chip{background:#1c2c4a!important;color:#f5f7fb!important;border-color:#344158!important}
 html.dark .bottom{background:rgba(15,23,38,.97)!important;border-color:#283448!important}
 html.dark .bottom button{background:transparent!important;color:#a9b2c2!important}
 html.dark .bottom button.active{color:#5d9cff!important}
@@ -124,7 +124,7 @@ html.dark .hero-dashboard{background:#0a1020!important}
   <div class="hero hero-dashboard">
     <div class="hero-left">
       <small>Calories remaining</small>
-      <div class="calorie-ring"><div><strong id="remain">0</strong><span>kcal left</span></div></div>
+      <div class="calorie-ring" id="calorieRing"><div><strong id="remain">0</strong><span>kcal left</span></div></div>
       <div class="hero-total"><span id="eaten">0 eaten</span><span id="goalTxt">0 goal</span></div>
     </div>
     <div class="hero-macros">
@@ -208,6 +208,7 @@ html.dark .hero-dashboard{background:#0a1020!important}
 <div class="grid2"><label>Mode<select id="sex" onchange="saveProfile()"><option value="male">Male</option><option value="female">Female</option></select></label><label>Age<input id="age" type="number" onchange="saveProfile()"></label><label>Height (cm)<input id="height" type="number" onchange="saveProfile()"></label><label>Weight (kg)<input id="weight" type="number" step=".1" onchange="saveProfile()"></label><label>Activity<select id="activity" onchange="saveProfile()"><option value="1.2">Sedentary</option><option value="1.375">Light</option><option value="1.55">Moderate</option><option value="1.725">Very active</option><option value="1.9">Athlete</option></select></label><label>Goal<select id="phase" onchange="saveProfile()"><option value="maintain">Maintain</option><option value="cut">Cut</option><option value="bulk">Bulk</option></select></label><label>Calorie target<input id="calGoal" type="number" onchange="saveProfile()"></label><label>Goal weight<input id="goalWeight" type="number" step=".1" onchange="saveProfile()"></label></div>
 <button onclick="calculate()">Calculate suggested target</button><div class="notice" id="calc"></div></div>
 <div class="section card"><div class="sectiontitle">Daily targets</div><div class="grid2"><label>Protein (g)<input id="proteinGoal" type="number" onchange="saveProfile()"></label><label>Fibre (g)<input id="fibreGoal" type="number" onchange="saveProfile()"></label><label>Water (ml)<input id="waterGoal" type="number" onchange="saveProfile()"></label><label>Steps<input id="stepsGoal" type="number" onchange="saveProfile()"></label></div></div>
+<div class="section card"><div class="sectiontitle">Suggested macros</div><div id="macroSuggestions" class="macro-suggestion"></div></div>
 <div id="cycleLink" class="section card hidden"><button onclick="go('pageCycle',this)">📅 Menstrual Cycle</button></div>
 </section>
 
@@ -222,6 +223,7 @@ html.dark .hero-dashboard{background:#0a1020!important}
 <div class="section card"><div class="sectiontitle">Tools & privacy</div><div class="notice">Your data is stored locally in this browser.</div><div class="grid2"><button onclick="backup()">Export backup</button><button class="light" onclick="document.getElementById('restore').click()">Restore backup</button></div><input id="restore" type="file" accept=".json" class="hidden" onchange="restore(event)"><button class="light" onclick="csv()">Export food CSV</button></div>
 </section>
 </div>
+<div class="app-version">CalorieTrack v31</div>
 </div>
 
 <nav class="bottom"><button onclick="go('pageToday',this)" class="active">Today</button><button onclick="go('pageProgress',this)">Progress</button><button onclick="go('pageFood',this)">Food</button><button onclick="go('pageWorkout',this)">Workout</button><button onclick="go('pageGoals',this)">Goals</button><button onclick="goMore(this)">More</button></nav>
@@ -233,8 +235,10 @@ html.dark .hero-dashboard{background:#0a1020!important}
    All app data is kept locally in the browser.
    ============================================================ */
 const KEY='calorietrack_v20';
-const defaults={profile:{sex:'male',age:23,height:180,weight:73,activity:1.55,phase:'maintain',calGoal:2500,goalWeight:73,proteinGoal:150,fibreGoal:30,waterGoal:2500,stepsGoal:8000},settings:{dark:false},days:{},foods:[],meals:[],recipes:[],workouts:[],exercises:[],supps:{},cycle:{start:'',cycleLength:28,periodLength:5,symptoms:''}};
+const defaults={profile:{sex:'male',age:23,height:180,weight:73,activity:1.55,phase:'maintain',calGoal:2500,goalWeight:73,proteinGoal:150,carbsGoal:281,fatGoal:69,fibreGoal:30,waterGoal:2500,stepsGoal:8000},settings:{dark:false},days:{},foods:[],meals:[],recipes:[],workouts:[],exercises:[],supps:{},cycle:{start:'',cycleLength:28,periodLength:5,symptoms:''}};
 let S=JSON.parse(localStorage.getItem(KEY)||'null')||structuredClone(defaults);
+// Backward-compatible migration for older local data.
+S.profile=S.profile||{};if(!('carbsGoal' in S.profile))S.profile.carbsGoal=0;if(!('fatGoal' in S.profile))S.profile.fatGoal=0;
 // Save the current state to localStorage.
 function save(){localStorage.setItem(KEY,JSON.stringify(S))}
 function D(){let d=new Date().toISOString().slice(0,10);if(!S.days[d])S.days[d]={foods:[],drinks:[],water:0,weight:null,steps:0,checks:{}};return S.days[d]}
@@ -261,6 +265,8 @@ function renderAll(){renderToday();renderProgress();renderFood();renderWorkout()
 function renderToday(){
  const x=sums(),g=+S.profile.calGoal||0,d=D(),rem=Math.max(0,g-x.k),pct=g?Math.min(100,x.k/g*100):0;
  document.getElementById('remain').textContent=Math.round(rem);document.getElementById('eaten').textContent=Math.round(x.k)+' eaten';document.getElementById('goalTxt').textContent=g+' goal';document.getElementById('calFill').style.width=pct+'%';
+ // The calorie ring starts empty, fills as food is logged, and is fully green at the calorie goal.
+ const ring=document.getElementById('calorieRing');if(ring){const deg=pct*3.6;ring.style.background=`conic-gradient(#25d39b 0deg ${deg}deg,#394861 ${deg}deg 360deg)`;}
  ['p','c','f','fi','s','sa'].forEach(k=>document.getElementById('m'+k).textContent=Math.round(x[k]*10)/10+'g');
  const wg=+S.profile.waterGoal||0,wp=wg?Math.min(100,d.water/wg*100):0;document.getElementById('waterTxt').textContent=d.water+' / '+wg+' ml';document.getElementById('waterFill').style.width=wp+'%';
  document.getElementById('foodNum').textContent=d.foods.length+' items';
@@ -372,7 +378,43 @@ function deleteWorkout(i){S.workouts.splice(i,1);save();renderWorkout()}
    ============================================================ */
 function saveProfile(){let p=S.profile;['age','height','weight','calGoal','goalWeight','proteinGoal','fibreGoal','waterGoal','stepsGoal'].forEach(k=>{let el=document.getElementById(k);if(el)p[k]=+el.value||0});p.sex=sex.value;p.activity=+activity.value;p.phase=phase.value;save();updateMode();renderAll()}
 function renderGoals(){let p=S.profile;['sex','age','height','weight','activity','phase','calGoal','goalWeight','proteinGoal','fibreGoal','waterGoal','stepsGoal'].forEach(k=>{let e=document.getElementById(k);if(e)e.value=p[k]});updateMode()}
-function calculate(){let p=S.profile,bmr=p.sex==='male'?10*p.weight+6.25*p.height-5*p.age+5:10*p.weight+6.25*p.height-5*p.age-161,maint=bmr*p.activity,goal=p.phase==='cut'?maint-400:p.phase==='bulk'?maint+300:maint;p.calGoal=Math.round(goal);save();renderGoals();calc.textContent='Suggested maintenance: '+Math.round(maint)+' kcal. Suggested '+p.phase+': '+Math.round(goal)+' kcal.'}
+function getSuggestedMacros(){
+  /*
+    Macro suggestion based on the user's current profile.
+    Protein scales with body weight/activity; cutting gets a small protein bump.
+    Fat is kept at a reasonable minimum, then carbs fill the remaining calories.
+  */
+  const p=S.profile,weight=Math.max(0,+p.weight||0),kcal=Math.max(0,+p.calGoal||0);
+  let proteinPerKg=1.6;
+  if(+p.activity>=1.9)proteinPerKg=2.1;
+  else if(+p.activity>=1.725)proteinPerKg=2.0;
+  else if(+p.activity>=1.55)proteinPerKg=1.8;
+  else if(+p.activity>=1.375)proteinPerKg=1.7;
+  if(p.phase==='cut')proteinPerKg=Math.min(2.2,proteinPerKg+0.2);
+  const protein=Math.round(weight*proteinPerKg);
+  const fat=Math.round(Math.max(weight*0.8,kcal*0.25/9));
+  const carbs=Math.max(0,Math.round((kcal-protein*4-fat*9)/4));
+  const fibre=Math.round(kcal*14/1000);
+  return {protein,carbs,fat,fibre};
+}
+function renderMacroSuggestions(){
+  const el=document.getElementById('macroSuggestions');if(!el)return;
+  const m=getSuggestedMacros();
+  el.innerHTML=`<div><b>Based on your weight, activity, goal and calorie target:</b><div class="msgrid"><div class="msitem"><strong>${m.protein}g</strong><small>Protein</small></div><div class="msitem"><strong>${m.carbs}g</strong><small>Carbs</small></div><div class="msitem"><strong>${m.fat}g</strong><small>Fat</small></div></div><div class="notice" style="margin-top:8px">These are starting targets and can be adjusted to suit your preference.</div><button class="light" style="margin-top:9px" onclick="useSuggestedMacros()">Use suggested macros</button></div>`;
+}
+function useSuggestedMacros(){
+  const m=getSuggestedMacros();
+  S.profile.proteinGoal=m.protein;S.profile.carbsGoal=m.carbs;S.profile.fatGoal=m.fat;S.profile.fibreGoal=m.fibre;
+  save();renderGoals();renderAll();
+}
+function calculate(){
+  const p=S.profile;
+  const bmr=p.sex==='male'?10*p.weight+6.25*p.height-5*p.age+5:10*p.weight+6.25*p.height-5*p.age-161;
+  const maint=bmr*p.activity,goal=p.phase==='cut'?maint-400:p.phase==='bulk'?maint+300:maint;
+  p.calGoal=Math.round(goal);
+  const m=getSuggestedMacros();p.proteinGoal=m.protein;p.carbsGoal=m.carbs;p.fatGoal=m.fat;p.fibreGoal=m.fibre;
+  save();renderGoals();calc.textContent='Suggested maintenance: '+Math.round(maint)+' kcal. Suggested '+p.phase+': '+Math.round(goal)+' kcal. Macro targets updated below.';
+}
 function updateMode(){let female=S.profile.sex==='female';let sec=document.getElementById('pageCycle'),link=document.getElementById('cycleLink');sec.style.display=female?'block':'none';if(link)link.classList.toggle('hidden',!female)}
 /* ============================================================
    MENSTRUAL CYCLE CALENDAR
@@ -406,10 +448,11 @@ function setHeaderMode(v){
 function renderHomeExtras(){
   const x=sums(), d=D(), p=S.profile;
   const hp=document.getElementById('hp'),hc=document.getElementById('hc'),hf=document.getElementById('hf');
-  if(hp)hp.textContent=Math.round(x.p)+' / '+(+p.proteinGoal||0)+' g';
-  if(hc)hc.textContent=Math.round(x.c)+' / '+Math.round((+p.calGoal||0)*.45/4)+' g';
-  if(hf)hf.textContent=Math.round(x.f)+' / '+Math.round((+p.calGoal||0)*.30/9)+' g';
-  [['hpbar',x.p,+p.proteinGoal||1],['hcbar',x.c,(+p.calGoal||0)*.45/4||1],['hfbar',x.f,(+p.calGoal||0)*.30/9||1]].forEach(a=>{let e=document.getElementById(a[0]);if(e)e.style.width=Math.min(100,a[1]/a[2]*100)+'%'});
+  const sm=getSuggestedMacros(),proteinGoal=+p.proteinGoal||sm.protein,carbGoal=+p.carbsGoal||sm.carbs,fatGoal=+p.fatGoal||sm.fat;
+  if(hp)hp.textContent=Math.round(x.p)+' / '+proteinGoal+' g';
+  if(hc)hc.textContent=Math.round(x.c)+' / '+carbGoal+' g';
+  if(hf)hf.textContent=Math.round(x.f)+' / '+fatGoal+' g';
+  [['hpbar',x.p,proteinGoal],['hcbar',x.c,carbGoal],['hfbar',x.f,fatGoal]].forEach(a=>{let e=document.getElementById(a[0]);if(e)e.style.width=Math.min(100,a[1]/Math.max(1,a[2])*100)+'%'});
   const miniCal=document.getElementById('miniCal'),miniProtein=document.getElementById('miniProtein'),miniFibre=document.getElementById('miniFibre'),miniWater=document.getElementById('miniWater');
   if(miniCal)miniCal.textContent=Math.round(x.k); if(miniProtein)miniProtein.textContent=Math.round(x.p)+'g'; if(miniFibre)miniFibre.textContent=Math.round(x.fi)+'g'; if(miniWater)miniWater.textContent=((d.water||0)/1000).toFixed(1)+' L';
   const wt=document.getElementById('waterTxt'),wf=document.getElementById('waterFill'),wg=+p.waterGoal||1;
@@ -430,7 +473,7 @@ function renderHomeExtras(){
 const _oldRenderToday=renderToday;
 renderToday=function(){_oldRenderToday();renderHomeExtras();};
 const _oldRenderGoals=renderGoals;
-renderGoals=function(){_oldRenderGoals();const h=document.getElementById('headerSex');if(h)h.value=S.profile.sex||'male';};
+renderGoals=function(){_oldRenderGoals();const h=document.getElementById('headerSex');if(h)h.value=S.profile.sex||'male';renderMacroSuggestions();};
 /* ============================================================
    STARTUP
    Keep startup calls inside this script block.
