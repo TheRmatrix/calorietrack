@@ -223,7 +223,7 @@ html.dark .hero-dashboard{background:#0a1020!important}
 <div class="section card"><div class="sectiontitle">Tools & privacy</div><div class="notice">Your data is stored locally in this browser.</div><div class="grid2"><button onclick="backup()">Export backup</button><button class="light" onclick="document.getElementById('restore').click()">Restore backup</button></div><input id="restore" type="file" accept=".json" class="hidden" onchange="restore(event)"><button class="light" onclick="csv()">Export food CSV</button></div>
 </section>
 </div>
-<div class="app-version">CalorieTrack v34</div>
+<div class="app-version">CalorieTrack v35</div>
 </div>
 
 <nav class="bottom"><button onclick="go('pageToday',this)" class="active">Today</button><button onclick="go('pageProgress',this)">Progress</button><button onclick="go('pageFood',this)">Food</button><button onclick="go('pageWorkout',this)">Workout</button><button onclick="go('pageGoals',this)">Goals</button><button onclick="goMore(this)">More</button></nav>
@@ -358,21 +358,63 @@ async function barcode(code){let r=document.getElementById('scanResult');if(r)r.
 function portion(){openM('Portion calculator',`<div class="grid2"><label>Package amount (g)<input id="pg" type="number"></label><label>Amount eaten (g)<input id="eg" type="number"></label><label>Package kcal<input id="pk" type="number"></label><label>Package protein<input id="pp" type="number"></label><label>Package carbs<input id="pc" type="number"></label><label>Package fat<input id="pf" type="number"></label></div><button onclick="calcPortion()">Calculate</button><div id="por"></div>`)}
 function calcPortion(){let m=(+eg.value||0)/(+pg.value||1);por.innerHTML=`<div class="card"><b>${Math.round((+pk.value||0)*m)} kcal</b><br>Protein ${Math.round((+pp.value||0)*m*10)/10}g · Carbs ${Math.round((+pc.value||0)*m*10)/10}g · Fat ${Math.round((+pf.value||0)*m*10)/10}g</div>`}
 function drinkForm(){openM('Add drink',`<div class="grid2"><label>Name<input id="dn"></label><label>Calories<input id="dk" type="number"></label><label>Volume (ml)<input id="dm" type="number"></label></div><button onclick="D().drinks.push({name:dn.value,k:+dk.value||0,ml:+dm.value||0});save();closeModal();renderToday()">Add drink</button>`)}
-function saveWeighIn(){
-  // Explicitly read the field and save today's weigh-in.
-  const input=document.getElementById('wi');
-  const value=Number.parseFloat(input ? input.value : '');
-  if(!Number.isFinite(value)||value<=0||value>500){alert('Please enter a valid weight.');return}
-  const day=D();
-  day.weight=Math.round(value*10)/10;
-  S.profile.weight=day.weight;
-  save();
-  closeModal();
-  renderAll();
+/* ============================================================
+   WEIGHT TRACKING
+   Weight is stored in BOTH the daily record and a dedicated history
+   array. The history array makes Progress independent of the current
+   day's rendering, so one broken dashboard element cannot hide a saved weigh-in.
+   ============================================================ */
+function ensureWeightHistory(){
+  if(!Array.isArray(S.weightHistory)) S.weightHistory=[];
 }
+
+function saveWeighIn(){
+  const input=document.getElementById('wi');
+  const raw=input ? String(input.value).trim() : '';
+  const value=Number.parseFloat(raw.replace(',','.'));
+  if(!Number.isFinite(value)||value<=0||value>500){
+    alert('Please enter a valid weight between 1 and 500 kg.');
+    return;
+  }
+
+  const weight=Math.round(value*10)/10;
+  const date=localDateKey();
+  ensureWeightHistory();
+
+  // Update today's diary entry.
+  const day=D();
+  day.weight=weight;
+
+  // Add/update the dedicated history record for this date.
+  const existing=S.weightHistory.findIndex(x=>x && x.date===date);
+  const entry={date,weight};
+  if(existing>=0) S.weightHistory[existing]=entry;
+  else S.weightHistory.push(entry);
+  S.weightHistory.sort((a,b)=>a.date.localeCompare(b.date));
+
+  // Keep the profile's current weight synchronized.
+  S.profile.weight=weight;
+
+  try{
+    save();
+  }catch(e){
+    console.error('Could not save weight:',e);
+    alert('The weight could not be saved. Please check that browser storage is available.');
+    return;
+  }
+
+  // Close first, then update the Progress page directly. This prevents
+  // another page renderer from stopping the weight update.
+  closeModal();
+  renderProgress();
+  renderToday();
+  renderHomeExtras();
+}
+
 function weighIn(){
+  ensureWeightHistory();
   const current=Number(S.profile.weight)||'';
-  openM('Weigh in',`<label>Weight (kg)<input id=\"wi\" type=\"number\" step=\"0.1\" min=\"1\" max=\"500\" inputmode=\"decimal\" value=\"${current}\"></label><button onclick=\"saveWeighIn()\">Save weigh-in</button>`);
+  openM('Weigh in',`<label>Weight (kg)<input id=\"wi\" type=\"number\" step=\"0.1\" min=\"1\" max=\"500\" inputmode=\"decimal\" value=\"${current}\" autocomplete=\"off\"></label><button type=\"button\" onclick=\"saveWeighIn()\">Save weigh-in</button>`);
 }
 
 function renderProgress(){
@@ -385,9 +427,19 @@ function renderProgress(){
   const weekEl=document.getElementById('weekStats');
   const trainingEl=document.getElementById('progressTraining');
 
-  const rows=Object.entries(S.days)
-    .filter(([,d])=>d && Number.isFinite(Number(d.weight)) && Number(d.weight)>0)
-    .sort((a,b)=>a[0].localeCompare(b[0]));
+  ensureWeightHistory();
+  // Prefer the dedicated history, while importing any older day-based
+  // weigh-ins so existing user data is never lost.
+  Object.entries(S.days||{}).forEach(([date,d])=>{
+    const w=Number(d&&d.weight);
+    if(Number.isFinite(w)&&w>0 && !S.weightHistory.some(x=>x&&x.date===date)){
+      S.weightHistory.push({date,weight:w});
+    }
+  });
+  S.weightHistory.sort((a,b)=>a.date.localeCompare(b.date));
+  const rows=S.weightHistory
+    .filter(x=>x&&x.date&&Number.isFinite(Number(x.weight))&&Number(x.weight)>0)
+    .map(x=>[x.date,{weight:Number(x.weight)}]);
   const weights=rows.map(([,d])=>Number(d.weight));
   const last=weights.length?weights[weights.length-1]:null;
   const recent=weights.slice(-7);
