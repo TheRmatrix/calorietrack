@@ -17,7 +17,7 @@ button{background:#111827;color:#fff;border:0;font-weight:650}.small{width:auto;
 .tabs{position:fixed;bottom:0;left:0;right:0;background:#fff;border-top:1px solid #ddd;padding:8px;display:flex;justify-content:center;gap:5px;z-index:5}.tabs button{max-width:130px;font-size:12px;padding:9px}
 .page{display:none}.page.active{display:block}.food{padding:10px 0;border-bottom:1px solid #eee}.pill{display:inline-block;padding:5px 8px;background:#eef0f2;border-radius:9px;font-size:12px;margin:3px}
 .micros{display:grid;grid-template-columns:1fr 1fr;gap:8px}.micro{background:#f6f7f8;border-radius:12px;padding:10px;font-size:13px}.micro b{display:block}
-.notice{font-size:12px;color:#6b7280;line-height:1.4}.success{font-weight:650}.danger{font-weight:650}.meal{border:1px solid #eee;padding:10px;border-radius:12px;margin:7px 0}
+.notice{font-size:12px;color:#6b7280;line-height:1.4}.success{font-weight:650}.danger{font-weight:650}.supp{display:grid;grid-template-columns:1fr 1fr;gap:8px}.suppItem{background:#f6f7f8;border-radius:12px;padding:10px}.suppItem label{display:block;font-weight:650;font-size:13px}.suppItem input{margin-top:6px}.meal{border:1px solid #eee;padding:10px;border-radius:12px;margin:7px 0}
 </style>
 </head>
 <body>
@@ -76,8 +76,11 @@ button{background:#111827;color:#fff;border:0;font-weight:650}.small{width:auto;
 </div>
 
 <div id="micro" class="page">
-<section class="card"><h2>Micronutrients</h2><div class="micros" id="micros"></div>
-<p class="notice">General reference targets only. These are not medical recommendations. The current manual-food form does not yet ask for micronutrients; the structure is ready for barcode data in the next upgrade.</p></section>
+<section class="card"><h2>Vitamins & minerals</h2><div class="micros" id="micros"></div>
+<p class="notice">Track amounts from food and supplements. These are tracking fields, not medical recommendations. Iron and other supplements should only be taken when appropriate for you.</p></section>
+
+<section class="card"><h2>Supplements</h2><div class="supp" id="supplements"></div>
+<p class="notice">Log what you actually take each day. Leave a field blank if you did not take it.</p></section>
 </div>
 </main>
 
@@ -85,8 +88,9 @@ button{background:#111827;color:#fff;border:0;font-weight:650}.small{width:auto;
 
 <script>
 const today=()=>new Date().toISOString().slice(0,10);
-const blankDay=()=>({foods:[],water:0,micros:{}});
-let d=JSON.parse(localStorage.calorietrack||'null')||{goal:2000,waterGoal:2000,phase:'maintain',days:{},weights:{},custom:[],meals:[],targetWeight:null};
+const blankDay=()=>({foods:[],water:0,micros:{},supplements:{}});
+let d=JSON.parse(localStorage.calorietrack||'null')||{goal:2000,waterGoal:2000,phase:'maintain',days:{},weights:{},custom:[],meals:[],targetWeight:null,supplements:{}};
+d.supplements??={};
 function day(){d.days[today()]??=blankDay();return d.days[today()]}
 function save(){localStorage.calorietrack=JSON.stringify(d);render()}
 function sum(k){return day().foods.reduce((a,x)=>a+(+x[k]||0),0)}
@@ -149,8 +153,13 @@ function renderPhase(){
 }
 function renderMicros(){
  let names=['Calcium','Iron','Magnesium','Potassium','Zinc','Vitamin C','Vitamin D','Vitamin E','Vitamin K','Vitamin B12','Folate','Sodium'];
- micros.innerHTML=names.map(n=>`<div class="micro"><b>${n}</b><span>${day().micros[n]||0} mg*</span></div>`).join('');
+ let units={Calcium:'mg',Iron:'mg',Magnesium:'mg',Potassium:'mg',Zinc:'mg','Vitamin C':'mg','Vitamin D':'mcg','Vitamin E':'mg','Vitamin K':'mcg','Vitamin B12':'mcg',Folate:'mcg',Sodium:'mg'};
+ micros.innerHTML=names.map(n=>`<div class="micro"><b>${n}</b><input type="number" min="0" step="0.1" value="${day().micros[n]||''}" placeholder="Amount" oninput="setMicro('${n}',this.value)"><span class="sub">${units[n]} today</span></div>`).join('');
+ let list=['Creatine','Vitamin D3','Vitamin C','Magnesium','Zinc','Iron','Vitamin B12','Omega-3','Multivitamin'];
+ supplements.innerHTML=list.map(n=>`<div class="suppItem"><label>${n}</label><input type="number" min="0" step="0.1" value="${day().supplements?.[n]||''}" placeholder="Dose" oninput="setSupplement('${n}',this.value)"></div>`).join('');
 }
+function setMicro(name,value){day().micros[name]=+value||0;localStorage.calorietrack=JSON.stringify(d)}
+function setSupplement(name,value){day().supplements??={};day().supplements[name]=+value||0;localStorage.calorietrack=JSON.stringify(d)}
 function exportData(){
  let blob=new Blob([JSON.stringify(d,null,2)],{type:'application/json'}),a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='calorietrack-data.json';a.click();
 }
@@ -158,4 +167,116 @@ function resetData(){if(confirm('Delete all local app data?')){localStorage.remo
 render();
 if('serviceWorker' in navigator)navigator.serviceWorker.register('sw.js').catch(()=>{});
 </script>
+
+<section class="card" id="dailyChecklist">
+  <h2>Daily Targets & Supplements</h2>
+  <p class="muted">Set targets in Goals, then tick off what you complete each day.</p>
+  <div class="check-grid">
+    <label><input type="checkbox" data-check="calories"> Calories target reached</label>
+    <label><input type="checkbox" data-check="protein"> Protein target reached</label>
+    <label><input type="checkbox" data-check="fibre"> Fibre target reached</label>
+    <label><input type="checkbox" data-check="water"> Water target reached</label>
+    <label><input type="checkbox" data-check="vitd"> Vitamin D</label>
+    <label><input type="checkbox" data-check="creatine"> Creatine</label>
+    <label><input type="checkbox" data-check="magnesium"> Magnesium</label>
+    <label><input type="checkbox" data-check="omega3"> Omega-3</label>
+    <label><input type="checkbox" data-check="multivitamin"> Multivitamin</label>
+  </div>
+</section>
+<style>
+.check-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.check-grid label{padding:10px;border:1px solid #ddd;border-radius:12px}
+.check-grid input{margin-right:8px}
+.muted{opacity:.7}
+</style>
+<script>
+(function(){
+  const key='calorietrack_daily_checks';
+  const day=new Date().toISOString().slice(0,10);
+  let all={}; try{all=JSON.parse(localStorage.getItem(key)||'{}')}catch(e){}
+  all[day]=all[day]||{};
+  document.querySelectorAll('[data-check]').forEach(cb=>{
+    const k=cb.dataset.check;
+    cb.checked=!!all[day][k];
+    cb.addEventListener('change',()=>{
+      all[day][k]=cb.checked;
+      localStorage.setItem(key,JSON.stringify(all));
+    });
+  });
+})();
+</script>
+
+<p class="muted">Female profiles use the same core tracker with female-specific calorie estimation. Menstrual-cycle tracking can be added separately if wanted.</p>
+
+<section class="card" id="cycleTracker">
+  <h2>🌸 Menstrual Cycle</h2>
+  <p class="muted">Optional — this information stays on this device.</p>
+  <div class="form-grid">
+    <label>Period start date
+      <input type="date" id="periodStart">
+    </label>
+    <label>Typical cycle length (days)
+      <input type="number" id="cycleLength" min="15" max="60" value="28">
+    </label>
+    <label>Typical period length (days)
+      <input type="number" id="periodLength" min="1" max="15" value="5">
+    </label>
+    <label>Current symptoms
+      <select id="cycleSymptom">
+        <option value="">None / not tracking</option>
+        <option>Cramping</option>
+        <option>Bloating</option>
+        <option>Headache</option>
+        <option>Fatigue</option>
+        <option>Mood changes</option>
+        <option>Breast tenderness</option>
+        <option>Other</option>
+      </select>
+    </label>
+  </div>
+  <div id="cycleStatus" class="muted" style="margin-top:10px"></div>
+  <button type="button" id="saveCycle">Save cycle information</button>
+</section>
+
+<style>
+.form-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.form-grid label{display:flex;flex-direction:column;gap:5px}
+@media(max-width:600px){.form-grid{grid-template-columns:1fr}}
+</style>
+
+<script>
+(function(){
+  const key='calorietrack_cycle';
+  const get=id=>document.getElementById(id);
+  let d={}; try{d=JSON.parse(localStorage.getItem(key)||'{}')}catch(e){}
+  if(d.start)get('periodStart').value=d.start;
+  if(d.length)get('cycleLength').value=d.length;
+  if(d.periodLength)get('periodLength').value=d.periodLength;
+  if(d.symptom)get('cycleSymptom').value=d.symptom;
+
+  function update(){
+    const start=get('periodStart').value;
+    const len=Math.max(15,Math.min(60,Number(get('cycleLength').value)||28));
+    if(!start){get('cycleStatus').textContent='Add a period start date to see an estimated cycle day and next period.';return}
+    const s=new Date(start+'T00:00:00'), now=new Date();
+    const days=Math.floor((now-s)/86400000);
+    const cycleDay=((days%len)+len)%len+1;
+    const next=new Date(s); next.setDate(next.getDate()+(Math.floor(days/len)+1)*len);
+    const periodEnd=new Date(s); periodEnd.setDate(periodEnd.getDate()+(Number(get('periodLength').value)||5)-1);
+    const phase = cycleDay <= (Number(get('periodLength').value)||5) ? 'Period' :
+      cycleDay < 14 ? 'Follicular phase' :
+      cycleDay <= 16 ? 'Around ovulation' : 'Luteal phase';
+    get('cycleStatus').textContent =
+      'Estimated cycle day '+cycleDay+' • '+phase+' • Next period estimate: '+next.toLocaleDateString();
+  }
+  ['periodStart','cycleLength','periodLength'].forEach(id=>get(id).addEventListener('input',update));
+  get('saveCycle').addEventListener('click',()=>{
+    d={start:get('periodStart').value,length:Number(get('cycleLength').value)||28,
+       periodLength:Number(get('periodLength').value)||5,symptom:get('cycleSymptom').value};
+    localStorage.setItem(key,JSON.stringify(d)); update();
+  });
+  update();
+})();
+</script>
+
 </body></html>
