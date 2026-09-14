@@ -19,12 +19,92 @@ button{background:#111827;color:#fff;border:0;font-weight:650}.small{width:auto;
 .micros{display:grid;grid-template-columns:1fr 1fr;gap:8px}.micro{background:#f6f7f8;border-radius:12px;padding:10px;font-size:13px}.micro b{display:block}
 .notice{font-size:12px;color:#6b7280;line-height:1.4}.success{font-weight:650}.danger{font-weight:650}.supp{display:grid;grid-template-columns:1fr 1fr;gap:8px}.suppItem{background:#f6f7f8;border-radius:12px;padding:10px}.suppItem label{display:block;font-weight:650;font-size:13px}.suppItem input{margin-top:6px}.meal{border:1px solid #eee;padding:10px;border-radius:12px;margin:7px 0}
 </style>
+
+<style>
+:root{
+  --bg:#f5f7fb;--card:#fff;--ink:#111827;--muted:#667085;--line:#e6e9ef;
+  --accent:#2563eb;--accent-soft:#eaf1ff;--nav:#ffffffee;
+  --radius:22px;
+}
+html{scroll-behavior:smooth}
+body{background:var(--bg);color:var(--ink);font-family:-apple-system,BlinkMacSystemFont,"SF Pro Display","SF Pro Text","Segoe UI",sans-serif}
+main{max-width:760px;padding:20px 16px 104px}
+header{padding:6px 4px 14px}
+header h1{font-size:36px;letter-spacing:-1.4px;margin:0 0 3px;font-weight:800}
+.sub,.muted{color:var(--muted)}
+.card{border:1px solid rgba(17,24,39,.06);border-radius:var(--radius);padding:20px;margin:14px 0;box-shadow:0 5px 22px rgba(16,24,40,.06)}
+.hero{background:linear-gradient(145deg,#111827,#182338);border:0;box-shadow:0 10px 28px rgba(17,24,39,.16);padding:22px}
+.hero strong{letter-spacing:-.8px}
+h2{font-size:21px;letter-spacing:-.3px}
+.row{gap:12px}
+.bar{height:11px;background:#e8ebf0;border-radius:999px;margin:12px 0}
+.fill{background:var(--accent)}
+.hero .fill{background:#fff}
+.grid{gap:10px}
+input,select,button{border:1px solid var(--line);border-radius:14px;min-height:46px;padding:11px 13px}
+input,select{background:#fff;color:var(--ink)}
+button{background:var(--ink);color:#fff;border:0;font-weight:700;cursor:pointer;transition:transform .1s,opacity .1s}
+button:active{transform:scale(.98)}
+button:focus-visible,input:focus-visible,select:focus-visible{outline:3px solid #93c5fd;outline-offset:2px}
+.quick-actions{display:grid;grid-template-columns:1.35fr 1fr;gap:10px;margin:4px 0 12px}
+.quick-actions button{min-height:58px;text-align:left;padding:12px 16px;font-size:15px}
+.quick-actions .scan-primary{background:linear-gradient(135deg,#3b82f6,#2563eb);box-shadow:0 7px 18px rgba(37,99,235,.22)}
+.quick-actions .quick-secondary{background:#fff;color:var(--ink);border:1px solid var(--line)}
+#barcodeScanner{margin-top:10px;overflow:hidden}
+#barcodeScanner h2{margin-bottom:5px}
+#barcodeReader{border-radius:16px;overflow:hidden}
+#barcodeReader button{width:auto;margin:5px}
+#productResult{background:var(--accent-soft);border-radius:16px;padding:14px}
+.stats{gap:9px}
+.stat{background:#f4f6f9;border:1px solid #eef0f4;border-radius:16px;padding:12px 4px}
+.stat b{font-size:19px}
+.stat span{font-size:11px}
+.pill{background:#f1f3f6;border:1px solid #eceef2}
+.food{padding:12px 0}
+.food button.small{background:#f1f3f6;color:var(--ink)}
+.tabs{height:76px;padding:10px 10px max(10px,env(safe-area-inset-bottom));gap:6px;background:var(--nav);backdrop-filter:blur(18px);-webkit-backdrop-filter:blur(18px);border-top:1px solid rgba(17,24,39,.08)}
+.tabs button{background:#111827;border-radius:16px;max-width:none;min-height:54px;padding:8px 10px;font-size:13px}
+.page{animation:fade .16s ease}
+@keyframes fade{from{opacity:.6;transform:translateY(3px)}to{opacity:1;transform:none}}
+.notice{color:var(--muted)}
+.supp,.micros{gap:10px}
+.suppItem,.micro{background:#f7f8fa;border:1px solid #eef0f3;border-radius:15px}
+#dailyChecklist,#cycleTracker,#portionCalculator,#drinkTracker,#weeklyReport,#backupRestore,#manageEntries,#quickFoods{border-radius:18px}
+.check-grid{gap:9px}
+.check-grid label{background:#f7f8fa;border:1px solid #eceef2;border-radius:14px}
+canvas{border:1px solid #eef0f4}
+@media(max-width:600px){
+  main{padding-left:12px;padding-right:12px}
+  header h1{font-size:34px}
+  .card{padding:17px;margin:11px 0}
+  .quick-actions{grid-template-columns:1fr 1fr}
+  .stats{grid-template-columns:repeat(2,1fr)}
+  .check-grid{grid-template-columns:1fr}
+}
+@media(prefers-reduced-motion:reduce){
+  *{scroll-behavior:auto!important;animation:none!important;transition:none!important}
+}
+</style>
+
 </head>
 <body>
 <main>
 <header><h1>CalorieTrack</h1><div class="sub">Free calorie, nutrition & progress tracker</div></header>
 
 <div id="home" class="page active">
+<div class="quick-actions">
+  <button class="scan-primary" onclick="document.getElementById('barcodeReader')?.scrollIntoView({behavior:'smooth',block:'center'})">📷 Scan Barcode</button>
+  <button class="quick-secondary" onclick="tab('add')">🔎 Search / Add Food</button>
+</div>
+<section class="card" id="barcodeScanner">
+  <h2>📷 Scan a Barcode</h2>
+  <p class="muted">Works with iPhone Safari using the camera. Scan a packaged food barcode and look it up in Open Food Facts.</p>
+  <div id="barcodeReader" style="width:100%;max-width:520px"></div>
+  <div id="scanStatus" class="muted" style="margin-top:8px">Ready to scan.</div>
+  <div id="productResult" style="display:none;margin-top:12px"></div>
+</section>
+
+<script src="https://unpkg.com/html5-qrcode" type="text/javascript"></script>
 <section class="card hero">
 <div class="row"><div><div class="sub">Today's calories</div><strong id="cal" style="font-size:34px">0</strong> kcal</div>
 <div style="text-align:right"><div class="sub">Target</div><strong id="goal">2000</strong> kcal</div></div>
@@ -37,7 +117,7 @@ button{background:#111827;color:#fff;border:0;font-weight:650}.small{width:auto;
 <p><span class="pill">Sugar <b id="su">0</b>g</span><span class="pill">Sat fat <b id="sa">0</b>g</span></p></section>
 
 <section class="card"><h2>Water</h2><div class="row"><strong><span id="wat">0</span> ml</strong><span class="sub">Goal <span id="watgoal">2000</span> ml</span></div>
-<div class="bar"><div id="watbar" class="fill"></div></div><div class="grid"><button onclick="addWater(250)">+250 ml</button><button type="button" id="removeWater250">−250 ml</button><button onclick="addWater(500)">+500 ml</button><button type="button" id="removeWater500">−500 ml</button></div></section>
+<div class="bar"><div id="watbar" class="fill"></div></div><div class="grid"><button type="button" id="removeWater250">−250 ml</button><button type="button" onclick="addWater(250)">+250 ml</button><button type="button" id="removeWater500">−500 ml</button><button type="button" onclick="addWater(500)">+500 ml</button></div></section>
 
 <section class="card"><h2>Today's food</h2><div id="diary"></div><button onclick="tab('add')">+ Add food</button></section>
 </div>
@@ -567,15 +647,7 @@ if('serviceWorker' in navigator)navigator.serviceWorker.register('sw.js').catch(
 
 
 
-<section class="card" id="barcodeScanner">
-  <h2>📷 Scan a Barcode</h2>
-  <p class="muted">Works with iPhone Safari using the camera. Scan a packaged food barcode and look it up in Open Food Facts.</p>
-  <div id="barcodeReader" style="width:100%;max-width:520px"></div>
-  <div id="scanStatus" class="muted" style="margin-top:8px">Ready to scan.</div>
-  <div id="productResult" style="display:none;margin-top:12px"></div>
-</section>
 
-<script src="https://unpkg.com/html5-qrcode" type="text/javascript"></script>
 <script>
 (function(){
   const $=id=>document.getElementById(id);
@@ -708,6 +780,103 @@ if('serviceWorker' in navigator)navigator.serviceWorker.register('sw.js').catch(
   const b=document.getElementById('removeWater500');
   if(a)a.addEventListener('click',()=>ctRemoveWater(250));
   if(b)b.addEventListener('click',()=>ctRemoveWater(500));
+})();
+</script>
+
+
+<section class="card" id="workoutTracker">
+  <h2>🏋️ Today's Workout</h2>
+  <p class="muted">Choose what you're training today, or mark today as a rest day.</p>
+
+  <div class="quick-actions" style="margin-bottom:12px">
+    <button type="button" class="scan-primary" id="workoutDayBtn">🏋️ Training day</button>
+    <button type="button" class="quick-secondary" id="restDayBtn">😴 Rest day</button>
+  </div>
+
+  <div id="muscleOptions" class="check-grid">
+    <label><input type="checkbox" value="Chest"> Chest</label>
+    <label><input type="checkbox" value="Back"> Back</label>
+    <label><input type="checkbox" value="Shoulders"> Shoulders</label>
+    <label><input type="checkbox" value="Biceps"> Biceps</label>
+    <label><input type="checkbox" value="Triceps"> Triceps</label>
+    <label><input type="checkbox" value="Legs"> Legs</label>
+    <label><input type="checkbox" value="Glutes"> Glutes</label>
+    <label><input type="checkbox" value="Abs / Core"> Abs / Core</label>
+    <label><input type="checkbox" value="Calves"> Calves</label>
+    <label><input type="checkbox" value="Full Body"> Full Body</label>
+  </div>
+
+  <label style="display:block;margin-top:12px">Workout notes
+    <textarea id="workoutNotes" rows="3" placeholder="e.g. Push day, 60 minutes, felt good"></textarea>
+  </label>
+
+  <button type="button" id="saveWorkout" style="margin-top:10px">Save today's workout</button>
+  <div id="workoutStatus" class="muted" style="margin-top:10px"></div>
+</section>
+
+<script>
+(function(){
+  const key='calorietrack_workouts_v1';
+  const day=()=>new Date().toISOString().slice(0,10);
+  let all={}; try{all=JSON.parse(localStorage.getItem(key)||'{}')}catch(e){}
+  const d=day();
+  const boxes=[...document.querySelectorAll('#muscleOptions input')];
+  const notes=document.getElementById('workoutNotes');
+  const status=document.getElementById('workoutStatus');
+
+  function render(){
+    const x=all[d];
+    boxes.forEach(b=>b.checked=!!(x && x.muscles||[]).includes(b.value));
+    notes.value=x?.notes||'';
+    status.textContent=x?.rest ? '😴 Rest day saved for today.' :
+      x?.muscles?.length ? '🏋️ Training: '+x.muscles.join(', ') : 'No workout selected yet.';
+  }
+  document.getElementById('restDayBtn').onclick=()=>{
+    all[d]={rest:true,muscles:[],notes:''};
+    localStorage.setItem(key,JSON.stringify(all)); render();
+  };
+  document.getElementById('workoutDayBtn').onclick=()=>{
+    if(all[d]?.rest) all[d]={rest:false,muscles:[],notes:''};
+    else all[d]=all[d]||{rest:false,muscles:[],notes:''};
+    localStorage.setItem(key,JSON.stringify(all)); render();
+  };
+  document.getElementById('saveWorkout').onclick=()=>{
+    all[d]={rest:false,muscles:boxes.filter(b=>b.checked).map(b=>b.value),notes:notes.value.trim()};
+    localStorage.setItem(key,JSON.stringify(all)); render();
+  };
+  render();
+})();
+</script>
+
+
+<section class="card" id="workoutHistory">
+  <h2>📅 Workout History</h2>
+  <p class="muted">See your training and rest days for the last 7 days.</p>
+  <div id="workoutWeek" class="report-grid"></div>
+  <div id="workoutSummary" class="muted" style="margin-top:12px"></div>
+</section>
+
+<script>
+(function(){
+  const key='calorietrack_workouts_v1';
+  let all={}; try{all=JSON.parse(localStorage.getItem(key)||'{}')}catch(e){}
+  const box=document.getElementById('workoutWeek');
+  const summary=document.getElementById('workoutSummary');
+  const names=['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
+  let training=0,rest=0;
+  for(let i=6;i>=0;i--){
+    const dt=new Date(); dt.setHours(0,0,0,0); dt.setDate(dt.getDate()-i);
+    const keyDate=dt.toISOString().slice(0,10), x=all[keyDate];
+    const label=names[dt.getDay()];
+    const item=document.createElement('div');
+    item.className='report-item';
+    let text='—';
+    if(x?.rest){text='😴 Rest';rest++}
+    else if(x?.muscles?.length){text='🏋️ '+x.muscles.join(', ');training++}
+    item.innerHTML='<strong>'+label+'</strong><br><span class="muted">'+dt.toLocaleDateString()+'</span><br>'+text;
+    box.appendChild(item);
+  }
+  summary.textContent='This week: '+training+' training day'+(training===1?'':'s')+' • '+rest+' rest day'+(rest===1?'':'s');
 })();
 </script>
 
