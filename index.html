@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<meta name="theme-color" content="#f7f9fc">
+<meta name="theme-color" content="#0d1422" id="themeColor">
 <title>CalorieTrack</title>
 <script src="https://cdn.jsdelivr.net/npm/html5-qrcode@2.3.8/html5-qrcode.min.js" defer></script>
 <style>
@@ -69,6 +69,29 @@ body.dark .scanner-help{background:#1c2c4a}
 body.dark .sheet{background:var(--card)}
 body.dark .modal{background:rgba(0,0,0,.78)}
 body.dark .water-line,body.dark .supp-bar,.dark .check-circle{background:#2b3850}
+</style>
+
+<style id="v25-dark-mode">
+html.dark,html.dark body{background:#0d1422!important;color:#f5f7fb!important}
+html.dark .app,html.dark .pages,html.dark section{color:#f5f7fb}
+html.dark .card,html.dark .mini-stat,html.dark .sheet,html.dark .info-card,html.dark .workout-card,html.dark .water-card,html.dark .macro-card{background:#151e2e!important;border-color:#283448!important;color:#f5f7fb!important}
+html.dark input,html.dark select,html.dark textarea{background:#111a29!important;color:#f5f7fb!important;border-color:#344158!important;caret-color:#fff}
+html.dark input::placeholder,html.dark textarea::placeholder{color:#8f9bad!important}
+html.dark .mode-select,html.dark .iconbtn{background:#151e2e!important;color:#f5f7fb!important;border-color:#344158!important}
+html.dark button.light,html.dark .search-action,html.dark .macro-large,html.dark .workout-preview,html.dark .scanner-help,html.dark .kpi,html.dark .macro,html.dark .chip{background:#1c2c4a!important;color:#f5f7fb!important;border-color:#344158!important}
+html.dark .bottom{background:rgba(15,23,38,.97)!important;border-color:#283448!important}
+html.dark .bottom button{background:transparent!important;color:#a9b2c2!important}
+html.dark .bottom button.active{color:#5d9cff!important}
+html.dark .calday{background:#111a29!important;color:#f5f7fb!important}
+html.dark .calday.period{background:#49202c!important;color:#ff9eb4!important}
+html.dark .calday.fertile{background:#173b3a!important;color:#70d8c9!important}
+html.dark .listrow{border-color:#283448!important}
+html.dark .foodname,html.dark .rowtitle,html.dark .sectiontitle,html.dark .brand,html.dark .sheet h2{color:#f5f7fb!important}
+html.dark .notice,html.dark .foodmeta,html.dark label,html.dark .date,html.dark .tagline{color:#a9b2c2!important}
+html.dark .water-line,html.dark .supp-bar,html.dark .check-circle{background:#2b3850!important}
+html.dark canvas{background:#1c2c4a!important}
+html.dark .modal{background:rgba(0,0,0,.82)!important}
+html.dark .hero-dashboard{background:#0a1020!important}
 </style>
 </head>
 <body>
@@ -177,6 +200,7 @@ body.dark .water-line,body.dark .supp-bar,.dark .check-circle{background:#2b3850
 <div class="grid2"><label>Mode<select id="sex" onchange="saveProfile()"><option value="male">Male</option><option value="female">Female</option></select></label><label>Age<input id="age" type="number" onchange="saveProfile()"></label><label>Height (cm)<input id="height" type="number" onchange="saveProfile()"></label><label>Weight (kg)<input id="weight" type="number" step=".1" onchange="saveProfile()"></label><label>Activity<select id="activity" onchange="saveProfile()"><option value="1.2">Sedentary</option><option value="1.375">Light</option><option value="1.55">Moderate</option><option value="1.725">Very active</option><option value="1.9">Athlete</option></select></label><label>Goal<select id="phase" onchange="saveProfile()"><option value="maintain">Maintain</option><option value="cut">Cut</option><option value="bulk">Bulk</option></select></label><label>Calorie target<input id="calGoal" type="number" onchange="saveProfile()"></label><label>Goal weight<input id="goalWeight" type="number" step=".1" onchange="saveProfile()"></label></div>
 <button onclick="calculate()">Calculate suggested target</button><div class="notice" id="calc"></div></div>
 <div class="section card"><div class="sectiontitle">Daily targets</div><div class="grid2"><label>Protein (g)<input id="proteinGoal" type="number" onchange="saveProfile()"></label><label>Fibre (g)<input id="fibreGoal" type="number" onchange="saveProfile()"></label><label>Water (ml)<input id="waterGoal" type="number" onchange="saveProfile()"></label><label>Steps<input id="stepsGoal" type="number" onchange="saveProfile()"></label></div></div>
+<div id="cycleLink" class="section card hidden"><button onclick="go('pageCycle',this)">📅 Menstrual Cycle</button></div>
 </section>
 
 <section id="pageCycle">
@@ -206,10 +230,14 @@ function sums(){return D().foods.reduce((a,f)=>{['k','p','c','f','fi','s','sa'].
 function go(id,btn){document.querySelectorAll('.pages>section').forEach(x=>x.classList.remove('active'));document.getElementById(id).classList.add('active');document.querySelectorAll('.bottom button').forEach(x=>x.classList.remove('active'));btn.classList.add('active');renderAll()}
 function goMore(btn){go('pageMore',btn)}
 function applyTheme(){
-  document.body.classList.toggle('dark',!!S.settings.dark);
-  document.documentElement.style.colorScheme=S.settings.dark?'dark':'light';
+  const dark=!!S.settings.dark;
+  document.body.classList.toggle('dark',dark);
+  document.documentElement.classList.toggle('dark',dark);
+  document.documentElement.style.colorScheme=dark?'dark':'light';
+  const tc=document.getElementById('themeColor'); if(tc) tc.setAttribute('content',dark?'#0d1422':'#f7f9fc');
+  const b=document.querySelector('.iconbtn'); if(b){b.textContent=dark?'☀️':'🌙';b.setAttribute('aria-label',dark?'Switch to light mode':'Switch to dark mode')}
 }
-function toggleDark(){S.settings.dark=!S.settings.dark;applyTheme();save();renderAll()}
+function toggleDark(){S.settings.dark=!S.settings.dark;save();applyTheme();renderAll()}
 function renderAll(){renderToday();renderProgress();renderFood();renderWorkout();renderGoals();renderCycle();renderSupps()}
 function renderToday(){
  const x=sums(),g=+S.profile.calGoal||0,d=D(),rem=Math.max(0,g-x.k),pct=g?Math.min(100,x.k/g*100):0;
@@ -332,7 +360,7 @@ async function scanBarcodePhoto(event){
     event.target.value='';
   }
 }
-function barcode(code){let r=document.getElementById('scanResult');if(r)r.innerHTML='<div class="notice">Looking up '+esc(code)+'…</div>';try{let res=await fetch('https://world.openfoodfacts.org/api/v3/product/'+encodeURIComponent(code)+'.json?fields=product_name,brands,serving_size,nutriments',{headers:{'Accept':'application/json'}});if(!res.ok)throw new Error('HTTP '+res.status);let j=await res.json();let p=j.product||{},n=p.nutriments||{};if(!p.product_name)throw new Error('Product not found');useOFF({name:(p.brands?p.brands+' ':'')+p.product_name,k:+(n['energy-kcal_100g']||n['energy-kcal_value']||0),p:+(n.proteins_100g||0),c:+(n.carbohydrates_100g||0),f:+(n.fat_100g||0),fi:+(n.fiber_100g||0),s:+(n.sugars_100g||0),sa:+(n['saturated-fat_100g']||0)})}catch(e){if(r)r.innerHTML='<div class="notice"><b>Product not found.</b><br>This barcode may not be in Open Food Facts yet. Try Search Food or Custom Food.</div>'}}
+async function barcode(code){let r=document.getElementById('scanResult');if(r)r.innerHTML='<div class="notice">Looking up '+esc(code)+'…</div>';try{let res=await fetch('https://world.openfoodfacts.org/api/v3/product/'+encodeURIComponent(code)+'.json?fields=product_name,brands,serving_size,nutriments',{headers:{'Accept':'application/json'}});if(!res.ok)throw new Error('HTTP '+res.status);let j=await res.json();let p=j.product||{},n=p.nutriments||{};if(!p.product_name)throw new Error('Product not found');useOFF({name:(p.brands?p.brands+' ':'')+p.product_name,k:+(n['energy-kcal_100g']||n['energy-kcal_value']||0),p:+(n.proteins_100g||0),c:+(n.carbohydrates_100g||0),f:+(n.fat_100g||0),fi:+(n.fiber_100g||0),s:+(n.sugars_100g||0),sa:+(n['saturated-fat_100g']||0)})}catch(e){if(r)r.innerHTML='<div class="notice"><b>Product not found.</b><br>This barcode may not be in Open Food Facts yet. Try Search Food or Custom Food.</div>'}}
 function portion(){openM('Portion calculator',`<div class="grid2"><label>Package amount (g)<input id="pg" type="number"></label><label>Amount eaten (g)<input id="eg" type="number"></label><label>Package kcal<input id="pk" type="number"></label><label>Package protein<input id="pp" type="number"></label><label>Package carbs<input id="pc" type="number"></label><label>Package fat<input id="pf" type="number"></label></div><button onclick="calcPortion()">Calculate</button><div id="por"></div>`)}
 function calcPortion(){let m=(+eg.value||0)/(+pg.value||1);por.innerHTML=`<div class="card"><b>${Math.round((+pk.value||0)*m)} kcal</b><br>Protein ${Math.round((+pp.value||0)*m*10)/10}g · Carbs ${Math.round((+pc.value||0)*m*10)/10}g · Fat ${Math.round((+pf.value||0)*m*10)/10}g</div>`}
 function drinkForm(){openM('Add drink',`<div class="grid2"><label>Name<input id="dn"></label><label>Calories<input id="dk" type="number"></label><label>Volume (ml)<input id="dm" type="number"></label></div><button onclick="D().drinks.push({name:dn.value,k:+dk.value||0,ml:+dm.value||0});save();closeModal();renderToday()">Add drink</button>`)}
@@ -352,7 +380,7 @@ function deleteWorkout(i){S.workouts.splice(i,1);save();renderWorkout()}
 function saveProfile(){let p=S.profile;['age','height','weight','calGoal','goalWeight','proteinGoal','fibreGoal','waterGoal','stepsGoal'].forEach(k=>{let el=document.getElementById(k);if(el)p[k]=+el.value||0});p.sex=sex.value;p.activity=+activity.value;p.phase=phase.value;save();updateMode();renderAll()}
 function renderGoals(){let p=S.profile;['sex','age','height','weight','activity','phase','calGoal','goalWeight','proteinGoal','fibreGoal','waterGoal','stepsGoal'].forEach(k=>{let e=document.getElementById(k);if(e)e.value=p[k]});updateMode()}
 function calculate(){let p=S.profile,bmr=p.sex==='male'?10*p.weight+6.25*p.height-5*p.age+5:10*p.weight+6.25*p.height-5*p.age-161,maint=bmr*p.activity,goal=p.phase==='cut'?maint-400:p.phase==='bulk'?maint+300:maint;p.calGoal=Math.round(goal);save();renderGoals();calc.textContent='Suggested maintenance: '+Math.round(maint)+' kcal. Suggested '+p.phase+': '+Math.round(goal)+' kcal.'}
-function updateMode(){let female=S.profile.sex==='female';document.getElementById('pageCycle').style.display=female?'block':'none'}
+function updateMode(){let female=S.profile.sex==='female';let sec=document.getElementById('pageCycle'),link=document.getElementById('cycleLink');sec.style.display=female?'block':'none';if(link)link.classList.toggle('hidden',!female)}
 let calMonth=new Date();calMonth.setDate(1);
 function moveMonth(n){calMonth.setMonth(calMonth.getMonth()+n);renderCycle()}
 function cycleDates(){let c=S.cycle,s=new Date((c.start||'')+'T00:00:00'),period=new Set(),fertile=new Set();if(isNaN(s))return{period,fertile};let len=+c.cycleLength||28,pl=+c.periodLength||5;for(let i=-3;i<=12;i++){let p=new Date(s);p.setDate(s.getDate()+i*len);for(let j=0;j<pl;j++){let d=new Date(p);d.setDate(p.getDate()+j);period.add(fmt(d))}let ov=new Date(p);ov.setDate(p.getDate()+len-14);for(let j=-5;j<=1;j++){let d=new Date(ov);d.setDate(ov.getDate()+j);fertile.add(fmt(d))}}return{period,fertile}}
