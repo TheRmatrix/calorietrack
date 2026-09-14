@@ -223,7 +223,7 @@ html.dark .hero-dashboard{background:#0a1020!important}
 <div class="section card"><div class="sectiontitle">Tools & privacy</div><div class="notice">Your data is stored locally in this browser.</div><div class="grid2"><button onclick="backup()">Export backup</button><button class="light" onclick="document.getElementById('restore').click()">Restore backup</button></div><input id="restore" type="file" accept=".json" class="hidden" onchange="restore(event)"><button class="light" onclick="csv()">Export food CSV</button></div>
 </section>
 </div>
-<div class="app-version">CalorieTrack v31</div>
+<div class="app-version">CalorieTrack v33</div>
 </div>
 
 <nav class="bottom"><button onclick="go('pageToday',this)" class="active">Today</button><button onclick="go('pageProgress',this)">Progress</button><button onclick="go('pageFood',this)">Food</button><button onclick="go('pageWorkout',this)">Workout</button><button onclick="go('pageGoals',this)">Goals</button><button onclick="goMore(this)">More</button></nav>
@@ -241,7 +241,8 @@ let S=JSON.parse(localStorage.getItem(KEY)||'null')||structuredClone(defaults);
 S.profile=S.profile||{};if(!('carbsGoal' in S.profile))S.profile.carbsGoal=0;if(!('fatGoal' in S.profile))S.profile.fatGoal=0;
 // Save the current state to localStorage.
 function save(){localStorage.setItem(KEY,JSON.stringify(S))}
-function D(){let d=new Date().toISOString().slice(0,10);if(!S.days[d])S.days[d]={foods:[],drinks:[],water:0,weight:null,steps:0,checks:{}};return S.days[d]}
+function localDateKey(date=new Date()){const y=date.getFullYear(),m=String(date.getMonth()+1).padStart(2,'0'),d=String(date.getDate()).padStart(2,'0');return `${y}-${m}-${d}`}
+function D(){let d=localDateKey();if(!S.days[d])S.days[d]={foods:[],drinks:[],water:0,weight:null,steps:0,checks:{}};return S.days[d]}
 function esc(x){return String(x??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[c]))}
 function sums(){return D().foods.reduce((a,f)=>{['k','p','c','f','fi','s','sa'].forEach(k=>a[k]+=(+f[k]||0));return a},{k:0,p:0,c:0,f:0,fi:0,s:0,sa:0})}
 /* ============================================================
@@ -292,7 +293,7 @@ function closeModal(){document.getElementById('modal').classList.add('hidden')}
 function addFood(f){D().foods.push({...f,id:Date.now()});save();closeModal();renderAll()}
 function customFood(){openM('Add custom food',`<div class="grid2"><label>Name<input id="fn"></label><label>Calories<input id="fk" type="number"></label><label>Protein<input id="fp" type="number"></label><label>Carbs<input id="fc" type="number"></label><label>Fat<input id="ff" type="number"></label><label>Fibre<input id="ffi" type="number"></label><label>Sugar<input id="fs" type="number"></label><label>Sat. fat<input id="fsa" type="number"></label></div><button onclick="addFood({name:fn.value,k:+fk.value,p:+fp.value,c:+fc.value,f:+ff.value,fi:+ffi.value||0,s:+fs.value||0,sa:+fsa.value||0})">Add to diary</button>`)}
 function foodSearch(){openM('Search food',`<input id="foodQ" placeholder="e.g. oats, bread, banana"><button onclick="searchOFF()">Search Open Food Facts</button><div id="foodResults"></div>`)}
-async function searchOFF(){let q=document.getElementById('foodQ').value.trim();if(!q)return;let r=document.getElementById('foodResults');r.innerHTML='<div class="notice">Searching…</div>';try{let res=await fetch('https://world.openfoodfacts.org/api/v3/search?categories_tags_en='+encodeURIComponent(q)+'&page_size=10');let j=await res.json();let arr=j.products||[];if(!arr.length){r.innerHTML='<div class="notice">No results.</div>';return}r.innerHTML=arr.map((p,i)=>{let n=p.nutriments||{};return `<div class="listrow"><div><div class="foodname">${esc(p.product_name||p.generic_name||'Unknown')}</div><div class="foodmeta">${Math.round(n['energy-kcal_100g']||n['energy-kcal']||0)} kcal / 100g</div></div><button class="sm" onclick='useOFF(${JSON.stringify({name:p.product_name||p.generic_name||"Food",k:+(n["energy-kcal_100g"]||n["energy-kcal"]||0),p:+(n.proteins_100g||0),c:+(n.carbohydrates_100g||0),f:+(n.fat_100g||0),fi:+(n.fiber_100g||0),s:+(n.sugars_100g||0),sa:+(n["saturated-fat_100g"]||0)})})'>Add</button></div>`}).join('')}catch(e){r.innerHTML='<div class="notice">Could not reach Open Food Facts.</div>'}}
+async function searchOFF(){let q=document.getElementById('foodQ').value.trim();if(!q)return;let r=document.getElementById('foodResults');r.innerHTML='<div class="notice">Searching…</div>';try{let url='https://world.openfoodfacts.org/api/v2/search?search_terms='+encodeURIComponent(q)+'&page_size=10&fields=product_name,generic_name,nutriments';let res=await fetch(url);let j=await res.json();let arr=j.products||[];if(!arr.length){r.innerHTML='<div class="notice">No results.</div>';return}r.innerHTML=arr.map((p,i)=>{let n=p.nutriments||{};return `<div class="listrow"><div><div class="foodname">${esc(p.product_name||p.generic_name||'Unknown')}</div><div class="foodmeta">${Math.round(n['energy-kcal_100g']||n['energy-kcal']||0)} kcal / 100g</div></div><button class="sm" onclick='useOFF(${JSON.stringify({name:p.product_name||p.generic_name||"Food",k:+(n["energy-kcal_100g"]||n["energy-kcal"]||0),p:+(n.proteins_100g||0),c:+(n.carbohydrates_100g||0),f:+(n.fat_100g||0),fi:+(n.fiber_100g||0),s:+(n.sugars_100g||0),sa:+(n["saturated-fat_100g"]||0)})})'>Add</button></div>`}).join('')}catch(e){r.innerHTML='<div class="notice">Could not reach Open Food Facts.</div>'}}
 function useOFF(f){openM('Amount eaten',`<div class="notice">Nutrition is per 100g.</div><label>Grams<input id="offg" type="number" value="100"></label><button onclick="addOFF(${JSON.stringify(f)})">Add</button>`)}
 function addOFF(f){let g=+offg.value||100,m=g/100;addFood({...f,name:f.name+' ('+g+'g)',k:f.k*m,p:f.p*m,c:f.c*m,f:f.f*m,fi:f.fi*m,s:f.s*m,sa:f.sa*m})}
 /* ============================================================
@@ -357,8 +358,8 @@ async function barcode(code){let r=document.getElementById('scanResult');if(r)r.
 function portion(){openM('Portion calculator',`<div class="grid2"><label>Package amount (g)<input id="pg" type="number"></label><label>Amount eaten (g)<input id="eg" type="number"></label><label>Package kcal<input id="pk" type="number"></label><label>Package protein<input id="pp" type="number"></label><label>Package carbs<input id="pc" type="number"></label><label>Package fat<input id="pf" type="number"></label></div><button onclick="calcPortion()">Calculate</button><div id="por"></div>`)}
 function calcPortion(){let m=(+eg.value||0)/(+pg.value||1);por.innerHTML=`<div class="card"><b>${Math.round((+pk.value||0)*m)} kcal</b><br>Protein ${Math.round((+pp.value||0)*m*10)/10}g · Carbs ${Math.round((+pc.value||0)*m*10)/10}g · Fat ${Math.round((+pf.value||0)*m*10)/10}g</div>`}
 function drinkForm(){openM('Add drink',`<div class="grid2"><label>Name<input id="dn"></label><label>Calories<input id="dk" type="number"></label><label>Volume (ml)<input id="dm" type="number"></label></div><button onclick="D().drinks.push({name:dn.value,k:+dk.value||0,ml:+dm.value||0});save();closeModal();renderToday()">Add drink</button>`)}
-function weighIn(){openM('Weigh in',`<label>Weight (kg)<input id="wi" type="number" step=".1" value="${S.profile.weight}"></label><button onclick="D().weight=+wi.value;S.profile.weight=+wi.value;save();closeModal();renderAll()">Save</button>`)}
-function renderProgress(){let rows=Object.entries(S.days).filter(([,d])=>d.weight).sort((a,b)=>a[0].localeCompare(b[0]));let last=rows.at(-1)?.[1].weight, recent=rows.slice(-7).map(x=>x[1].weight);latestW.textContent=last?last.toFixed(1)+' kg':'—';avgW.textContent=recent.length?(recent.reduce((a,b)=>a+b,0)/recent.length).toFixed(1)+' kg':'—';goalW.textContent=(S.profile.goalWeight||0)+' kg';changeW.textContent=rows.length>1?((last-rows[0][1].weight)>0?'+':'')+(last-rows[0][1].weight).toFixed(1)+' kg':'—';weightRows.innerHTML=rows.slice().reverse().map(([d,x])=>`<div class="listrow"><span>${d}</span><b>${x.weight.toFixed(1)} kg</b></div>`).join('')||'<div class="notice">Log a weigh-in to see your trend.</div>';drawWeight(rows);let ds=Object.values(S.days).slice(-7),k=ds.reduce((a,d)=>{let x=d.foods.reduce((s,f)=>s+(+f.k||0),0);a.k+=x;a.p+=d.foods.reduce((s,f)=>s+(+f.p||0),0);a.w+=d.water||0;return a},{k:0,p:0,w:0});weekStats.innerHTML=`<div class="kpis"><div class="kpi"><b>${ds.length?Math.round(k.k/ds.length):0}</b><span>Avg kcal</span></div><div class="kpi"><b>${ds.length?Math.round(k.p/ds.length):0}g</b><span>Avg protein</span></div><div class="kpi"><b>${ds.length?Math.round(k.w/ds.length):0}</b><span>Avg water</span></div><div class="kpi"><b>${S.workouts.filter(w=>w.date>=new Date(Date.now()-6*864e5).toISOString().slice(0,10)).length}</b><span>Workouts</span></div></div>`;progressTraining.innerHTML=S.workouts.slice(-5).reverse().map(w=>`<div class="listrow"><span><b>${esc(w.name||'Workout')}</b><br><span class="foodmeta">${w.date} · ${esc(w.muscles||'')}</span></span><span>${w.duration||0} min</span></div>`).join('')||'<div class="notice">No workouts yet.</div>'}
+function saveWeighIn(){const input=document.getElementById('wi');const value=parseFloat(input?.value);if(!Number.isFinite(value)||value<=0){alert('Please enter a valid weight.');return}const day=D();day.weight=value;S.profile.weight=value;save();closeModal();renderAll()} function weighIn(){openM('Weigh in',`<label>Weight (kg)<input id="wi" type="number" step="0.1" min="1" inputmode="decimal" value="${S.profile.weight||''}"></label><button onclick="saveWeighIn()">Save weigh-in</button>`)}
+function renderProgress(){let rows=Object.entries(S.days).filter(([,d])=>d.weight).sort((a,b)=>a[0].localeCompare(b[0]));let last=rows.at(-1)?.[1].weight, recent=rows.slice(-7).map(x=>x[1].weight);latestW.textContent=last?last.toFixed(1)+' kg':'—';avgW.textContent=recent.length?(recent.reduce((a,b)=>a+b,0)/recent.length).toFixed(1)+' kg':'—';goalW.textContent=(S.profile.goalWeight||0)+' kg';changeW.textContent=rows.length>1?((last-rows[0][1].weight)>0?'+':'')+(last-rows[0][1].weight).toFixed(1)+' kg':'—';weightRows.innerHTML=rows.slice().reverse().map(([d,x])=>`<div class="listrow"><span>${d}</span><b>${x.weight.toFixed(1)} kg</b></div>`).join('')||'<div class="notice">Log a weigh-in to see your trend.</div>';drawWeight(rows);let ds=Object.values(S.days).slice(-7),k=ds.reduce((a,d)=>{let x=d.foods.reduce((s,f)=>s+(+f.k||0),0);a.k+=x;a.p+=d.foods.reduce((s,f)=>s+(+f.p||0),0);a.w+=d.water||0;return a},{k:0,p:0,w:0});weekStats.innerHTML=`<div class="kpis"><div class="kpi"><b>${ds.length?Math.round(k.k/ds.length):0}</b><span>Avg kcal</span></div><div class="kpi"><b>${ds.length?Math.round(k.p/ds.length):0}g</b><span>Avg protein</span></div><div class="kpi"><b>${ds.length?Math.round(k.w/ds.length):0}</b><span>Avg water</span></div><div class="kpi"><b>${S.workouts.filter(w=>w.date>=localDateKey(new Date(Date.now()-6*864e5))).length}</b><span>Workouts</span></div></div>`;progressTraining.innerHTML=S.workouts.slice(-5).reverse().map(w=>`<div class="listrow"><span><b>${esc(w.name||'Workout')}</b><br><span class="foodmeta">${w.date} · ${esc(w.muscles||'')}</span></span><span>${w.duration||0} min</span></div>`).join('')||'<div class="notice">No workouts yet.</div>'}
 function drawWeight(rows){let c=document.getElementById('weightCanvas'),x=c.getContext('2d'),w=c.width=c.clientWidth*2,h=c.height=c.clientHeight*2;x.clearRect(0,0,w,h);if(rows.length<2)return;let vals=rows.map(r=>r[1].weight),mn=Math.min(...vals)-1,mx=Math.max(...vals)+1;x.beginPath();rows.forEach((r,i)=>{let px=20+i*(w-40)/(rows.length-1),py=h-20-(r[1].weight-mn)/(mx-mn)*(h-40);i?x.lineTo(px,py):x.moveTo(px,py)});x.strokeStyle=getComputedStyle(document.body).getPropertyValue('--blue');x.lineWidth=6;x.stroke()}
 function mealForm(){openM('Saved meal',`<label>Name<input id="mn"></label><div class="notice">Save the foods currently in today's diary as a meal.</div><button onclick="S.meals.push({name:mn.value,foods:JSON.parse(JSON.stringify(D().foods))});save();closeModal();renderFood()">Save meal</button>`)}
 function recipeForm(){openM('Recipe builder',`<label>Recipe name<input id="rn"></label><label>Servings<input id="rs" type="number" value="1"></label><div class="notice">Uses the foods currently in today's diary as ingredients. Save it and later add a serving.</div><button onclick="S.recipes.push({name:rn.value,servings:+rs.value||1,foods:JSON.parse(JSON.stringify(D().foods))});save();closeModal();renderFood()">Save recipe</button>`)}
@@ -367,7 +368,7 @@ function addMeal(i){let m=S.meals[i];m.foods.forEach(f=>addFoodSilent(f));save()
 function exerciseForm(){openM('Exercise',`<label>Exercise name<input id="en"></label><label>Muscle group<select id="em"><option>Chest</option><option>Back</option><option>Shoulders</option><option>Biceps</option><option>Triceps</option><option>Legs</option><option>Glutes</option><option>Abs/Core</option><option>Calves</option></select></label><button onclick="S.exercises.push({name:en.value,muscle:em.value});save();closeModal();renderWorkout()">Save exercise</button>`)}
 function workoutForm(){openM('Log workout',`<label>Name<input id="wn" value="Workout"></label><label>Muscle groups<input id="wm" placeholder="Chest, triceps"></label><div class="grid2"><label>Duration (min)<input id="wd" type="number"></label><label>Notes<input id="wno"></label></div><h3>Exercises</h3><div id="setRows"></div><button class="light" onclick="addSetRow()">＋ Add exercise set</button><button onclick="saveWorkout()">Save workout</button>`);addSetRow()}
 function addSetRow(){let e=document.getElementById('setRows');if(!e)return;e.insertAdjacentHTML('beforeend',`<div class="grid3" style="margin:7px 0"><input class="sx" placeholder="Exercise"><input class="sr" type="number" placeholder="Reps"><input class="sw" type="number" step=".5" placeholder="kg"></div>`)}
-function saveWorkout(){let rows=[...document.querySelectorAll('#setRows>div')].map(r=>({exercise:r.querySelector('.sx').value,reps:+r.querySelector('.sr').value||0,weight:+r.querySelector('.sw').value||0}));S.workouts.push({date:new Date().toISOString().slice(0,10),name:wn.value,muscles:wm.value,duration:+wd.value||0,notes:wno.value,sets:rows});D().checks.workout=true;save();closeModal();renderAll()}
+function saveWorkout(){let rows=[...document.querySelectorAll('#setRows>div')].map(r=>({exercise:r.querySelector('.sx').value,reps:+r.querySelector('.sr').value||0,weight:+r.querySelector('.sw').value||0}));S.workouts.push({date:localDateKey(),name:wn.value,muscles:wm.value,duration:+wd.value||0,notes:wno.value,sets:rows});D().checks.workout=true;save();closeModal();renderAll()}
 /* ============================================================
    WORKOUT TRACKER
    ============================================================ */
@@ -376,7 +377,24 @@ function deleteWorkout(i){S.workouts.splice(i,1);save();renderWorkout()}
 /* ============================================================
    GOALS + MALE/FEMALE MODE
    ============================================================ */
-function saveProfile(){let p=S.profile;['age','height','weight','calGoal','goalWeight','proteinGoal','fibreGoal','waterGoal','stepsGoal'].forEach(k=>{let el=document.getElementById(k);if(el)p[k]=+el.value||0});p.sex=sex.value;p.activity=+activity.value;p.phase=phase.value;save();updateMode();renderAll()}
+function validateGoalDirection(showAlert=true){
+  const p=S.profile,weight=+p.weight||0,goal=+p.goalWeight||0,phase=p.phase;
+  if(!weight||!goal||phase==='maintain')return true;
+  if(phase==='cut' && goal>=weight){if(showAlert)alert('For a Cut, your goal weight must be lower than your current weight.');return false}
+  if(phase==='bulk' && goal<=weight){if(showAlert)alert('For a Bulk, your goal weight must be higher than your current weight.');return false}
+  return true;
+}
+function saveProfile(){
+  const p=S.profile,old={...p};
+  ['age','height','weight','calGoal','goalWeight','proteinGoal','fibreGoal','waterGoal','stepsGoal'].forEach(k=>{let el=document.getElementById(k);if(el)p[k]=+el.value||0});
+  p.sex=document.getElementById('sex').value;p.activity=+document.getElementById('activity').value;p.phase=document.getElementById('phase').value;
+  if(!validateGoalDirection(true)){
+    p.goalWeight=old.goalWeight; p.phase=old.phase;
+    document.getElementById('goalWeight').value=p.goalWeight; document.getElementById('phase').value=p.phase;
+    return;
+  }
+  save();updateMode();renderAll();
+}
 function renderGoals(){let p=S.profile;['sex','age','height','weight','activity','phase','calGoal','goalWeight','proteinGoal','fibreGoal','waterGoal','stepsGoal'].forEach(k=>{let e=document.getElementById(k);if(e)e.value=p[k]});updateMode()}
 function getSuggestedMacros(){
   /*
@@ -408,7 +426,7 @@ function useSuggestedMacros(){
   save();renderGoals();renderAll();
 }
 function calculate(){
-  const p=S.profile;
+  const p=S.profile;if(!validateGoalDirection(true))return;
   const bmr=p.sex==='male'?10*p.weight+6.25*p.height-5*p.age+5:10*p.weight+6.25*p.height-5*p.age-161;
   const maint=bmr*p.activity,goal=p.phase==='cut'?maint-400:p.phase==='bulk'?maint+300:maint;
   p.calGoal=Math.round(goal);
@@ -464,7 +482,7 @@ function renderHomeExtras(){
   const names=['Creatine','Vitamin D3','Vitamin C','Magnesium','Zinc','Iron','B12','Omega-3','Multivitamin'],taken=names.filter(n=>S.supps[n]).length;
   if(document.getElementById('homeSupps'))document.getElementById('homeSupps').textContent=taken+' / '+names.length+' taken';
   if(document.getElementById('homeSuppBar'))document.getElementById('homeSuppBar').style.width=(taken/names.length*100)+'%';
-  const tw=S.workouts.filter(w=>w.date===new Date().toISOString().slice(0,10)).at(-1);
+  const tw=S.workouts.filter(w=>w.date===localDateKey()).at(-1);
   document.getElementById('homeWorkoutName').textContent=tw?.name||'Rest Day';
   document.getElementById('homeWorkoutMeta').textContent=tw?(tw.muscles||'Workout logged today'):'No workout logged today';
   const c=d.checks||{}, checks=[['💧','Water',''+((d.water||0)/1000).toFixed(1)+' L / '+(wg/1000).toFixed(1)+' L','water'],['🏋️','Workout',tw?'Done':'Rest Day','workout'],['💊','Supplements',taken+'/'+names.length,'supp'],['🍎','Calories',Math.round(x.k)+' / '+(+p.calGoal||0),'cal']];
