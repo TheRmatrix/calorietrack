@@ -279,4 +279,58 @@ if('serviceWorker' in navigator)navigator.serviceWorker.register('sw.js').catch(
 })();
 </script>
 
+
+<section class="card" id="waterControls">
+  <h2>💧 Water</h2>
+  <div style="display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap">
+    <button type="button" id="waterMinus">− 250 ml</button>
+    <strong id="waterDisplay">0 / 2500 ml</strong>
+    <button type="button" id="waterPlus">+ 250 ml</button>
+  </div>
+</section>
+<script>
+(function(){
+  const key='calorietrack_water_v2';
+  const today=()=>new Date().toISOString().slice(0,10);
+  let all={}; try{all=JSON.parse(localStorage.getItem(key)||'{}')}catch(e){}
+  const d=today(); all[d]=Math.max(0,Number(all[d])||0);
+  const display=document.getElementById('waterDisplay');
+  function render(){display.textContent=all[d]+' / 2500 ml'; localStorage.setItem(key,JSON.stringify(all));}
+  document.getElementById('waterPlus').addEventListener('click',()=>{all[d]+=250;render()});
+  document.getElementById('waterMinus').addEventListener('click',()=>{all[d]=Math.max(0,all[d]-250);render()});
+  render();
+})();
+</script>
+
+
+<section class="card" id="manageEntries">
+  <h2>↩️ Fix an accidental entry</h2>
+  <p class="muted">Water can be reduced with the − button. Food and other entries can be edited or deleted from their entry controls when available.</p>
+</section>
+
+
+<section class="card" id="weighInGuide">
+  <h2>⚖️ Daily Weigh-In</h2>
+  <p><strong>Best time: every morning</strong></p>
+  <p class="muted">For the most consistent readings, weigh yourself after waking and using the bathroom, before eating or drinking, and around the same time each day.</p>
+  <label style="display:block;margin:10px 0">
+    <input type="checkbox" id="weighedToday">
+    Weighed myself today
+  </label>
+  <div id="weighTimeNote" class="muted"></div>
+</section>
+<script>
+(function(){
+  const key='calorietrack_weighin';
+  const day=new Date().toISOString().slice(0,10);
+  let d={}; try{d=JSON.parse(localStorage.getItem(key)||'{}')}catch(e){}
+  const cb=document.getElementById('weighedToday');
+  cb.checked=!!d[day];
+  cb.addEventListener('change',()=>{
+    d[day]=cb.checked;
+    localStorage.setItem(key,JSON.stringify(d));
+  });
+})();
+</script>
+
 </body></html>
