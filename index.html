@@ -27,27 +27,101 @@ canvas{width:100%;height:190px;background:var(--blue2);border-radius:15px}
 .modal{position:fixed;inset:0;background:#0008;z-index:50;padding:14px;overflow:auto}.sheet{max-width:700px;margin:25px auto;background:var(--card);border-radius:24px;padding:17px}.sheethead{display:flex;justify-content:space-between;align-items:center}.sheet h2{margin:0 0 12px}.close{width:38px!important;height:38px!important;padding:0!important;background:var(--blue2)!important;color:var(--ink)!important}
 @media(max-width:430px){.app{padding-left:11px;padding-right:11px}.brand{font-size:25px}.hero .big{font-size:43px}.grid3{grid-template-columns:1fr 1fr}.bottom button{padding-left:7px;padding-right:7px}}
 </style>
+
+<style id="v21-design">
+body{background:#f6f8fc}
+.top{align-items:flex-start;margin:8px 0 18px}.tagline{font-size:13px;color:#7b8496;font-weight:650;margin-top:2px}.head-actions{display:flex;gap:8px;align-items:center}.mode-select{width:auto;min-width:116px;margin:0;padding:11px 12px;border-radius:15px;background:#fff;border:1px solid #e4e9f1;font-weight:750}
+.hero-dashboard{display:grid;grid-template-columns:1.02fr 1fr;gap:18px;align-items:center;min-height:294px;padding:21px 22px;background:#18243b;border-radius:27px}.hero-left{min-width:0}.hero-left small{font-size:14px;color:#aeb9cb;font-weight:650}.calorie-ring{width:190px;height:190px;border-radius:50%;margin:5px auto 0;background:conic-gradient(#25d39b 0deg 125deg,#394861 125deg 360deg);display:grid;place-items:center;position:relative}.calorie-ring:after{content:"";position:absolute;inset:13px;border-radius:50%;background:#18243b}.calorie-ring>div{position:relative;z-index:1;text-align:center}.calorie-ring strong{display:block;font-size:42px;letter-spacing:-2px}.calorie-ring span{font-size:14px;color:#fff}.hero-total{display:flex;justify-content:space-around;color:#d5dce7;font-size:12px;margin-top:2px}.hero-macros{display:flex;flex-direction:column;gap:22px}.hmrow{display:flex;justify-content:space-between;color:#fff;font-size:13px}.hmrow span{font-size:12px;color:#e2e7ef}.hbar{height:9px;background:#3b4961;border-radius:99px;margin-top:6px;overflow:hidden}.hbar i{display:block;height:100%;width:0;background:#35d7a2;border-radius:99px}.hero-macros>div:nth-child(2) .hbar i{background:#5da4ff}.hero-macros>div:nth-child(3) .hbar i{background:#ffc84a}
+.quick{margin-top:14px}.quick button{height:72px;border-radius:19px;justify-content:flex-start;padding:12px 17px}.quick button span{display:flex;flex-direction:column}.quick button b{font-size:17px}.quick button small{font-size:11px;margin-top:2px;font-weight:550}.primary-action{background:#246ff2;color:#fff}.search-action{background:#edf4ff;color:#18243b;border:1px solid #dfe8f7}.qa-icon,.search-icon{font-size:27px!important;margin-right:8px}.search-icon{font-size:34px!important}
+.macro-card{padding:17px}.macro-grid-large{display:grid;grid-template-columns:1fr 1fr;gap:9px}.macro-large{background:#edf4ff;border-radius:20px;padding:17px 15px}.macro-large b{font-size:26px}.macro-large span{display:block;color:#7b8496;font-size:13px;margin-top:4px}
+.stat-strip{display:grid;grid-template-columns:repeat(4,1fr);gap:8px}.mini-stat{background:#fff;border:1px solid #e8edf4;border-radius:17px;text-align:center;padding:12px 4px;box-shadow:0 5px 18px #18304a08}.mini-stat span{display:block;font-size:21px}.mini-stat b{display:block;font-size:17px;margin-top:3px}.mini-stat small{font-size:10px;color:#7b8496}
+.rowtitle{display:flex;align-items:center;justify-content:space-between;font-weight:800;font-size:16px}.linkbtn{width:auto;padding:0;background:transparent;color:#1268ef;font-size:13px}.workout-card{padding:16px}.workout-preview{display:grid;grid-template-columns:48px 1fr 18px;gap:10px;align-items:center;background:#edf5ff;border-radius:18px;padding:13px;margin:10px 0}.workout-preview .dumbbell{font-size:27px}.workout-preview b{display:block;font-size:16px}.workout-preview small{display:block;color:#7b8496;font-size:11px;margin-top:3px}.workout-preview>span{font-size:28px;color:#0d4e9b}.compact{height:50px;justify-content:center!important}
+.water-card{padding:16px}.water-card .rowtitle b{color:#166cf2;margin-left:auto;margin-right:8px}.water-line{height:8px;background:#e8edf4;border-radius:99px;overflow:hidden;margin:12px 0}.water-line div{height:100%;width:0;background:#2580ef;border-radius:99px}.water-buttons{display:grid;grid-template-columns:repeat(4,1fr);gap:7px}.water-buttons button{font-size:11px;padding:10px 4px}.water-buttons .plus{color:#176bf0}
+.info-card{min-height:138px;position:relative;padding:15px}.info-icon{font-size:23px;display:block;margin-bottom:5px}.info-card>b{display:block;font-size:15px}.info-card strong{display:block;font-size:21px;margin-top:12px}.info-card small{display:block;color:#7b8496;font-size:11px;margin-top:2px}.arrow{position:absolute;right:13px;top:50%;font-size:25px;color:#172d50}.supp-bar{height:8px;background:#e8edf4;border-radius:99px;margin-top:9px;overflow:hidden}.supp-bar i{display:block;width:0;height:100%;background:#29c78d;border-radius:99px}
+.check-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:7px}.check-tile{border:1px solid #e2e8f1;border-radius:14px;padding:10px 5px;min-height:78px;text-align:center}.check-tile .ci{font-size:19px}.check-tile b{display:block;font-size:11px;margin-top:3px}.check-tile small{display:block;color:#7b8496;font-size:9px;margin-top:4px}.check-circle{width:20px;height:20px;border:3px solid #bdc9d8;border-radius:50%;margin:5px auto 0}.check-tile.done .check-circle{background:#27c98a;border-color:#27c98a;position:relative}.check-tile.done .check-circle:after{content:"✓";color:#fff;font-size:12px;position:absolute;left:3px;top:-1px}
+.bottom{padding-top:7px}.bottom button{font-size:10px}.bottom button.active{color:#246ff2}
+@media(max-width:520px){.hero-dashboard{grid-template-columns:1fr;gap:8px;min-height:0}.calorie-ring{width:155px;height:155px}.calorie-ring:after{inset:11px}.calorie-ring strong{font-size:35px}.hero-macros{gap:10px}.stat-strip{grid-template-columns:repeat(4,1fr)}.mini-stat{padding:9px 2px}.mini-stat b{font-size:14px}.check-grid{grid-template-columns:repeat(4,1fr)}.mode-select{min-width:105px}.tagline{max-width:230px}.water-buttons button{font-size:10px}}
+</style>
 </head>
 <body>
 <div class="app">
-<header class="top"><div><div class="brand">CalorieTrack</div><div class="date" id="todayDate"></div></div><button class="iconbtn" onclick="toggleDark()">☾</button></header>
+<header class="top">
+  <div>
+    <div class="brand">CalorieTrack</div>
+    <div class="tagline">Eat Better. Train Harder. Be Healthier.</div>
+    <div class="date" id="todayDate"></div>
+  </div>
+  <div class="head-actions">
+    <button class="iconbtn" onclick="toggleDark()">☼</button>
+    <select id="headerSex" class="mode-select" onchange="setHeaderMode(this.value)" aria-label="Mode">
+      <option value="male">👤 Male</option>
+      <option value="female">👤 Female</option>
+    </select>
+  </div>
+</header>
 <div class="pages">
 
 <section id="pageToday" class="active">
-<div class="hero"><small>Calories remaining</small><div class="big" id="remain">0</div><div class="unit">kcal</div><div class="bar"><div class="fill" id="calFill"></div></div><div class="herorow"><span id="eaten">0 eaten</span><span id="goalTxt">0 goal</span></div></div>
+  <div class="hero hero-dashboard">
+    <div class="hero-left">
+      <small>Calories remaining</small>
+      <div class="calorie-ring"><div><strong id="remain">0</strong><span>kcal left</span></div></div>
+      <div class="hero-total"><span id="eaten">0 eaten</span><span id="goalTxt">0 goal</span></div>
+    </div>
+    <div class="hero-macros">
+      <div><div class="hmrow"><b>Protein</b><span id="hp">0 / 0 g</span></div><div class="hbar"><i id="hpbar"></i></div></div>
+      <div><div class="hmrow"><b>Carbs</b><span id="hc">0 / 0 g</span></div><div class="hbar"><i id="hcbar"></i></div></div>
+      <div><div class="hmrow"><b>Fats</b><span id="hf">0 / 0 g</span></div><div class="hbar"><i id="hfbar"></i></div></div>
+    </div>
+  </div>
 
-<div class="section"><div class="grid2 quick"><button onclick="scan()">▣ Scan barcode</button><button class="light" onclick="foodSearch()">⌕ Search food</button><button class="light" onclick="customFood()">＋ Custom food</button><button class="light" onclick="portion()">⚖ Portion</button></div></div>
+  <div class="section grid2 quick">
+    <button class="primary-action" onclick="scan()"><span class="qa-icon">▥</span><span><b>Scan Barcode</b><small>Add food quickly</small></span></button>
+    <button class="search-action" onclick="foodSearch()"><span class="search-icon">⌕</span><span><b>Search Food</b><small>Find and add food</small></span></button>
+  </div>
 
-<div class="section card"><div class="sectiontitle">Macros</div><div class="grid3"><div class="macro"><b id="mp">0g</b><span>Protein</span></div><div class="macro"><b id="mc">0g</b><span>Carbs</span></div><div class="macro"><b id="mf">0g</b><span>Fat</span></div><div class="macro"><b id="mfi">0g</b><span>Fibre</span></div><div class="macro"><b id="ms">0g</b><span>Sugar</span></div><div class="macro"><b id="msa">0g</b><span>Sat. fat</span></div></div></div>
+  <div class="section card macro-card">
+    <div class="sectiontitle">Macros</div>
+    <div class="macro-grid-large">
+      <div class="macro-large"><b id="mp">0g</b><span>Protein</span></div>
+      <div class="macro-large"><b id="mc">0g</b><span>Carbs</span></div>
+      <div class="macro-large"><b id="mf">0g</b><span>Fat</span></div>
+      <div class="macro-large"><b id="mfi">0g</b><span>Fibre</span></div>
+      <div class="macro-large"><b id="ms">0g</b><span>Sugar</span></div>
+      <div class="macro-large"><b id="msa">0g</b><span>Sat. fat</span></div>
+    </div>
+  </div>
 
-<div class="section card"><div class="sectiontitle">Daily targets</div><div id="targets"></div></div>
+  <div class="section stat-strip">
+    <div class="mini-stat"><span>🔥</span><b id="miniCal">0</b><small>Calories</small></div>
+    <div class="mini-stat"><span>💪</span><b id="miniProtein">0g</b><small>Protein</small></div>
+    <div class="mini-stat"><span>🌾</span><b id="miniFibre">0g</b><small>Fibre</small></div>
+    <div class="mini-stat"><span>💧</span><b id="miniWater">0 L</b><small>Water</small></div>
+  </div>
 
-<div class="section card"><div class="row"><div class="sectiontitle">Water</div><span class="chip" id="waterTxt"></span></div><div class="bar" style="background:var(--line)"><div class="fill" id="waterFill"></div></div><div class="grid2"><button class="light" onclick="addWater(-250)">−250 ml</button><button onclick="addWater(250)">＋250 ml</button><button class="light" onclick="addWater(-500)">−500 ml</button><button onclick="addWater(500)">＋500 ml</button></div></div>
+  <div class="section card workout-card">
+    <div class="sectiontitle rowtitle"><span>🏋️ Today's Workout</span><button class="linkbtn" onclick="workoutForm()">Change</button></div>
+    <div class="workout-preview"><div class="dumbbell">🏋️</div><div><b id="homeWorkoutName">Rest Day</b><small id="homeWorkoutMeta">No workout logged today</small></div><span>›</span></div>
+    <div class="grid2"><button class="primary-action compact" onclick="workoutForm()">＋ <b>Log Workout</b></button><button class="search-action compact" onclick="go('pageWorkout',document.querySelectorAll('.bottom button')[2])">▣ <b>View History</b></button></div>
+  </div>
 
-<div class="section card"><div class="row"><div class="sectiontitle">Drinks</div><button class="sm light" onclick="drinkForm()">＋ Add</button></div><div class="notice">Drink calories count toward your calorie total; drinks do not count toward the water goal.</div><div id="drinks"></div></div>
+  <div class="section card water-card">
+    <div class="rowtitle"><span>💧 Water Intake</span><b id="waterTxt">0 L / 3.0 L</b><span>›</span></div>
+    <div class="water-line"><div id="waterFill"></div></div>
+    <div class="water-buttons"><button class="light" onclick="addWater(-250)">− 250 ml</button><button class="light" onclick="addWater(-500)">− 500 ml</button><button class="light plus" onclick="addWater(250)">＋ 250 ml</button><button class="light plus" onclick="addWater(500)">＋ 500 ml</button></div>
+  </div>
 
-<div class="section card"><div class="row"><div class="sectiontitle">Food diary</div><span class="chip" id="foodNum"></span></div><div id="diary"></div></div>
-<div class="section card"><div class="sectiontitle">Today's checklist</div><div id="checks"></div></div>
+  <div class="section grid2">
+    <div class="card info-card" onclick="go('pageProgress',document.querySelectorAll('.bottom button')[1])"><span class="info-icon">⚖️</span><b>Weight</b><strong id="homeWeight">-- kg</strong><small id="homeWeightMeta">No entry yet</small><span class="arrow">›</span></div>
+    <div class="card info-card" onclick="go('pageMore',document.querySelectorAll('.bottom button')[4])"><span class="info-icon">💊</span><b>Supplements</b><strong id="homeSupps">0 / 0 taken</strong><div class="supp-bar"><i id="homeSuppBar"></i></div><span class="arrow">›</span></div>
+  </div>
+
+  <div class="section card checklist-card">
+    <div class="sectiontitle rowtitle"><span>☑️ Today's Checklist</span><button class="linkbtn">View All</button></div>
+    <div class="check-grid" id="homeChecks"></div>
+  </div>
+
+  <div class="section card" style="display:none"><div id="targets"></div><div id="drinks"></div><div id="diary"></div><span id="foodNum"></span></div>
 </section>
 
 <section id="pageProgress">
@@ -164,6 +238,40 @@ function restore(e){let f=e.target.files[0];if(!f)return;let r=new FileReader();
 function csv(){let lines=['date,food,calories,protein,carbs,fat,fibre,sugar,saturated_fat'];Object.entries(S.days).forEach(([d,x])=>(x.foods||[]).forEach(f=>lines.push([d,f.name,f.k,f.p,f.c,f.f,f.fi,f.s,f.sa].map(v=>'"'+String(v??'').replaceAll('"','""')+'"').join(','))));let a=document.createElement('a');a.href=URL.createObjectURL(new Blob([lines.join('\\n')],{type:'text/csv'}));a.download='calorietrack-food.csv';a.click()}
 document.getElementById('todayDate').textContent=new Date().toLocaleDateString(undefined,{weekday:'long',month:'long',day:'numeric'});
 document.body.classList.toggle('dark',!!S.settings.dark);updateMode();renderAll();
+
+// v21 home dashboard synchronization
+function setHeaderMode(v){
+  const e=document.getElementById('sex'); if(e){e.value=v; saveProfile();}
+  S.profile.sex=v; save(); updateMode(); renderAll();
+}
+function renderHomeExtras(){
+  const x=sums(), d=D(), p=S.profile;
+  const hp=document.getElementById('hp'),hc=document.getElementById('hc'),hf=document.getElementById('hf');
+  if(hp)hp.textContent=Math.round(x.p)+' / '+(+p.proteinGoal||0)+' g';
+  if(hc)hc.textContent=Math.round(x.c)+' / '+Math.round((+p.calGoal||0)*.45/4)+' g';
+  if(hf)hf.textContent=Math.round(x.f)+' / '+Math.round((+p.calGoal||0)*.30/9)+' g';
+  [['hpbar',x.p,+p.proteinGoal||1],['hcbar',x.c,(+p.calGoal||0)*.45/4||1],['hfbar',x.f,(+p.calGoal||0)*.30/9||1]].forEach(a=>{let e=document.getElementById(a[0]);if(e)e.style.width=Math.min(100,a[1]/a[2]*100)+'%'});
+  const miniCal=document.getElementById('miniCal'),miniProtein=document.getElementById('miniProtein'),miniFibre=document.getElementById('miniFibre'),miniWater=document.getElementById('miniWater');
+  if(miniCal)miniCal.textContent=Math.round(x.k); if(miniProtein)miniProtein.textContent=Math.round(x.p)+'g'; if(miniFibre)miniFibre.textContent=Math.round(x.fi)+'g'; if(miniWater)miniWater.textContent=((d.water||0)/1000).toFixed(1)+' L';
+  const wt=document.getElementById('waterTxt'),wf=document.getElementById('waterFill'),wg=+p.waterGoal||1;
+  if(wt)wt.textContent=((d.water||0)/1000).toFixed(1)+' L / '+(wg/1000).toFixed(1)+' L';
+  if(wf)wf.style.width=Math.min(100,(d.water||0)/wg*100)+'%';
+  const ws=document.getElementById('homeWeight'),wm=document.getElementById('homeWeightMeta');
+  let wr=Object.entries(S.days).filter(([,v])=>v.weight).sort((a,b)=>a[0].localeCompare(b[0])); let last=wr.at(-1)?.[1].weight;
+  if(ws)ws.textContent=last?last.toFixed(1)+' kg':'-- kg'; if(wm)wm.textContent=last?'Latest weigh-in':'No entry yet';
+  const names=['Creatine','Vitamin D3','Vitamin C','Magnesium','Zinc','Iron','B12','Omega-3','Multivitamin'],taken=names.filter(n=>S.supps[n]).length;
+  if(document.getElementById('homeSupps'))document.getElementById('homeSupps').textContent=taken+' / '+names.length+' taken';
+  if(document.getElementById('homeSuppBar'))document.getElementById('homeSuppBar').style.width=(taken/names.length*100)+'%';
+  const tw=S.workouts.filter(w=>w.date===new Date().toISOString().slice(0,10)).at(-1);
+  document.getElementById('homeWorkoutName').textContent=tw?.name||'Rest Day';
+  document.getElementById('homeWorkoutMeta').textContent=tw?(tw.muscles||'Workout logged today'):'No workout logged today';
+  const c=d.checks||{}, checks=[['💧','Water',''+((d.water||0)/1000).toFixed(1)+' L / '+(wg/1000).toFixed(1)+' L','water'],['🏋️','Workout',tw?'Done':'Rest Day','workout'],['💊','Supplements',taken+'/'+names.length,'supp'],['🍎','Calories',Math.round(x.k)+' / '+(+p.calGoal||0),'cal']];
+  const hcEl=document.getElementById('homeChecks'); if(hcEl)hcEl.innerHTML=checks.map(q=>{let done=q[3]==='water'?(d.water||0)>=wg:q[3]==='supp'?taken===names.length:q[3]==='cal'?x.k<=p.calGoal&&x.k>0:!!c[q[3]];return `<div class="check-tile ${done?'done':''}"><div class="ci">${q[0]}</div><b>${q[1]}</b><small>${q[2]}</small><div class="check-circle"></div></div>`}).join('');
+}
+const _oldRenderToday=renderToday;
+renderToday=function(){_oldRenderToday();renderHomeExtras();};
+const _oldRenderGoals=renderGoals;
+renderGoals=function(){_oldRenderGoals();const h=document.getElementById('headerSex');if(h)h.value=S.profile.sex||'male';};
 </script>
 </body>
 </html>
