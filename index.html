@@ -161,7 +161,7 @@ html.dark .hero-dashboard{background:#0a1020!important}
   <div class="section card workout-card">
     <div class="sectiontitle rowtitle"><span>🏋️ Today's Workout</span><button class="linkbtn" onclick="workoutForm()">Change</button></div>
     <div class="workout-preview"><div class="dumbbell">🏋️</div><div><b id="homeWorkoutName">Rest Day</b><small id="homeWorkoutMeta">No workout logged today</small></div><span>›</span></div>
-    <div class="grid2"><button class="primary-action compact" onclick="workoutForm()">＋ <b>Log Workout</b></button><button class="search-action compact" onclick="go('pageWorkout',document.querySelectorAll('.bottom button')[2])">▣ <b>View History</b></button></div>
+    <div class="grid2"><button class="primary-action compact" onclick="workoutForm()">＋ <b>Log Workout</b></button><button class="search-action compact" onclick="go('pageWorkout',document.querySelectorAll('.bottom button')[3])">▣ <b>View History</b></button></div>
   </div>
 
   <div class="section card water-card">
@@ -170,9 +170,15 @@ html.dark .hero-dashboard{background:#0a1020!important}
     <div class="water-buttons"><button class="light" onclick="addWater(-250)">− 250 ml</button><button class="light" onclick="addWater(-500)">− 500 ml</button><button class="light plus" onclick="addWater(250)">＋ 250 ml</button><button class="light plus" onclick="addWater(500)">＋ 500 ml</button></div>
   </div>
 
+  <div class="section card steps-card">
+    <div class="rowtitle"><span>👟 Steps</span><b id="stepsTxt">0 / 0</b></div>
+    <div class="water-line"><div id="stepsFill"></div></div>
+    <div class="grid2"><input id="stepsInput" type="number" min="0" inputmode="numeric" placeholder="Enter today's steps"><button class="light" onclick="saveSteps()">Save steps</button></div>
+  </div>
+
   <div class="section grid2">
     <div class="card info-card" onclick="go('pageProgress',document.querySelectorAll('.bottom button')[1])"><span class="info-icon">⚖️</span><b>Weight</b><strong id="homeWeight">-- kg</strong><small id="homeWeightMeta">No entry yet</small><span class="arrow">›</span></div>
-    <div class="card info-card" onclick="go('pageMore',document.querySelectorAll('.bottom button')[4])"><span class="info-icon">💊</span><b>Supplements</b><strong id="homeSupps">0 / 0 taken</strong><div class="supp-bar"><i id="homeSuppBar"></i></div><span class="arrow">›</span></div>
+    <div class="card info-card" onclick="go('pageMore',document.querySelectorAll('.bottom button')[5])"><span class="info-icon">💊</span><b>Supplements</b><strong id="homeSupps">0 / 0 taken</strong><div class="supp-bar"><i id="homeSuppBar"></i></div><span class="arrow">›</span></div>
   </div>
 
   <div class="section card checklist-card">
@@ -191,7 +197,7 @@ html.dark .hero-dashboard{background:#0a1020!important}
 </section>
 
 <section id="pageFood">
-<div class="section card"><div class="sectiontitle">Food library</div><div class="grid2"><button onclick="foodSearch()">⌕ Search database</button><button class="light" onclick="customFood()">＋ Custom food</button><button class="light" onclick="mealForm()">＋ Saved meal</button><button class="light" onclick="recipeForm()">＋ Recipe</button></div></div>
+<div class="section card"><div class="sectiontitle">Food library</div><div class="grid2"><button onclick="foodSearch()">⌕ Search database</button><button class="light" onclick="customFood()">＋ Custom food</button><button class="light" onclick="mealForm()">＋ Saved meal</button><button class="light" onclick="recipeForm()">＋ Recipe</button><button class="light" onclick="portion()">🧮 Portion calculator</button><button class="light" onclick="drinkForm()">🥤 Add drink</button></div></div>
 <div class="section card"><div class="sectiontitle">Favourites & recent</div><div id="favourites"></div></div>
 <div class="section card"><div class="sectiontitle">Saved meals</div><div id="meals"></div></div>
 <div class="section card"><div class="sectiontitle">Recipes</div><div id="recipes"></div></div>
@@ -207,7 +213,7 @@ html.dark .hero-dashboard{background:#0a1020!important}
 <div class="section card"><div class="sectiontitle">Profile & goals</div>
 <div class="grid2"><label>Mode<select id="sex" onchange="saveProfile()"><option value="male">Male</option><option value="female">Female</option></select></label><label>Age<input id="age" type="number" onchange="saveProfile()"></label><label>Height (cm)<input id="height" type="number" onchange="saveProfile()"></label><label>Weight (kg)<input id="weight" type="number" step=".1" onchange="saveProfile()"></label><label>Activity<select id="activity" onchange="saveProfile()"><option value="1.2">Sedentary</option><option value="1.375">Light</option><option value="1.55">Moderate</option><option value="1.725">Very active</option><option value="1.9">Athlete</option></select></label><label>Goal<select id="phase" onchange="saveProfile()"><option value="maintain">Maintain</option><option value="cut">Cut</option><option value="bulk">Bulk</option></select></label><label>Calorie target<input id="calGoal" type="number" onchange="saveProfile()"></label><label>Goal weight<input id="goalWeight" type="number" step=".1" onchange="saveProfile()"></label></div>
 <button onclick="calculate()">Calculate suggested target</button><div class="notice" id="calc"></div></div>
-<div class="section card"><div class="sectiontitle">Daily targets</div><div class="grid2"><label>Protein (g)<input id="proteinGoal" type="number" onchange="saveProfile()"></label><label>Fibre (g)<input id="fibreGoal" type="number" onchange="saveProfile()"></label><label>Water (ml)<input id="waterGoal" type="number" onchange="saveProfile()"></label><label>Steps<input id="stepsGoal" type="number" onchange="saveProfile()"></label></div></div>
+<div class="section card"><div class="sectiontitle">Daily targets</div><div class="grid2"><label>Protein (g)<input id="proteinGoal" type="number" onchange="saveProfile()"></label><label>Carbs (g)<input id="carbsGoal" type="number" onchange="saveProfile()"></label><label>Fat (g)<input id="fatGoal" type="number" onchange="saveProfile()"></label><label>Fibre (g)<input id="fibreGoal" type="number" onchange="saveProfile()"></label><label>Water (ml)<input id="waterGoal" type="number" onchange="saveProfile()"></label><label>Steps<input id="stepsGoal" type="number" onchange="saveProfile()"></label></div></div>
 <div class="section card"><div class="sectiontitle">Suggested macros</div><div id="macroSuggestions" class="macro-suggestion"></div></div>
 <div id="cycleLink" class="section card hidden"><button onclick="go('pageCycle',this)">📅 Menstrual Cycle</button></div>
 </section>
@@ -223,7 +229,7 @@ html.dark .hero-dashboard{background:#0a1020!important}
 <div class="section card"><div class="sectiontitle">Tools & privacy</div><div class="notice">Your data is stored locally in this browser.</div><div class="grid2"><button onclick="backup()">Export backup</button><button class="light" onclick="document.getElementById('restore').click()">Restore backup</button></div><input id="restore" type="file" accept=".json" class="hidden" onchange="restore(event)"><button class="light" onclick="csv()">Export food CSV</button></div>
 </section>
 </div>
-<div class="app-version">CalorieTrack v38</div>
+<div class="app-version">CalorieTrack v40</div>
 </div>
 
 <nav class="bottom"><button onclick="go('pageToday',this)" class="active">Today</button><button onclick="go('pageProgress',this)">Progress</button><button onclick="go('pageFood',this)">Food</button><button onclick="go('pageWorkout',this)">Workout</button><button onclick="go('pageGoals',this)">Goals</button><button onclick="goMore(this)">More</button></nav>
@@ -235,12 +241,25 @@ html.dark .hero-dashboard{background:#0a1020!important}
    All app data is kept locally in the browser.
    ============================================================ */
 const KEY='calorietrack_v20';
-const defaults={profile:{sex:'male',age:23,height:180,weight:73,activity:1.55,phase:'maintain',calGoal:2500,goalWeight:73,proteinGoal:150,carbsGoal:281,fatGoal:69,fibreGoal:30,waterGoal:2500,stepsGoal:8000},settings:{dark:false},days:{},foods:[],meals:[],recipes:[],workouts:[],exercises:[],supps:{},cycle:{start:'',cycleLength:28,periodLength:5,symptoms:''}};
+const defaults={profile:{sex:'male',age:23,height:180,weight:73,activity:1.55,phase:'maintain',calGoal:2500,goalWeight:73,proteinGoal:150,carbsGoal:281,fatGoal:69,fibreGoal:30,waterGoal:2500,stepsGoal:8000},settings:{dark:false},days:{},foods:[],meals:[],recipes:[],workouts:[],exercises:[],supps:{},cycle:{start:'',cycleLength:28,periodLength:5,symptoms:''},weightHistory:[]};
 let S=JSON.parse(localStorage.getItem(KEY)||'null')||structuredClone(defaults);
-// Backward-compatible migration for older local data.
-S.profile=S.profile||{};if(!('carbsGoal' in S.profile))S.profile.carbsGoal=0;if(!('fatGoal' in S.profile))S.profile.fatGoal=0;
+
+// Normalize/migrate old saved data so every feature has the fields it expects.
+function normalizeState(raw){
+  const base=structuredClone(defaults);
+  const out=raw&&typeof raw==='object'?raw:{};
+  out.profile={...base.profile,...(out.profile||{})};
+  out.settings={...base.settings,...(out.settings||{})};
+  out.days=out.days&&typeof out.days==='object'?out.days:{};
+  Object.values(out.days).forEach(d=>{if(!d||typeof d!=='object')return;d.foods=Array.isArray(d.foods)?d.foods:[];d.drinks=Array.isArray(d.drinks)?d.drinks:[];d.water=Number(d.water)||0;d.weight=d.weight==null?null:Number(d.weight)||null;d.steps=Number(d.steps)||0;d.checks=d.checks&&typeof d.checks==='object'?d.checks:{}});
+  out.foods=Array.isArray(out.foods)?out.foods:[];out.meals=Array.isArray(out.meals)?out.meals:[];out.recipes=Array.isArray(out.recipes)?out.recipes:[];out.workouts=Array.isArray(out.workouts)?out.workouts:[];out.exercises=Array.isArray(out.exercises)?out.exercises:[];out.supps=out.supps&&typeof out.supps==='object'?out.supps:{};out.cycle={...base.cycle,...(out.cycle||{})};out.weightHistory=Array.isArray(out.weightHistory)?out.weightHistory:[];
+  return out;
+}
+S=normalizeState(S);
 // Save the current state to localStorage.
+function byId(id){return document.getElementById(id)}
 function save(){localStorage.setItem(KEY,JSON.stringify(S))}
+function safeRender(name,fn){try{fn()}catch(e){console.error('CalorieTrack '+name+' render error:',e)}}
 function localDateKey(date=new Date()){const y=date.getFullYear(),m=String(date.getMonth()+1).padStart(2,'0'),d=String(date.getDate()).padStart(2,'0');return `${y}-${m}-${d}`}
 function D(){let d=localDateKey();if(!S.days[d])S.days[d]={foods:[],drinks:[],water:0,weight:null,steps:0,checks:{}};return S.days[d]}
 function esc(x){return String(x??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[c]))}
@@ -262,14 +281,15 @@ function toggleDark(){S.settings.dark=!S.settings.dark;save();applyTheme();rende
 /* ============================================================
    PAGE RENDERING
    ============================================================ */
-function renderAll(){renderToday();renderProgress();renderFood();renderWorkout();renderGoals();renderCycle();renderSupps()}
+function renderAll(){safeRender('Today',renderToday);safeRender('Progress',renderProgress);safeRender('Food',renderFood);safeRender('Workout',renderWorkout);safeRender('Goals',renderGoals);safeRender('Cycle',renderCycle);safeRender('Supplements',renderSupps)}
 function renderToday(){
  const x=sums(),g=+S.profile.calGoal||0,d=D(),rem=Math.max(0,g-x.k),pct=g?Math.min(100,x.k/g*100):0;
- document.getElementById('remain').textContent=Math.round(rem);document.getElementById('eaten').textContent=Math.round(x.k)+' eaten';document.getElementById('goalTxt').textContent=g+' goal';document.getElementById('calFill').style.width=pct+'%';
+ document.getElementById('remain').textContent=Math.round(rem);document.getElementById('eaten').textContent=Math.round(x.k)+' eaten';document.getElementById('goalTxt').textContent=g+' goal';const calFill=byId('calFill');if(calFill)calFill.style.width=pct+'%';
  // The calorie ring starts empty, fills as food is logged, and is fully green at the calorie goal.
  const ring=document.getElementById('calorieRing');if(ring){const deg=pct*3.6;ring.style.background=`conic-gradient(#25d39b 0deg ${deg}deg,#394861 ${deg}deg 360deg)`;}
  ['p','c','f','fi','s','sa'].forEach(k=>document.getElementById('m'+k).textContent=Math.round(x[k]*10)/10+'g');
  const wg=+S.profile.waterGoal||0,wp=wg?Math.min(100,d.water/wg*100):0;document.getElementById('waterTxt').textContent=d.water+' / '+wg+' ml';document.getElementById('waterFill').style.width=wp+'%';
+ const stepGoal=+S.profile.stepsGoal||0,stepCount=Number(d.steps)||0;const stepTxt=byId('stepsTxt'),stepFill=byId('stepsFill'),stepInput=byId('stepsInput');if(stepTxt)stepTxt.textContent=stepCount.toLocaleString()+' / '+stepGoal.toLocaleString();if(stepFill)stepFill.style.width=(stepGoal?Math.min(100,stepCount/stepGoal*100):0)+'%';if(stepInput)stepInput.value=stepCount||'';
  document.getElementById('foodNum').textContent=d.foods.length+' items';
  document.getElementById('diary').innerHTML=d.foods.length?d.foods.map((f,i)=>`<div class="listrow"><div><div class="foodname">${esc(f.name)}</div><div class="foodmeta">${Math.round(f.k)} kcal · P ${Math.round(f.p)}g · C ${Math.round(f.c)}g · F ${Math.round(f.f)}g</div></div><div class="actions"><button class="sm light" onclick="fav(${i})">☆</button><button class="sm red" onclick="delFood(${i})">−</button></div></div>`).join(''):'<div class="notice">No food logged yet.</div>';
  document.getElementById('drinks').innerHTML=d.drinks.length?d.drinks.map((x,i)=>`<div class="listrow"><div><div class="foodname">${esc(x.name)}</div><div class="foodmeta">${x.k} kcal · ${x.ml} ml</div></div><button class="sm red" onclick="delDrink(${i})">−</button></div>`).join(''):'<div class="notice">No drinks logged.</div>';
@@ -285,128 +305,138 @@ function addWater(n){D().water=Math.max(0,(D().water||0)+n);save();renderToday()
 function delFood(i){D().foods.splice(i,1);save();renderToday()}
 function fav(i){let f={...D().foods[i]};f.id=Date.now();f.favorite=true;S.foods.unshift(f);save();renderFood()}
 function delDrink(i){D().drinks.splice(i,1);save();renderToday()}
+function saveSteps(){const el=byId('stepsInput');const n=Math.max(0,Math.floor(Number(el&&el.value)||0));D().steps=n;save();renderToday();renderHomeExtras()}
 /* ============================================================
    FOOD, MODALS + OPEN FOOD FACTS
    ============================================================ */
 function openM(t,b){document.getElementById('modalTitle').textContent=t;document.getElementById('modalBody').innerHTML=b;document.getElementById('modal').classList.remove('hidden')}
 function closeModal(){stopScanner().catch(()=>{});document.getElementById('modal').classList.add('hidden')}
 function addFood(f){D().foods.push({...f,id:Date.now()});save();closeModal();renderAll()}
-function customFood(){openM('Add custom food',`<div class="grid2"><label>Name<input id="fn"></label><label>Calories<input id="fk" type="number"></label><label>Protein<input id="fp" type="number"></label><label>Carbs<input id="fc" type="number"></label><label>Fat<input id="ff" type="number"></label><label>Fibre<input id="ffi" type="number"></label><label>Sugar<input id="fs" type="number"></label><label>Sat. fat<input id="fsa" type="number"></label></div><button onclick="addFood({name:fn.value,k:+fk.value,p:+fp.value,c:+fc.value,f:+ff.value,fi:+ffi.value||0,s:+fs.value||0,sa:+fsa.value||0})">Add to diary</button>`)}
+function customFood(){openM('Add custom food',`<div class="grid2"><label>Name<input id="fn"></label><label>Calories<input id="fk" type="number"></label><label>Protein<input id="fp" type="number"></label><label>Carbs<input id="fc" type="number"></label><label>Fat<input id="ff" type="number"></label><label>Fibre<input id="ffi" type="number"></label><label>Sugar<input id="fs" type="number"></label><label>Sat. fat<input id="fsa" type="number"></label></div><button onclick="addCustomFood()">Add to diary</button>`)}
+function addCustomFood(){const v=id=>Number((byId(id)||{}).value)||0;const name=(byId('fn')?.value||'').trim();if(!name){alert('Please enter a food name.');return}addFood({name,k:v('fk'),p:v('fp'),c:v('fc'),f:v('ff'),fi:v('ffi'),s:v('fs'),sa:v('fsa')})}
 function foodSearch(){openM('Search food',`<input id="foodQ" placeholder="e.g. oats, bread, banana"><button onclick="searchOFF()">Search Open Food Facts</button><div id="foodResults"></div>`)}
 async function searchOFF(){let q=document.getElementById('foodQ').value.trim();if(!q)return;let r=document.getElementById('foodResults');r.innerHTML='<div class="notice">Searching…</div>';try{let url='https://world.openfoodfacts.org/api/v2/search?search_terms='+encodeURIComponent(q)+'&page_size=10&fields=product_name,generic_name,nutriments';let res=await fetch(url);let j=await res.json();let arr=j.products||[];if(!arr.length){r.innerHTML='<div class="notice">No results.</div>';return}r.innerHTML=arr.map((p,i)=>{let n=p.nutriments||{};return `<div class="listrow"><div><div class="foodname">${esc(p.product_name||p.generic_name||'Unknown')}</div><div class="foodmeta">${Math.round(n['energy-kcal_100g']||n['energy-kcal']||0)} kcal / 100g</div></div><button class="sm" onclick='useOFF(${JSON.stringify({name:p.product_name||p.generic_name||"Food",k:+(n["energy-kcal_100g"]||n["energy-kcal"]||0),p:+(n.proteins_100g||0),c:+(n.carbohydrates_100g||0),f:+(n.fat_100g||0),fi:+(n.fiber_100g||0),s:+(n.sugars_100g||0),sa:+(n["saturated-fat_100g"]||0)})})'>Add</button></div>`}).join('')}catch(e){r.innerHTML='<div class="notice">Could not reach Open Food Facts.</div>'}}
 function useOFF(f){openM('Amount eaten',`<div class="notice">Nutrition is per 100g.</div><label>Grams<input id="offg" type="number" value="100"></label><button onclick="addOFF(${JSON.stringify(f)})">Add</button>`)}
-function addOFF(f){let g=+offg.value||100,m=g/100;addFood({...f,name:f.name+' ('+g+'g)',k:f.k*m,p:f.p*m,c:f.c*m,f:f.f*m,fi:f.fi*m,s:f.s*m,sa:f.sa*m})}
+function addOFF(f){const el=document.getElementById('offg');const g=Math.max(1,+((el&&el.value)||100)||100),m=g/100;addFood({...f,name:f.name+' ('+g+'g)',k:f.k*m,p:f.p*m,c:f.c*m,f:f.f*m,fi:f.fi*m,s:f.s*m,sa:f.sa*m})}
 /* ============================================================
-   BARCODE SCANNER — iPhone/Safari friendly
-   Uses html5-qrcode because it handles iOS camera permissions and
-   normal 1D supermarket barcodes more reliably than the previous
-   Quagga implementation. The library is loaded only when needed.
+   BARCODE SCANNER — v40
+   Live scanning uses ZXing's browser decoder for 1D product barcodes.
+   This avoids relying on the previous scanner implementation.
    ============================================================ */
 let scannerInstance=null;
+let scannerControls=null;
+let scannerReader=null;
 let scannerBusy=false;
 
-function loadBarcodeLibrary(){
-  if(window.Html5Qrcode) return Promise.resolve();
+function loadZXing(){
+  if(window.ZXingBrowser) return Promise.resolve();
   return new Promise((resolve,reject)=>{
-    const existing=document.querySelector('script[data-barcode-lib="html5qrcode"]');
-    if(existing){existing.addEventListener('load',resolve,{once:true});existing.addEventListener('error',()=>reject(new Error('Scanner library failed to load')),{once:true});return;}
+    const existing=document.querySelector('script[data-barcode-lib="zxing"]');
+    if(existing){existing.addEventListener('load',resolve,{once:true});existing.addEventListener('error',()=>reject(new Error('Barcode library failed to load')),{once:true});return;}
     const s=document.createElement('script');
-    s.src='https://cdn.jsdelivr.net/npm/html5-qrcode@2.3.8/html5-qrcode.min.js';
-    s.async=true;s.dataset.barcodeLib='html5qrcode';
-    s.onload=()=>resolve();s.onerror=()=>reject(new Error('Scanner library failed to load'));
+    s.src='https://unpkg.com/@zxing/browser@0.2.1';
+    s.async=true;s.dataset.barcodeLib='zxing';
+    s.onload=()=>resolve();s.onerror=()=>reject(new Error('Barcode library failed to load'));
     document.head.appendChild(s);
   });
 }
 
-async function scan(){
-  openM('Scan supermarket barcode',`<div class="scanner-help"><b>Scan a supermarket barcode</b><div class="notice">Hold the black bars inside the scanning box. Use good lighting, keep the barcode flat, and move the phone closer/farther until it focuses.</div></div><div id="reader" style="width:100%;min-height:280px;overflow:hidden;border-radius:16px;background:#111"></div><div id="scanStatus" class="notice" style="margin-top:10px">Loading scanner…</div><div class="grid2" style="margin-top:8px"><button class="light" onclick="stopScanner()">Stop camera</button><button class="light" onclick="document.getElementById('barcodePhoto').click()">🖼️ Camera Roll</button></div><input id="barcodePhoto" type="file" accept="image/*" class="hidden" onchange="scanBarcodePhoto(event)"><div style="margin-top:10px"><input id="manualBarcode" inputmode="numeric" autocomplete="off" placeholder="Enter barcode manually"><button class="light" onclick="manualBarcode()">Enter barcode</button></div>`);
-  const status=document.getElementById('scanStatus');
-  try{
-    await loadBarcodeLibrary();
-    await startHtml5Scanner(status);
-  }catch(e){
-    console.error(e);
-    if(status)status.innerHTML='<b>Camera could not start.</b><br>Allow camera access for Safari and make sure you are using the HTTPS GitHub Pages address. You can also use Camera Roll or enter the barcode manually.';
-  }
+function scannerMarkup(){
+  return `<div class="scanner-help"><b>Scan a supermarket barcode</b><div class="notice">Place the black bars horizontally inside the box. Use bright, even lighting and hold the phone steady about 10–25 cm from the barcode.</div></div><div id="reader" style="width:100%;min-height:300px;overflow:hidden;border-radius:16px;background:#111;display:flex;align-items:center;justify-content:center"><video id="barcodeVideo" playsinline muted autoplay style="width:100%;height:300px;object-fit:cover"></video></div><div id="scanStatus" class="notice" style="margin-top:10px">Starting camera…</div><div class="grid2" style="margin-top:8px"><button class="light" onclick="stopScanner()">Stop camera</button><button class="light" onclick="document.getElementById('barcodePhoto').click()">🖼️ Take/photo</button></div><input id="barcodePhoto" type="file" accept="image/*" capture="environment" class="hidden" onchange="scanBarcodePhoto(event)"><div style="margin-top:10px"><input id="manualBarcode" inputmode="numeric" autocomplete="off" placeholder="Enter barcode manually"><button class="light" onclick="submitManualBarcode()">Enter barcode</button></div>`;
 }
 
-async function startHtml5Scanner(status){
-  const target=document.getElementById('reader');
-  if(!target)throw new Error('Scanner target missing');
+async function scan(){
+  openM('Scan supermarket barcode',scannerMarkup());
+  const status=document.getElementById('scanStatus');
+  try{await loadZXing();await startZXingScanner(status)}
+  catch(e){console.error(e);if(status)status.innerHTML='<b>Camera could not start.</b><br>Allow camera access for Safari and make sure you are using the HTTPS GitHub Pages address. You can use Take/photo or enter the barcode manually.';}
+}
+
+async function startZXingScanner(status){
+  const video=byId('barcodeVideo');
+  if(!video)throw new Error('Video element missing');
   await stopScanner();
-  const formats=[];
-  const F=window.Html5QrcodeSupportedFormats||{};
-  ['EAN_13','EAN_8','UPC_A','UPC_E','CODE_128','CODE_39','ITF'].forEach(k=>{if(F[k]!=null)formats.push(F[k]);});
-  scannerInstance=new Html5Qrcode('reader',{verbose:false,formatsToSupport:formats.length?formats:undefined});
+  const B=window.ZXingBrowser;
+  if(!B||!B.BrowserMultiFormatReader)throw new Error('ZXing browser decoder unavailable');
+  scannerReader=new B.BrowserMultiFormatReader();
   scannerBusy=true;
-  let detected=false;
-  const onSuccess=decodedText=>{
-    if(detected)return;
-    const digits=String(decodedText||'').replace(/\D/g,'');
+  if(status)status.textContent='Requesting the rear camera…';
+  const constraints={audio:false,video:{facingMode:{ideal:'environment'},width:{ideal:1920},height:{ideal:1080}}};
+  scannerControls=await scannerReader.decodeFromConstraints(constraints,video,(result,error)=>{
+    if(!scannerBusy||!result)return;
+    const raw=result.getText?result.getText():String(result.text||'');
+    const digits=raw.replace(/\D/g,'');
     if(digits.length<8||digits.length>14)return;
-    detected=true;
+    scannerBusy=false;
     if(status)status.textContent='Barcode found: '+digits+' — looking up product…';
-    stopScanner().finally(()=>barcode(digits));
-  };
-  const onError=()=>{};
-  const config={fps:12,qrbox:{width:300,height:150},aspectRatio:1.7777778};
-  try{
-    await scannerInstance.start({facingMode:{exact:'environment'}},config,onSuccess,onError);
-  }catch(firstError){
-    try{
-      await scannerInstance.stop().catch(()=>{});
-      await scannerInstance.clear().catch(()=>{});
-      scannerInstance=new Html5Qrcode('reader',{verbose:false,formatsToSupport:formats.length?formats:undefined});
-      await scannerInstance.start({facingMode:'environment'},config,onSuccess,onError);
-    }catch(secondError){
-      scannerBusy=false;scannerInstance=null;
-      throw secondError;
-    }
-  }
-  if(status)status.textContent='Camera ready — hold the supermarket barcode inside the box.';
+    const controls=scannerControls;scannerControls=null;try{controls&&controls.stop()}catch(_){}
+    barcode(digits);
+  });
+  if(status)status.textContent='Camera ready — place the full supermarket barcode inside the box.';
 }
 
 async function scanBarcodePhoto(event){
   const file=event&&event.target&&event.target.files&&event.target.files[0];
   if(!file)return;
   const status=document.getElementById('scanStatus');
-  if(status)status.textContent='Scanning barcode photo…';
+  if(status)status.textContent='Reading barcode photo…';
   try{
-    await loadBarcodeLibrary();
+    await loadZXing();
     await stopScanner();
-    const formats=[];
-    const F=window.Html5QrcodeSupportedFormats||{};
-    ['EAN_13','EAN_8','UPC_A','UPC_E','CODE_128','CODE_39','ITF'].forEach(k=>{if(F[k]!=null)formats.push(F[k]);});
-    const scanner=new Html5Qrcode('reader',{verbose:false,formatsToSupport:formats.length?formats:undefined});
-    const code=await scanner.scanFile(file,true);
-    await scanner.clear().catch(()=>{});
-    const digits=String(code||'').replace(/\D/g,'');
+    const img=new Image();
+    img.alt='Barcode photo';
+    img.style.display='none';
+    document.body.appendChild(img);
+    img.src=URL.createObjectURL(file);
+    await new Promise((resolve,reject)=>{img.onload=resolve;img.onerror=reject});
+    const reader=new window.ZXingBrowser.BrowserMultiFormatReader();
+    const result=await reader.decodeFromImageElement(img);
+    URL.revokeObjectURL(img.src);img.remove();
+    const raw=result.getText?result.getText():String(result.text||'');
+    const digits=raw.replace(/\D/g,'');
     if(digits.length<8||digits.length>14)throw new Error('Invalid barcode');
     if(status)status.textContent='Barcode found: '+digits+' — looking up product…';
     barcode(digits);
   }catch(e){
     console.error(e);
-    if(status)status.innerHTML='<b>Couldn’t read that photo.</b><br>Take a clear, close-up photo showing the entire black-and-white barcode.';
-  }finally{
-    if(event&&event.target)event.target.value='';
-  }
+    if(status)status.innerHTML='<b>Couldn’t read that photo.</b><br>Take a close-up photo with the entire barcode visible and the black bars sharp.';
+  }finally{if(event&&event.target)event.target.value='';}
 }
 
-function manualBarcode(){const el=document.getElementById('manualBarcode');const code=(el&&el.value||'').replace(/\D/g,'');if(code.length>=8)barcode(code);else alert('Please enter a valid supermarket barcode (usually 8–14 digits).');}
+function submitManualBarcode(){
+  const el=document.getElementById('manualBarcode');
+  const code=(el&&el.value||'').replace(/\D/g,'');
+  if(code.length>=8&&code.length<=14){stopScanner();barcode(code)}
+  else alert('Please enter a valid supermarket barcode (usually 8–14 digits).');
+}
 
 async function stopScanner(){
   scannerBusy=false;
-  const s=scannerInstance;
-  scannerInstance=null;
-  if(!s)return;
-  try{await s.stop()}catch(_){ }
-  try{await s.clear()}catch(_){ }
+  const c=scannerControls;scannerControls=null;
+  if(c){try{c.stop()}catch(_){}}
+  const r=scannerReader;scannerReader=null;
+  if(r&&typeof r.reset==='function'){try{r.reset()}catch(_){}}
+  const v=document.getElementById('barcodeVideo');
+  if(v&&v.srcObject){try{v.srcObject.getTracks().forEach(t=>t.stop())}catch(_){}v.srcObject=null;}
 }
 
-async function barcode(code){let r=document.getElementById('scanResult');if(r)r.innerHTML='<div class="notice">Looking up '+esc(code)+'…</div>';try{let res=await fetch('https://world.openfoodfacts.org/api/v3/product/'+encodeURIComponent(code)+'.json?fields=product_name,brands,serving_size,nutriments',{headers:{'Accept':'application/json'}});if(!res.ok)throw new Error('HTTP '+res.status);let j=await res.json();let p=j.product||{},n=p.nutriments||{};if(!p.product_name)throw new Error('Product not found');useOFF({name:(p.brands?p.brands+' ':'')+p.product_name,k:+(n['energy-kcal_100g']||n['energy-kcal_value']||0),p:+(n.proteins_100g||0),c:+(n.carbohydrates_100g||0),f:+(n.fat_100g||0),fi:+(n.fiber_100g||0),s:+(n.sugars_100g||0),sa:+(n['saturated-fat_100g']||0)})}catch(e){if(r)r.innerHTML='<div class="notice"><b>Product not found.</b><br>This barcode may not be in Open Food Facts yet. Try Search Food or Custom Food.</div>'}}
+async function barcode(code){
+  const clean=String(code).replace(/\D/g,'');
+  let r=document.getElementById('scanStatus');
+  if(r)r.innerHTML='<div class="notice">Looking up '+esc(clean)+'…</div>';
+  try{
+    const res=await fetch('https://world.openfoodfacts.org/api/v3/product/'+encodeURIComponent(clean)+'.json?fields=product_name,brands,serving_size,nutriments',{headers:{'Accept':'application/json'}});
+    const j=await res.json();
+    const p=j.product||{},n=p.nutriments||{};
+    if(!res.ok||!p.product_name)throw new Error('Product not found');
+    useOFF({name:(p.brands?p.brands+' ':'')+p.product_name,k:+(n['energy-kcal_100g']||n['energy-kcal_value']||0),p:+(n.proteins_100g||0),c:+(n.carbohydrates_100g||0),f:+(n.fat_100g||0),fi:+(n.fiber_100g||0),s:+(n.sugars_100g||0),sa:+(n['saturated-fat_100g']||0)});
+  }catch(e){
+    if(r)r.innerHTML='<div class="notice"><b>Barcode detected, but product was not found.</b><br>The scanner worked. This product may not be in Open Food Facts yet. Try Search Food or Custom Food.</div>';
+  }
+}
 function portion(){openM('Portion calculator',`<div class="grid2"><label>Package amount (g)<input id="pg" type="number"></label><label>Amount eaten (g)<input id="eg" type="number"></label><label>Package kcal<input id="pk" type="number"></label><label>Package protein<input id="pp" type="number"></label><label>Package carbs<input id="pc" type="number"></label><label>Package fat<input id="pf" type="number"></label></div><button onclick="calcPortion()">Calculate</button><div id="por"></div>`)}
-function calcPortion(){let m=(+eg.value||0)/(+pg.value||1);por.innerHTML=`<div class="card"><b>${Math.round((+pk.value||0)*m)} kcal</b><br>Protein ${Math.round((+pp.value||0)*m*10)/10}g · Carbs ${Math.round((+pc.value||0)*m*10)/10}g · Fat ${Math.round((+pf.value||0)*m*10)/10}g</div>`}
-function drinkForm(){openM('Add drink',`<div class="grid2"><label>Name<input id="dn"></label><label>Calories<input id="dk" type="number"></label><label>Volume (ml)<input id="dm" type="number"></label></div><button onclick="D().drinks.push({name:dn.value,k:+dk.value||0,ml:+dm.value||0});save();closeModal();renderToday()">Add drink</button>`)}
+function calcPortion(){const v=id=>+((document.getElementById(id)||{}).value||0);const m=v('eg')/Math.max(1,v('pg'));const out=document.getElementById('por');if(out)out.innerHTML=`<div class="card"><b>${Math.round(v('pk')*m)} kcal</b><br>Protein ${Math.round(v('pp')*m*10)/10}g · Carbs ${Math.round(v('pc')*m*10)/10}g · Fat ${Math.round(v('pf')*m*10)/10}g</div>`}
+function drinkForm(){openM('Add drink',`<div class="grid2"><label>Name<input id="dn"></label><label>Calories<input id="dk" type="number"></label><label>Volume (ml)<input id="dm" type="number"></label></div><button onclick="const n=document.getElementById('dn'),k=document.getElementById('dk'),m=document.getElementById('dm');D().drinks.push({name:n.value.trim()||'Drink',k:+k.value||0,ml:+m.value||0});save();closeModal();renderToday()">Add drink</button>`)}
 /* ============================================================
    WEIGHT TRACKING
    Weight is stored in BOTH the daily record and a dedicated history
@@ -495,7 +525,7 @@ function renderProgress(){
 
   if(latestEl) latestEl.textContent=last!==null?last.toFixed(1)+' kg':'—';
   if(avgEl) avgEl.textContent=recent.length?(recent.reduce((a,b)=>a+b,0)/recent.length).toFixed(1)+' kg':'—';
-  if(goalEl) goalEl.textContent=(Number(S.profile.goalWeight)||0).toFixed(1)+' kg';
+  if(goalEl){const gw=Number(S.profile.goalWeight)||0;goalEl.textContent=gw>0?gw.toFixed(1)+' kg':'—';}
   if(changeEl) changeEl.textContent=weights.length>1?((last-weights[0])>0?'+':'')+(last-weights[0]).toFixed(1)+' kg':'—';
   if(rowsEl) rowsEl.innerHTML=rows.slice().reverse().map(([date,d])=>`<div class=\"listrow\"><span>${date}</span><b>${Number(d.weight).toFixed(1)} kg</b></div>`).join('')||'<div class=\"notice\">Log a weigh-in to see your trend.</div>';
 
@@ -514,7 +544,7 @@ function renderProgress(){
   if(trainingEl) trainingEl.innerHTML=S.workouts.slice(-5).reverse().map(w=>`<div class=\"listrow\"><span><b>${esc(w.name||'Workout')}</b><br><span class=\"foodmeta\">${w.date} · ${esc(w.muscles||'')}</span></span><span>${w.duration||0} min</span></div>`).join('')||'<div class=\"notice\">No workouts yet.</div>';
 }
 
-function drawWeight(rows){let c=document.getElementById('weightCanvas'),x=c.getContext('2d'),w=c.width=c.clientWidth*2,h=c.height=c.clientHeight*2;x.clearRect(0,0,w,h);if(rows.length<2)return;let vals=rows.map(r=>r[1].weight),mn=Math.min(...vals)-1,mx=Math.max(...vals)+1;x.beginPath();rows.forEach((r,i)=>{let px=20+i*(w-40)/(rows.length-1),py=h-20-(r[1].weight-mn)/(mx-mn)*(h-40);i?x.lineTo(px,py):x.moveTo(px,py)});x.strokeStyle=getComputedStyle(document.body).getPropertyValue('--blue');x.lineWidth=6;x.stroke()}
+function drawWeight(rows){let c=byId('weightCanvas');if(!c||!c.getContext)return;let x=c.getContext('2d'),w=Math.max(320,c.clientWidth*2),h=Math.max(180,c.clientHeight*2);c.width=w;c.height=h;x.clearRect(0,0,w,h);if(rows.length<2)return;let vals=rows.map(r=>r[1].weight),mn=Math.min(...vals)-1,mx=Math.max(...vals)+1;x.beginPath();rows.forEach((r,i)=>{let px=20+i*(w-40)/(rows.length-1),py=h-20-(r[1].weight-mn)/(mx-mn)*(h-40);i?x.lineTo(px,py):x.moveTo(px,py)});x.strokeStyle=getComputedStyle(document.body).getPropertyValue('--blue');x.lineWidth=6;x.stroke()}
 function mealForm(){openM('Saved meal',`<label>Name<input id="mn"></label><div class="notice">Save the foods currently in today's diary as a meal.</div><button onclick="S.meals.push({name:mn.value,foods:JSON.parse(JSON.stringify(D().foods))});save();closeModal();renderFood()">Save meal</button>`)}
 function recipeForm(){openM('Recipe builder',`<label>Recipe name<input id="rn"></label><label>Servings<input id="rs" type="number" value="1"></label><div class="notice">Uses the foods currently in today's diary as ingredients. Save it and later add a serving.</div><button onclick="S.recipes.push({name:rn.value,servings:+rs.value||1,foods:JSON.parse(JSON.stringify(D().foods))});save();closeModal();renderFood()">Save recipe</button>`)}
 function renderFood(){favourites.innerHTML=S.foods.slice(0,12).map((f,i)=>`<div class="listrow"><div><div class="foodname">${esc(f.name)}</div><div class="foodmeta">${Math.round(f.k)} kcal</div></div><button class="sm" onclick="addFood(${JSON.stringify(f)})">Add</button></div>`).join('')||'<div class="notice">Your favourites will appear here.</div>';meals.innerHTML=S.meals.map((m,i)=>`<div class="listrow"><span class="foodname">${esc(m.name)}</span><button class="sm" onclick="addMeal(${i})">Add</button></div>`).join('')||'<div class="notice">No saved meals.</div>';recipes.innerHTML=S.recipes.map((r,i)=>`<div class="listrow"><span><b>${esc(r.name)}</b><br><span class="foodmeta">${r.servings} serving(s)</span></span><button class="sm" onclick="addRecipe(${i})">Add</button></div>`).join('')||'<div class="notice">No recipes.</div>'}
@@ -522,11 +552,11 @@ function addMeal(i){let m=S.meals[i];m.foods.forEach(f=>addFoodSilent(f));save()
 function exerciseForm(){openM('Exercise',`<label>Exercise name<input id="en"></label><label>Muscle group<select id="em"><option>Chest</option><option>Back</option><option>Shoulders</option><option>Biceps</option><option>Triceps</option><option>Legs</option><option>Glutes</option><option>Abs/Core</option><option>Calves</option></select></label><button onclick="S.exercises.push({name:en.value,muscle:em.value});save();closeModal();renderWorkout()">Save exercise</button>`)}
 function workoutForm(){openM('Log workout',`<label>Name<input id="wn" value="Workout"></label><label>Muscle groups<input id="wm" placeholder="Chest, triceps"></label><div class="grid2"><label>Duration (min)<input id="wd" type="number"></label><label>Notes<input id="wno"></label></div><h3>Exercises</h3><div id="setRows"></div><button class="light" onclick="addSetRow()">＋ Add exercise set</button><button onclick="saveWorkout()">Save workout</button>`);addSetRow()}
 function addSetRow(){let e=document.getElementById('setRows');if(!e)return;e.insertAdjacentHTML('beforeend',`<div class="grid3" style="margin:7px 0"><input class="sx" placeholder="Exercise"><input class="sr" type="number" placeholder="Reps"><input class="sw" type="number" step=".5" placeholder="kg"></div>`)}
-function saveWorkout(){let rows=[...document.querySelectorAll('#setRows>div')].map(r=>({exercise:r.querySelector('.sx').value,reps:+r.querySelector('.sr').value||0,weight:+r.querySelector('.sw').value||0}));S.workouts.push({date:localDateKey(),name:wn.value,muscles:wm.value,duration:+wd.value||0,notes:wno.value,sets:rows});D().checks.workout=true;save();closeModal();renderAll()}
+function saveWorkout(){const get=id=>byId(id)?.value||'';let rows=[...document.querySelectorAll('#setRows>div')].map(r=>({exercise:r.querySelector('.sx')?.value||'',reps:+(r.querySelector('.sr')?.value||0),weight:+(r.querySelector('.sw')?.value||0)}));S.workouts.push({date:localDateKey(),name:get('wn').trim()||'Workout',muscles:get('wm').trim(),duration:+get('wd')||0,notes:get('wno').trim(),sets:rows});D().checks.workout=true;save();closeModal();renderAll()}
 /* ============================================================
    WORKOUT TRACKER
    ============================================================ */
-function renderWorkout(){workouts.innerHTML=S.workouts.slice().reverse().map((w,i)=>`<div class="listrow"><span><b>${esc(w.name)}</b><br><span class="foodmeta">${w.date} · ${esc(w.muscles||'')} · ${w.duration||0} min · ${w.sets?.length||0} sets</span></span><button class="sm red" onclick="deleteWorkout(${S.workouts.length-1-i})">−</button></div>`).join('')||'<div class="notice">No workouts logged.</div>';let map={};S.workouts.forEach(w=>(w.sets||[]).forEach(s=>{if(s.exercise)map[s.exercise]=Math.max(map[s.exercise]||0,s.weight||0)}));prs.innerHTML=Object.entries(map).map(([n,v])=>`<div class="listrow"><span>${esc(n)}</span><b>${v} kg</b></div>`).join('')||'<div class="notice">Your best weights will appear here.</div>'}
+function renderWorkout(){const el=byId('workouts'),prEl=byId('prs');if(!el||!prEl)return;el.innerHTML=S.workouts.slice().reverse().map((w,i)=>`<div class="listrow"><span><b>${esc(w.name)}</b><br><span class="foodmeta">${w.date} · ${esc(w.muscles||'')} · ${w.duration||0} min · ${w.sets?.length||0} sets</span></span><button class="sm red" onclick="deleteWorkout(${S.workouts.length-1-i})">−</button></div>`).join('')||'<div class="notice">No workouts logged.</div>';let map={};S.workouts.forEach(w=>(w.sets||[]).forEach(s=>{if(s.exercise)map[s.exercise]=Math.max(map[s.exercise]||0,s.weight||0)}));prEl.innerHTML=Object.entries(map).map(([n,v])=>`<div class="listrow"><span>${esc(n)}</span><b>${v} kg</b></div>`).join('')||'<div class="notice">Your best weights will appear here.</div>'}
 function deleteWorkout(i){S.workouts.splice(i,1);save();renderWorkout()}
 /* ============================================================
    GOALS + MALE/FEMALE MODE
@@ -540,7 +570,7 @@ function validateGoalDirection(showAlert=true){
 }
 function saveProfile(){
   const p=S.profile,old={...p};
-  ['age','height','weight','calGoal','goalWeight','proteinGoal','fibreGoal','waterGoal','stepsGoal'].forEach(k=>{let el=document.getElementById(k);if(el)p[k]=+el.value||0});
+  ['age','height','weight','calGoal','goalWeight','proteinGoal','carbsGoal','fatGoal','fibreGoal','waterGoal','stepsGoal'].forEach(k=>{let el=document.getElementById(k);if(el)p[k]=+el.value||0});
   p.sex=document.getElementById('sex').value;p.activity=+document.getElementById('activity').value;p.phase=document.getElementById('phase').value;
   if(!validateGoalDirection(true)){
     p.goalWeight=old.goalWeight; p.phase=old.phase;
@@ -549,7 +579,7 @@ function saveProfile(){
   }
   save();updateMode();renderAll();
 }
-function renderGoals(){let p=S.profile;['sex','age','height','weight','activity','phase','calGoal','goalWeight','proteinGoal','fibreGoal','waterGoal','stepsGoal'].forEach(k=>{let e=document.getElementById(k);if(e)e.value=p[k]});updateMode()}
+function renderGoals(){let p=S.profile;['sex','age','height','weight','activity','phase','calGoal','goalWeight','proteinGoal','carbsGoal','fatGoal','fibreGoal','waterGoal','stepsGoal'].forEach(k=>{let e=document.getElementById(k);if(e)e.value=p[k]});updateMode()}
 function getSuggestedMacros(){
   /*
     Macro suggestion based on the user's current profile.
@@ -585,7 +615,7 @@ function calculate(){
   const maint=bmr*p.activity,goal=p.phase==='cut'?maint-400:p.phase==='bulk'?maint+300:maint;
   p.calGoal=Math.round(goal);
   const m=getSuggestedMacros();p.proteinGoal=m.protein;p.carbsGoal=m.carbs;p.fatGoal=m.fat;p.fibreGoal=m.fibre;
-  save();renderGoals();calc.textContent='Suggested maintenance: '+Math.round(maint)+' kcal. Suggested '+p.phase+': '+Math.round(goal)+' kcal. Macro targets updated below.';
+  save();renderGoals();const calcEl=byId('calc');if(calcEl)calcEl.textContent='Suggested maintenance: '+Math.round(maint)+' kcal. Suggested '+p.phase+': '+Math.round(goal)+' kcal. Macro targets updated below.';
 }
 function updateMode(){let female=S.profile.sex==='female';let sec=document.getElementById('pageCycle'),link=document.getElementById('cycleLink');sec.style.display=female?'block':'none';if(link)link.classList.toggle('hidden',!female)}
 /* ============================================================
@@ -596,17 +626,17 @@ let calMonth=new Date();calMonth.setDate(1);
 function moveMonth(n){calMonth.setMonth(calMonth.getMonth()+n);renderCycle()}
 function cycleDates(){let c=S.cycle,s=new Date((c.start||'')+'T00:00:00'),period=new Set(),fertile=new Set();if(isNaN(s))return{period,fertile};let len=+c.cycleLength||28,pl=+c.periodLength||5;for(let i=-3;i<=12;i++){let p=new Date(s);p.setDate(s.getDate()+i*len);for(let j=0;j<pl;j++){let d=new Date(p);d.setDate(p.getDate()+j);period.add(fmt(d))}let ov=new Date(p);ov.setDate(p.getDate()+len-14);for(let j=-5;j<=1;j++){let d=new Date(ov);d.setDate(ov.getDate()+j);fertile.add(fmt(d))}}return{period,fertile}}
 function fmt(d){return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0')}
-function renderCycle(){let sec=document.getElementById('pageCycle');if(S.profile.sex!=='female'){sec.style.display='none';return}else sec.style.display='block';periodStart.value=S.cycle.start||'';cycleLength.value=S.cycle.cycleLength||28;periodLength.value=S.cycle.periodLength||5;symptoms.value=S.cycle.symptoms||'';let first=new Date(calMonth.getFullYear(),calMonth.getMonth(),1),last=new Date(calMonth.getFullYear(),calMonth.getMonth()+1,0);calTitle.textContent=first.toLocaleDateString(undefined,{month:'long',year:'numeric'});let pr=cycleDates(),off=first.getDay(),total=Math.ceil((off+last.getDate())/7)*7,now=fmt(new Date());cycleCal.innerHTML='';for(let i=0;i<total;i++){let d=new Date(first);d.setDate(1+i-off);let k=fmt(d),el=document.createElement('div');el.className='calday'+(d.getMonth()!=first.getMonth()?' muted':'')+(pr.period.has(k)?' period':'')+(pr.fertile.has(k)?' fertile':'')+(k===now?' today':'');el.innerHTML='<span>'+d.getDate()+'</span>'+(pr.period.has(k)||pr.fertile.has(k)?'<span class="dot"></span>':'');cycleCal.appendChild(el)}}
-function saveCycle(){S.cycle={start:periodStart.value,cycleLength:+cycleLength.value||28,periodLength:+periodLength.value||5,symptoms:symptoms.value};save();renderCycle()}
+function renderCycle(){let sec=document.getElementById('pageCycle');if(S.profile.sex!=='female'){sec.style.display='none';return}else sec.style.display='block';const ps=byId('periodStart'),cl=byId('cycleLength'),pl=byId('periodLength'),sy=byId('symptoms'),ct=byId('calTitle'),cc=byId('cycleCal');if(ps)ps.value=S.cycle.start||'';if(cl)cl.value=S.cycle.cycleLength||28;if(pl)pl.value=S.cycle.periodLength||5;if(sy)sy.value=S.cycle.symptoms||'';let first=new Date(calMonth.getFullYear(),calMonth.getMonth(),1),last=new Date(calMonth.getFullYear(),calMonth.getMonth()+1,0);if(ct)ct.textContent=first.toLocaleDateString(undefined,{month:'long',year:'numeric'});let pr=cycleDates(),off=first.getDay(),total=Math.ceil((off+last.getDate())/7)*7,now=fmt(new Date());if(!cc)return;cc.innerHTML='';for(let i=0;i<total;i++){let d=new Date(first);d.setDate(1+i-off);let k=fmt(d),el=document.createElement('div');el.className='calday'+(d.getMonth()!=first.getMonth()?' muted':'')+(pr.period.has(k)?' period':'')+(pr.fertile.has(k)?' fertile':'')+(k===now?' today':'');el.innerHTML='<span>'+d.getDate()+'</span>'+(pr.period.has(k)||pr.fertile.has(k)?'<span class="dot"></span>':'');cc.appendChild(el)}}
+function saveCycle(){const ps=byId('periodStart'),cl=byId('cycleLength'),pl=byId('periodLength'),sy=byId('symptoms');S.cycle={start:ps?.value||'',cycleLength:Math.max(1,Number(cl?.value)||28),periodLength:Math.max(1,Number(pl?.value)||5),symptoms:sy?.value||''};save();renderCycle()}
 /* ============================================================
    SUPPLEMENTS + BACKUP / EXPORT
    ============================================================ */
-function renderSupps(){let names=['Creatine','Vitamin D3','Vitamin C','Magnesium','Zinc','Iron','B12','Omega-3','Multivitamin'];supps.innerHTML=names.map(n=>`<label class="check"><input type="checkbox" ${S.supps[n]?'checked':''} onchange="S.supps['${n}']=this.checked;save()"><span>${n}</span></label>`).join('')}
+function renderSupps(){const el=byId('supps');if(!el)return;let names=['Creatine','Vitamin D3','Vitamin C','Magnesium','Zinc','Iron','B12','Omega-3','Multivitamin'];el.innerHTML=names.map(n=>`<label class="check"><input type="checkbox" ${S.supps[n]?'checked':''} onchange="S.supps['${n}']=this.checked;save()"><span>${n}</span></label>`).join('')}
 function backup(){let a=document.createElement('a');a.href=URL.createObjectURL(new Blob([JSON.stringify(S,null,2)],{type:'application/json'}));a.download='calorietrack-backup.json';a.click()}
-function restore(e){let f=e.target.files[0];if(!f)return;let r=new FileReader();r.onload=()=>{try{S=JSON.parse(r.result);save();location.reload()}catch{alert('Invalid backup file')}};r.readAsText(f)}
+function restore(e){const f=e?.target?.files?.[0];if(!f)return;const r=new FileReader();r.onload=()=>{try{const parsed=JSON.parse(r.result);if(!parsed||typeof parsed!=='object'||typeof parsed.profile!=='object'||typeof parsed.days!=='object')throw new Error('Invalid structure');S=normalizeState(parsed);save();location.reload()}catch(err){console.error(err);alert('Invalid or incompatible backup file. Your current data was not changed.')}};r.readAsText(f)}
+
 function csv(){let lines=['date,food,calories,protein,carbs,fat,fibre,sugar,saturated_fat'];Object.entries(S.days).forEach(([d,x])=>(x.foods||[]).forEach(f=>lines.push([d,f.name,f.k,f.p,f.c,f.f,f.fi,f.s,f.sa].map(v=>'"'+String(v??'').replaceAll('"','""')+'"').join(','))));let a=document.createElement('a');a.href=URL.createObjectURL(new Blob([lines.join('\\n')],{type:'text/csv'}));a.download='calorietrack-food.csv';a.click()}
-document.getElementById('todayDate').textContent=new Date().toLocaleDateString(undefined,{weekday:'long',month:'long',day:'numeric'});
-applyTheme();updateMode();renderAll();
+
 
 /* ============================================================
    HOME DASHBOARD SYNCHRONIZATION
@@ -643,14 +673,12 @@ function renderHomeExtras(){
   const validWeights=S.weightHistory.filter(x=>x&&x.date&&Number.isFinite(Number(x.weight))&&Number(x.weight)>0);
   const latestWeight=validWeights.length?Number(validWeights[validWeights.length-1].weight):null;
   const latestWeightDate=validWeights.length?validWeights[validWeights.length-1].date:'';
-  if(ws)ws.textContent=latestWeight!==null?latestWeight.toFixed(1)+' kg':'-- kg';
-  if(wm)wm.textContent=latestWeight!==null?'Latest weigh-in · '+latestWeightDate:'No entry yet';
+  const homeW=byId('homeWeight'),homeWM=byId('homeWeightMeta');if(homeW)homeW.textContent=latestWeight!==null?latestWeight.toFixed(1)+' kg':'-- kg';if(homeWM)homeWM.textContent=latestWeight!==null?'Latest weigh-in · '+latestWeightDate:'No entry yet';
   const names=['Creatine','Vitamin D3','Vitamin C','Magnesium','Zinc','Iron','B12','Omega-3','Multivitamin'],taken=names.filter(n=>S.supps[n]).length;
   if(document.getElementById('homeSupps'))document.getElementById('homeSupps').textContent=taken+' / '+names.length+' taken';
   if(document.getElementById('homeSuppBar'))document.getElementById('homeSuppBar').style.width=(taken/names.length*100)+'%';
   const tw=S.workouts.filter(w=>w.date===localDateKey()).at(-1);
-  document.getElementById('homeWorkoutName').textContent=tw?.name||'Rest Day';
-  document.getElementById('homeWorkoutMeta').textContent=tw?(tw.muscles||'Workout logged today'):'No workout logged today';
+  const hwn=byId('homeWorkoutName'),hwm=byId('homeWorkoutMeta');if(hwn)hwn.textContent=tw?.name||'Rest Day';if(hwm)hwm.textContent=tw?(tw.muscles||'Workout logged today'):'No workout logged today';
   const c=d.checks||{}, checks=[['💧','Water',''+((d.water||0)/1000).toFixed(1)+' L / '+(wg/1000).toFixed(1)+' L','water'],['🏋️','Workout',tw?'Done':'Rest Day','workout'],['💊','Supplements',taken+'/'+names.length,'supp'],['🍎','Calories',Math.round(x.k)+' / '+(+p.calGoal||0),'cal']];
   const hcEl=document.getElementById('homeChecks'); if(hcEl)hcEl.innerHTML=checks.map(q=>{let done=q[3]==='water'?(d.water||0)>=wg:q[3]==='supp'?taken===names.length:q[3]==='cal'?x.k<=p.calGoal&&x.k>0:!!c[q[3]];return `<div class="check-tile ${done?'done':''}"><div class="ci">${q[0]}</div><b>${q[1]}</b><small>${q[2]}</small><div class="check-circle"></div></div>`}).join('');
 }
@@ -663,6 +691,7 @@ renderGoals=function(){_oldRenderGoals();const h=document.getElementById('header
    Keep startup calls inside this script block.
    Do not add executable code after the document closes.
    ============================================================ */
+const dateEl=byId('todayDate');if(dateEl)dateEl.textContent=new Date().toLocaleDateString(undefined,{weekday:'long',month:'long',day:'numeric'});applyTheme();updateMode();renderAll();
 </script>
 </body>
 </html>
