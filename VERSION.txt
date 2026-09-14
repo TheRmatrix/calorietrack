@@ -1,1 +1,13 @@
-CalorieTrack 1.0
+CalorieTrack 1.1
+
+Multi-source food lookup upgrade.
+
+Food lookup now:
+- Checks CalorieTrack's local barcode memory first.
+- Uses Open Food Facts universal barcode lookup with barcode normalization candidates.
+- Falls back across regional Open Food Facts endpoints for Chile, South America and Europe.
+- Uses global + regional Open Food Facts searches.
+- Lets users save a missing barcode product manually for future scans.
+- Keeps the existing CalorieTrack UI and local-first storage.
+
+No Apple Health / steps integration is included in this release.

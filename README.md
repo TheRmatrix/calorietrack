@@ -52,3 +52,7 @@ CalorieTrack is not copying Flutter source code from OpenNutriTracker. Equivalen
 ## Privacy
 
 Personal tracker data is stored locally in the browser. There is no CalorieTrack account or central diary database.
+
+
+## v1.1 food lookup
+CalorieTrack now uses a multi-source/fallback food lookup strategy. Open Food Facts remains the primary open database, with global and regional endpoints for Chile, South America and Europe, barcode normalization, local barcode caching, and a manual save path for products that are not found.

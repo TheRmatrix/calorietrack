@@ -229,7 +229,7 @@ html.dark .hero-dashboard{background:#0a1020!important}
 <div class="section card"><div class="sectiontitle">Tools & privacy</div><div class="notice">Your data is stored locally in this browser.</div><div class="grid2"><button onclick="backup()">Export backup</button><button class="light" onclick="document.getElementById('restore').click()">Restore backup</button></div><input id="restore" type="file" accept=".json" class="hidden" onchange="restore(event)"><button class="light" onclick="csv()">Export food CSV</button></div>
 </section>
 </div>
-<div class="app-version">CalorieTrack v1.0</div>
+<div class="app-version">CalorieTrack v1.1</div>
 </div>
 
 <nav class="bottom"><button onclick="go('pageToday',this)" class="active">Today</button><button onclick="go('pageProgress',this)">Progress</button><button onclick="go('pageFood',this)">Food</button><button onclick="go('pageWorkout',this)">Workout</button><button onclick="go('pageGoals',this)">Goals</button><button onclick="goMore(this)">More</button></nav>
@@ -316,24 +316,80 @@ function closeModal(){stopScanner().catch(()=>{});document.getElementById('modal
 function addFood(f){D().foods.push({...f,id:Date.now()});save();closeModal();renderAll()}
 function customFood(){openM('Add custom food',`<div class="grid2"><label>Name<input id="fn"></label><label>Calories<input id="fk" type="number"></label><label>Protein<input id="fp" type="number"></label><label>Carbs<input id="fc" type="number"></label><label>Fat<input id="ff" type="number"></label><label>Fibre<input id="ffi" type="number"></label><label>Sugar<input id="fs" type="number"></label><label>Sat. fat<input id="fsa" type="number"></label></div><button onclick="addCustomFood()">Add to diary</button>`)}
 function addCustomFood(){const v=id=>Number((byId(id)||{}).value)||0;const name=(byId('fn')?.value||'').trim();if(!name){alert('Please enter a food name.');return}addFood({name,k:v('fk'),p:v('fp'),c:v('fc'),f:v('ff'),fi:v('ffi'),s:v('fs'),sa:v('fsa')})}
-function foodSearch(){openM('Search food',`<input id="foodQ" placeholder="e.g. oats, bread, banana"><button onclick="searchOFF()">Search Open Food Facts</button><div id="foodResults"></div>`)}
+function foodSearch(){
+  openM('Search food',`<div class="notice"><b>Multi-source food search</b><br>Searches Open Food Facts globally and also checks regional food listings for Chile/South America and Europe. If a product is missing, you can still add it manually and CalorieTrack will remember it.</div><label>Region<select id="foodRegion"><option value="all">Global</option><option value="south-america">South America</option><option value="europe">Europe</option><option value="chile">Chile</option></select></label><input id="foodQ" placeholder="e.g. Coca-Cola, oats, bread, banana"><button onclick="searchOFF()">Search food databases</button><div id="foodResults"></div>`);
+}
+
+const FOOD_REGIONS={
+  'south-america':['cl','ar','br','pe','co','uy','ec','bo','py'],
+  'europe':['es','pt','fr','de','gb','ie','it','nl','be','ch','at'],
+  'chile':['cl'],
+  'all':['cl','ar','br','pe','co','uy','ec','bo','py','es','pt','fr','de','gb','ie','it','nl','be','ch','at']
+};
+
+function foodFromOFF(product, barcode=''){
+  const n=product?.nutriments||{};
+  const k=Number(n['energy-kcal_100g']??n['energy-kcal_value']??0)||0;
+  return {
+    name:((product?.brands?product.brands+' ':'')+(product?.product_name||product?.generic_name||'Food')).trim(),
+    k,p:Number(n.proteins_100g||0)||0,c:Number(n.carbohydrates_100g||0)||0,
+    f:Number(n.fat_100g||0)||0,fi:Number(n.fiber_100g||n['fiber_100g']||0)||0,
+    s:Number(n.sugars_100g||0)||0,sa:Number(n['saturated-fat_100g']||0)||0,
+    barcode:String(barcode||product?.code||''),source:'Open Food Facts'
+  };
+}
+
+function cacheFood(food){
+  if(!food?.barcode)return;
+  const code=String(food.barcode).replace(/\D/g,'');
+  if(!code)return;
+  const cache=JSON.parse(localStorage.getItem('calorietrack_food_cache')||'{}');
+  cache[code]=food;
+  localStorage.setItem('calorietrack_food_cache',JSON.stringify(cache));
+}
+
+function cachedFood(code){
+  const cache=JSON.parse(localStorage.getItem('calorietrack_food_cache')||'{}');
+  return cache[String(code).replace(/\D/g,'')]||null;
+}
+
+async function fetchOFFBarcode(code,domain='world.openfoodfacts.org'){
+  const url='https://'+domain+'/api/v3/product/'+encodeURIComponent(code)+'.json?product_type=all&fields=code,product_name,generic_name,brands,serving_size,nutriments';
+  const res=await fetch(url,{headers:{'Accept':'application/json'}});
+  if(!res.ok)return null;
+  const j=await res.json();
+  if(j.status!==1||!j.product)return null;
+  return {food:foodFromOFF(j.product,code),productType:j.product_type||'food'};
+}
+
 async function searchOFF(){
   const q=(document.getElementById('foodQ')?.value||'').trim();
   const r=document.getElementById('foodResults');
+  const region=document.getElementById('foodRegion')?.value||'all';
   if(!q||!r)return;
-  r.innerHTML='<div class="notice">Searching…</div>';
+  r.innerHTML='<div class="notice">Searching global + regional food sources…</div>';
   try{
-    const url='https://world.openfoodfacts.org/api/v2/search?search_terms='+encodeURIComponent(q)+'&page_size=10&fields=product_name,generic_name,nutriments';
-    const res=await fetch(url);
-    const j=await res.json();
-    const products=j.products||[];
-    pendingSearchFoods=products.map(product=>{
-      const n=product.nutriments||{};
-      return {name:product.product_name||product.generic_name||'Food',k:+(n['energy-kcal_100g']||n['energy-kcal']||0),p:+(n.proteins_100g||0),c:+(n.carbohydrates_100g||0),f:+(n.fat_100g||0),fi:+(n.fiber_100g||0),s:+(n.sugars_100g||0),sa:+(n['saturated-fat_100g']||0)};
-    });
-    if(!pendingSearchFoods.length){r.innerHTML='<div class="notice">No results.</div>';return}
-    r.innerHTML=pendingSearchFoods.map((food,i)=>`<div class="listrow"><div><div class="foodname">${esc(food.name)}</div><div class="foodmeta">${Math.round(food.k)} kcal / 100g</div></div><button class="sm" type="button" onclick="selectSearchFood(${i})">Add</button></div>`).join('');
-  }catch(e){console.error(e);r.innerHTML='<div class="notice">Could not reach Open Food Facts.</div>'}
+    const countries=FOOD_REGIONS[region]||FOOD_REGIONS.all;
+    const queries=[
+      'https://world.openfoodfacts.org/cgi/search.pl?search_terms='+encodeURIComponent(q)+'&search_simple=1&action=process&json=1&page_size=12&lc=en',
+      ...countries.slice(0, region==='all'?6:countries.length).map(c=>'https://'+c+'.openfoodfacts.org/cgi/search.pl?search_terms='+encodeURIComponent(q)+'&search_simple=1&action=process&json=1&page_size=6&lc=en')
+    ];
+    const responses=await Promise.allSettled(queries.map(u=>fetch(u,{headers:{'Accept':'application/json'}}).then(x=>x.ok?x.json():null)));
+    const seen=new Set(), products=[];
+    for(const rr of responses){
+      const arr=rr.status==='fulfilled'?(rr.value?.products||[]):[];
+      for(const product of arr){
+        const name=(product.product_name||product.generic_name||'').trim();
+        if(!name)continue;
+        const key=String(product.code||name).toLowerCase();
+        if(seen.has(key))continue;
+        seen.add(key);products.push(product);
+      }
+    }
+    pendingSearchFoods=products.map(p=>foodFromOFF(p,p.code||''));
+    if(!pendingSearchFoods.length){r.innerHTML='<div class="notice"><b>No product found.</b><br>Try another name, scan the barcode, or add it manually. Anything you add manually can be remembered on this device.</div>';return}
+    r.innerHTML=pendingSearchFoods.map((food,i)=>`<div class="listrow"><div><div class="foodname">${esc(food.name)}</div><div class="foodmeta">${Math.round(food.k)} kcal / 100g${food.barcode?' · '+esc(food.barcode):''}</div></div><button class="sm" type="button" onclick="selectSearchFood(${i})">Add</button></div>`).join('');
+  }catch(e){console.error(e);r.innerHTML='<div class="notice">The food databases could not be reached. Try again or use Custom food.</div>'}
 }
 function selectSearchFood(index){const food=pendingSearchFoods[index];if(food)useOFF(food)}
 function useOFF(f){
@@ -458,19 +514,56 @@ async function stopScanner(){
   if(v&&v.srcObject){try{v.srcObject.getTracks().forEach(t=>t.stop())}catch(_){}v.srcObject=null;}
 }
 
+function normalizeBarcodeCandidates(raw){
+  const digits=String(raw||'').replace(/\D/g,'');
+  const out=[];const add=x=>{if(x&&/^\d{8,14}$/.test(x)&&!out.includes(x))out.push(x)};
+  add(digits);
+  if(digits.length===8)add(digits.padStart(13,'0'));
+  if(digits.length===12)add('0'+digits);
+  if(digits.length===13&&digits.startsWith('0'))add(digits.slice(1));
+  if(digits.length===14&&digits.startsWith('0'))add(digits.slice(1));
+  return out;
+}
+
 async function barcode(code){
-  const clean=String(code).replace(/\D/g,'');
-  let r=document.getElementById('scanStatus');
-  if(r)r.innerHTML='<div class="notice">Looking up '+esc(clean)+'…</div>';
+  const candidates=normalizeBarcodeCandidates(code);
+  const r=document.getElementById('scanStatus');
+  if(r)r.innerHTML='<div class="notice">Barcode detected: <b>'+esc(candidates[0]||code)+'</b><br>Checking CalorieTrack memory and food databases…</div>';
   try{
-    const res=await fetch('https://world.openfoodfacts.org/api/v3/product/'+encodeURIComponent(clean)+'.json?fields=product_name,brands,serving_size,nutriments',{headers:{'Accept':'application/json'}});
-    const j=await res.json();
-    const p=j.product||{},n=p.nutriments||{};
-    if(!res.ok||!p.product_name)throw new Error('Product not found');
-    useOFF({name:(p.brands?p.brands+' ':'')+p.product_name,k:+(n['energy-kcal_100g']||n['energy-kcal_value']||0),p:+(n.proteins_100g||0),c:+(n.carbohydrates_100g||0),f:+(n.fat_100g||0),fi:+(n.fiber_100g||0),s:+(n.sugars_100g||0),sa:+(n['saturated-fat_100g']||0)});
+    for(const candidate of candidates){
+      const local=cachedFood(candidate);
+      if(local){useOFF(local);return;}
+    }
+    const domains=['world.openfoodfacts.org','cl.openfoodfacts.org','br.openfoodfacts.org','ar.openfoodfacts.org','pe.openfoodfacts.org','co.openfoodfacts.org','es.openfoodfacts.org','pt.openfoodfacts.org','fr.openfoodfacts.org','de.openfoodfacts.org','gb.openfoodfacts.org','ie.openfoodfacts.org'];
+    for(const candidate of candidates){
+      for(const domain of domains){
+        try{
+          const found=await fetchOFFBarcode(candidate,domain);
+          if(found?.food){
+            cacheFood(found.food);
+            useOFF(found.food);
+            return;
+          }
+        }catch(_){/* Try the next database/region. */}
+      }
+    }
+    if(r)r.innerHTML='<div class="notice"><b>Barcode '+esc(candidates[0]||code)+' was read successfully.</b><br>It was not found in the available databases.<br><br><button type="button" onclick="manualProductFromBarcode('+JSON.stringify(candidates[0]||code)+')">＋ Add this product manually</button></div>';
   }catch(e){
-    if(r)r.innerHTML='<div class="notice"><b>Barcode detected, but product was not found.</b><br>The scanner worked. This product may not be in Open Food Facts yet. Try Search Food or Custom Food.</div>';
+    console.error(e);
+    if(r)r.innerHTML='<div class="notice"><b>Barcode read, but lookup failed.</b><br>You can add the product manually and it will be saved on this device for future scans.</div>';
   }
+}
+
+function manualProductFromBarcode(code){
+  stopScanner().catch(()=>{});
+  openM('Add product manually',`<div class="notice">Barcode: <b>${esc(code)}</b><br>Enter the nutrition shown on the package, usually per 100g or 100ml.</div><div class="grid2"><label>Product name<input id="mfn"></label><label>Calories / 100g<input id="mfk" type="number"></label><label>Protein / 100g<input id="mfp" type="number"></label><label>Carbs / 100g<input id="mfc" type="number"></label><label>Fat / 100g<input id="mff" type="number"></label><label>Fibre / 100g<input id="mffi" type="number"></label><label>Sugar / 100g<input id="mfs" type="number"></label><label>Sat. fat / 100g<input id="mfsa" type="number"></label></div><button type="button" onclick="saveManualBarcodeProduct(${JSON.stringify(code)})">Save product</button>`);
+}
+function saveManualBarcodeProduct(code){
+  const val=id=>Number.parseFloat(String(document.getElementById(id)?.value||'0').replace(',','.'))||0;
+  const name=(document.getElementById('mfn')?.value||'').trim();
+  if(!name){alert('Enter the product name.');return}
+  const food={name,k:val('mfk'),p:val('mfp'),c:val('mfc'),f:val('mff'),fi:val('mffi'),s:val('mfs'),sa:val('mfsa'),barcode:String(code),source:'Manual'};
+  cacheFood(food);useOFF(food);
 }
 function portion(){openM('Portion calculator',`<div class="grid2"><label>Package amount (g)<input id="pg" type="number"></label><label>Amount eaten (g)<input id="eg" type="number"></label><label>Package kcal<input id="pk" type="number"></label><label>Package protein<input id="pp" type="number"></label><label>Package carbs<input id="pc" type="number"></label><label>Package fat<input id="pf" type="number"></label></div><button onclick="calcPortion()">Calculate</button><div id="por"></div>`)}
 function calcPortion(){const v=id=>+((document.getElementById(id)||{}).value||0);const m=v('eg')/Math.max(1,v('pg'));const out=document.getElementById('por');if(out)out.innerHTML=`<div class="card"><b>${Math.round(v('pk')*m)} kcal</b><br>Protein ${Math.round(v('pp')*m*10)/10}g · Carbs ${Math.round(v('pc')*m*10)/10}g · Fat ${Math.round(v('pf')*m*10)/10}g</div>`}
