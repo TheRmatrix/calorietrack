@@ -229,13 +229,14 @@ html.dark .hero-dashboard{background:#0a1020!important}
 <div class="section card"><div class="sectiontitle">Tools & privacy</div><div class="notice">Your data is stored locally in this browser.</div><div class="grid2"><button onclick="backup()">Export backup</button><button class="light" onclick="document.getElementById('restore').click()">Restore backup</button></div><input id="restore" type="file" accept=".json" class="hidden" onchange="restore(event)"><button class="light" onclick="csv()">Export food CSV</button></div>
 </section>
 </div>
-<div class="app-version">CalorieTrack v40</div>
+<div class="app-version">CalorieTrack v1.0</div>
 </div>
 
 <nav class="bottom"><button onclick="go('pageToday',this)" class="active">Today</button><button onclick="go('pageProgress',this)">Progress</button><button onclick="go('pageFood',this)">Food</button><button onclick="go('pageWorkout',this)">Workout</button><button onclick="go('pageGoals',this)">Goals</button><button onclick="goMore(this)">More</button></nav>
 <div id="modal" class="modal hidden"><div class="sheet"><div class="sheethead"><h2 id="modalTitle"></h2><button class="close" onclick="closeModal()">✕</button></div><div id="modalBody"></div></div></div>
 
 <script>
+/* CalorieTrack v1.0 — cleaned stability base. No Apple Health integration. */
 /* ============================================================
    DATA + STORAGE
    All app data is kept locally in the browser.
@@ -296,6 +297,7 @@ function renderToday(){
  const checks=[['cal','Calories target'],['protein','Protein target'],['fibre','Fibre target'],['water','Water target'],['steps','Steps target'],['workout','Workout/rest day logged']];
  document.getElementById('checks').innerHTML=checks.map(([k,n])=>`<label class="check"><input type="checkbox" ${d.checks[k]?'checked':''} onchange="check('${k}',this.checked)"><span>${n}</span></label>`).join('');
  document.getElementById('targets').innerHTML=`<div class="notice">Protein ${Math.round(x.p)}/${S.profile.proteinGoal||0}g · Fibre ${Math.round(x.fi)}/${S.profile.fibreGoal||0}g · Water ${d.water}/${S.profile.waterGoal||0}ml · Steps ${d.steps||0}/${S.profile.stepsGoal||0}</div>`;
+ renderHomeExtras();
 }
 /* ============================================================
    DAILY TRACKING ACTIONS
@@ -315,11 +317,44 @@ function addFood(f){D().foods.push({...f,id:Date.now()});save();closeModal();ren
 function customFood(){openM('Add custom food',`<div class="grid2"><label>Name<input id="fn"></label><label>Calories<input id="fk" type="number"></label><label>Protein<input id="fp" type="number"></label><label>Carbs<input id="fc" type="number"></label><label>Fat<input id="ff" type="number"></label><label>Fibre<input id="ffi" type="number"></label><label>Sugar<input id="fs" type="number"></label><label>Sat. fat<input id="fsa" type="number"></label></div><button onclick="addCustomFood()">Add to diary</button>`)}
 function addCustomFood(){const v=id=>Number((byId(id)||{}).value)||0;const name=(byId('fn')?.value||'').trim();if(!name){alert('Please enter a food name.');return}addFood({name,k:v('fk'),p:v('fp'),c:v('fc'),f:v('ff'),fi:v('ffi'),s:v('fs'),sa:v('fsa')})}
 function foodSearch(){openM('Search food',`<input id="foodQ" placeholder="e.g. oats, bread, banana"><button onclick="searchOFF()">Search Open Food Facts</button><div id="foodResults"></div>`)}
-async function searchOFF(){let q=document.getElementById('foodQ').value.trim();if(!q)return;let r=document.getElementById('foodResults');r.innerHTML='<div class="notice">Searching…</div>';try{let url='https://world.openfoodfacts.org/api/v2/search?search_terms='+encodeURIComponent(q)+'&page_size=10&fields=product_name,generic_name,nutriments';let res=await fetch(url);let j=await res.json();let arr=j.products||[];if(!arr.length){r.innerHTML='<div class="notice">No results.</div>';return}r.innerHTML=arr.map((p,i)=>{let n=p.nutriments||{};return `<div class="listrow"><div><div class="foodname">${esc(p.product_name||p.generic_name||'Unknown')}</div><div class="foodmeta">${Math.round(n['energy-kcal_100g']||n['energy-kcal']||0)} kcal / 100g</div></div><button class="sm" onclick='useOFF(${JSON.stringify({name:p.product_name||p.generic_name||"Food",k:+(n["energy-kcal_100g"]||n["energy-kcal"]||0),p:+(n.proteins_100g||0),c:+(n.carbohydrates_100g||0),f:+(n.fat_100g||0),fi:+(n.fiber_100g||0),s:+(n.sugars_100g||0),sa:+(n["saturated-fat_100g"]||0)})})'>Add</button></div>`}).join('')}catch(e){r.innerHTML='<div class="notice">Could not reach Open Food Facts.</div>'}}
-function useOFF(f){openM('Amount eaten',`<div class="notice">Nutrition is per 100g.</div><label>Grams<input id="offg" type="number" value="100"></label><button onclick="addOFF(${JSON.stringify(f)})">Add</button>`)}
-function addOFF(f){const el=document.getElementById('offg');const g=Math.max(1,+((el&&el.value)||100)||100),m=g/100;addFood({...f,name:f.name+' ('+g+'g)',k:f.k*m,p:f.p*m,c:f.c*m,f:f.f*m,fi:f.fi*m,s:f.s*m,sa:f.sa*m})}
+async function searchOFF(){
+  const q=(document.getElementById('foodQ')?.value||'').trim();
+  const r=document.getElementById('foodResults');
+  if(!q||!r)return;
+  r.innerHTML='<div class="notice">Searching…</div>';
+  try{
+    const url='https://world.openfoodfacts.org/api/v2/search?search_terms='+encodeURIComponent(q)+'&page_size=10&fields=product_name,generic_name,nutriments';
+    const res=await fetch(url);
+    const j=await res.json();
+    const products=j.products||[];
+    pendingSearchFoods=products.map(product=>{
+      const n=product.nutriments||{};
+      return {name:product.product_name||product.generic_name||'Food',k:+(n['energy-kcal_100g']||n['energy-kcal']||0),p:+(n.proteins_100g||0),c:+(n.carbohydrates_100g||0),f:+(n.fat_100g||0),fi:+(n.fiber_100g||0),s:+(n.sugars_100g||0),sa:+(n['saturated-fat_100g']||0)};
+    });
+    if(!pendingSearchFoods.length){r.innerHTML='<div class="notice">No results.</div>';return}
+    r.innerHTML=pendingSearchFoods.map((food,i)=>`<div class="listrow"><div><div class="foodname">${esc(food.name)}</div><div class="foodmeta">${Math.round(food.k)} kcal / 100g</div></div><button class="sm" type="button" onclick="selectSearchFood(${i})">Add</button></div>`).join('');
+  }catch(e){console.error(e);r.innerHTML='<div class="notice">Could not reach Open Food Facts.</div>'}
+}
+function selectSearchFood(index){const food=pendingSearchFoods[index];if(food)useOFF(food)}
+function useOFF(f){
+  // Keep product data out of inline HTML/onclick attributes. Product names can contain
+  // apostrophes and other characters that can break an inline JSON handler on Safari.
+  pendingBarcodeFood={...f};
+  openM('Amount eaten',`<div class="notice">Nutrition is per 100g.</div><label>Grams<input id="offg" type="number" min="1" step="1" value="100" inputmode="decimal"></label><button type="button" onclick="addPendingFood()">Add</button>`);
+}
+
+function addPendingFood(){
+  const food=pendingBarcodeFood;
+  const input=document.getElementById('offg');
+  const grams=Number.parseFloat(String(input?.value||'100').replace(',','.'));
+  if(!food){alert('No food is waiting to be added. Please scan the barcode again.');return}
+  if(!Number.isFinite(grams)||grams<=0){alert('Please enter a valid amount in grams.');return}
+  const m=grams/100;
+  addFood({...food,name:food.name+' ('+grams+'g)',k:food.k*m,p:food.p*m,c:food.c*m,f:food.f*m,fi:food.fi*m,s:food.s*m,sa:food.sa*m});
+  pendingBarcodeFood=null;
+}
 /* ============================================================
-   BARCODE SCANNER — v40
+   BARCODE SCANNER — v1.0
    Live scanning uses ZXing's browser decoder for 1D product barcodes.
    This avoids relying on the previous scanner implementation.
    ============================================================ */
@@ -327,6 +362,9 @@ let scannerInstance=null;
 let scannerControls=null;
 let scannerReader=null;
 let scannerBusy=false;
+// Holds the product detected by a barcode until the user confirms the amount eaten.
+let pendingBarcodeFood=null;
+let pendingSearchFoods=[];
 
 function loadZXing(){
   if(window.ZXingBrowser) return Promise.resolve();
@@ -406,7 +444,7 @@ async function scanBarcodePhoto(event){
 function submitManualBarcode(){
   const el=document.getElementById('manualBarcode');
   const code=(el&&el.value||'').replace(/\D/g,'');
-  if(code.length>=8&&code.length<=14){stopScanner();barcode(code)}
+  if(code.length>=8&&code.length<=14){stopScanner().finally(()=>barcode(code))}
   else alert('Please enter a valid supermarket barcode (usually 8–14 digits).');
 }
 
@@ -447,6 +485,31 @@ function ensureWeightHistory(){
   if(!Array.isArray(S.weightHistory)) S.weightHistory=[];
 }
 
+// Import legacy daily weights into the dedicated history once, then keep both sources synchronized.
+function syncWeightHistory(){
+  ensureWeightHistory();
+  Object.entries(S.days||{}).forEach(([date,day])=>{
+    const weight=Number(day?.weight);
+    if(Number.isFinite(weight)&&weight>0){
+      const index=S.weightHistory.findIndex(item=>item?.date===date);
+      if(index<0) S.weightHistory.push({date,weight});
+    }
+  });
+  S.weightHistory=S.weightHistory
+    .filter(item=>item&&item.date&&Number.isFinite(Number(item.weight))&&Number(item.weight)>0)
+    .map(item=>({date:String(item.date),weight:Number(item.weight)}))
+    .sort((a,b)=>a.date.localeCompare(b.date));
+}
+
+function getLatestWeight(){
+  syncWeightHistory();
+  const today=localDateKey();
+  const todayWeight=Number(S.days?.[today]?.weight);
+  if(Number.isFinite(todayWeight)&&todayWeight>0) return {weight:todayWeight,date:today};
+  const last=S.weightHistory.at(-1);
+  return last?{weight:Number(last.weight),date:last.date}:null;
+}
+
 function saveWeighIn(){
   const input=document.getElementById('wi');
   const raw=input ? String(input.value).trim() : '';
@@ -469,7 +532,7 @@ function saveWeighIn(){
   const entry={date,weight};
   if(existing>=0) S.weightHistory[existing]=entry;
   else S.weightHistory.push(entry);
-  S.weightHistory.sort((a,b)=>a.date.localeCompare(b.date));
+  syncWeightHistory();
 
   // Keep the profile's current weight synchronized.
   S.profile.weight=weight;
@@ -506,19 +569,8 @@ function renderProgress(){
   const weekEl=document.getElementById('weekStats');
   const trainingEl=document.getElementById('progressTraining');
 
-  ensureWeightHistory();
-  // Prefer the dedicated history, while importing any older day-based
-  // weigh-ins so existing user data is never lost.
-  Object.entries(S.days||{}).forEach(([date,d])=>{
-    const w=Number(d&&d.weight);
-    if(Number.isFinite(w)&&w>0 && !S.weightHistory.some(x=>x&&x.date===date)){
-      S.weightHistory.push({date,weight:w});
-    }
-  });
-  S.weightHistory.sort((a,b)=>a.date.localeCompare(b.date));
-  const rows=S.weightHistory
-    .filter(x=>x&&x.date&&Number.isFinite(Number(x.weight))&&Number(x.weight)>0)
-    .map(x=>[x.date,{weight:Number(x.weight)}]);
+  syncWeightHistory();
+  const rows=S.weightHistory.map(x=>[x.date,{weight:Number(x.weight)}]);
   const weights=rows.map(([,d])=>Number(d.weight));
   const last=weights.length?weights[weights.length-1]:null;
   const recent=weights.slice(-7);
@@ -545,11 +597,17 @@ function renderProgress(){
 }
 
 function drawWeight(rows){let c=byId('weightCanvas');if(!c||!c.getContext)return;let x=c.getContext('2d'),w=Math.max(320,c.clientWidth*2),h=Math.max(180,c.clientHeight*2);c.width=w;c.height=h;x.clearRect(0,0,w,h);if(rows.length<2)return;let vals=rows.map(r=>r[1].weight),mn=Math.min(...vals)-1,mx=Math.max(...vals)+1;x.beginPath();rows.forEach((r,i)=>{let px=20+i*(w-40)/(rows.length-1),py=h-20-(r[1].weight-mn)/(mx-mn)*(h-40);i?x.lineTo(px,py):x.moveTo(px,py)});x.strokeStyle=getComputedStyle(document.body).getPropertyValue('--blue');x.lineWidth=6;x.stroke()}
-function mealForm(){openM('Saved meal',`<label>Name<input id="mn"></label><div class="notice">Save the foods currently in today's diary as a meal.</div><button onclick="S.meals.push({name:mn.value,foods:JSON.parse(JSON.stringify(D().foods))});save();closeModal();renderFood()">Save meal</button>`)}
-function recipeForm(){openM('Recipe builder',`<label>Recipe name<input id="rn"></label><label>Servings<input id="rs" type="number" value="1"></label><div class="notice">Uses the foods currently in today's diary as ingredients. Save it and later add a serving.</div><button onclick="S.recipes.push({name:rn.value,servings:+rs.value||1,foods:JSON.parse(JSON.stringify(D().foods))});save();closeModal();renderFood()">Save recipe</button>`)}
-function renderFood(){favourites.innerHTML=S.foods.slice(0,12).map((f,i)=>`<div class="listrow"><div><div class="foodname">${esc(f.name)}</div><div class="foodmeta">${Math.round(f.k)} kcal</div></div><button class="sm" onclick="addFood(${JSON.stringify(f)})">Add</button></div>`).join('')||'<div class="notice">Your favourites will appear here.</div>';meals.innerHTML=S.meals.map((m,i)=>`<div class="listrow"><span class="foodname">${esc(m.name)}</span><button class="sm" onclick="addMeal(${i})">Add</button></div>`).join('')||'<div class="notice">No saved meals.</div>';recipes.innerHTML=S.recipes.map((r,i)=>`<div class="listrow"><span><b>${esc(r.name)}</b><br><span class="foodmeta">${r.servings} serving(s)</span></span><button class="sm" onclick="addRecipe(${i})">Add</button></div>`).join('')||'<div class="notice">No recipes.</div>'}
-function addMeal(i){let m=S.meals[i];m.foods.forEach(f=>addFoodSilent(f));save();renderAll()}function addRecipe(i){let r=S.recipes[i];r.foods.forEach(f=>addFoodSilent({...f,k:f.k/r.servings,p:f.p/r.servings,c:f.c/r.servings,f:f.f/r.servings,fi:f.fi/r.servings,s:f.s/r.servings,sa:f.sa/r.servings}));save();renderAll()}function addFoodSilent(f){D().foods.push({...f,id:Date.now()+Math.random()})}
-function exerciseForm(){openM('Exercise',`<label>Exercise name<input id="en"></label><label>Muscle group<select id="em"><option>Chest</option><option>Back</option><option>Shoulders</option><option>Biceps</option><option>Triceps</option><option>Legs</option><option>Glutes</option><option>Abs/Core</option><option>Calves</option></select></label><button onclick="S.exercises.push({name:en.value,muscle:em.value});save();closeModal();renderWorkout()">Save exercise</button>`)}
+function mealForm(){openM('Saved meal',`<label>Name<input id="mn"></label><div class="notice">Save the foods currently in today's diary as a meal.</div><button type="button" onclick="saveMealForm()">Save meal</button>`)}
+function saveMealForm(){const name=(byId('mn')?.value||'').trim();if(!name){alert('Please enter a meal name.');return}S.meals.push({name,foods:JSON.parse(JSON.stringify(D().foods))});save();closeModal();renderFood()}
+function recipeForm(){openM('Recipe builder',`<label>Recipe name<input id="rn"></label><label>Servings<input id="rs" type="number" min="1" value="1"></label><div class="notice">Uses the foods currently in today's diary as ingredients. Save it and later add a serving.</div><button type="button" onclick="saveRecipeForm()">Save recipe</button>`)}
+function saveRecipeForm(){const name=(byId('rn')?.value||'').trim();const servings=Math.max(1,Number(byId('rs')?.value)||1);if(!name){alert('Please enter a recipe name.');return}S.recipes.push({name,servings,foods:JSON.parse(JSON.stringify(D().foods))});save();closeModal();renderFood()}
+function renderFood(){const favourites=byId('favourites'),meals=byId('meals'),recipes=byId('recipes');if(!favourites||!meals||!recipes)return;favourites.innerHTML=S.foods.slice(0,12).map((f,i)=>`<div class="listrow"><div><div class="foodname">${esc(f.name)}</div><div class="foodmeta">${Math.round(f.k)} kcal</div></div><button class="sm" type="button" onclick="addFavourite(${i})">Add</button></div>`).join('')||'<div class="notice">Your favourites will appear here.</div>';meals.innerHTML=S.meals.map((m,i)=>`<div class="listrow"><span class="foodname">${esc(m.name)}</span><button class="sm" type="button" onclick="addMeal(${i})">Add</button></div>`).join('')||'<div class="notice">No saved meals.</div>';recipes.innerHTML=S.recipes.map((r,i)=>`<div class="listrow"><span><b>${esc(r.name)}</b><br><span class="foodmeta">${r.servings} serving(s)</span></span><button class="sm" type="button" onclick="addRecipe(${i})">Add</button></div>`).join('')||'<div class="notice">No recipes.</div>'}
+function addFavourite(i){const food=S.foods[i];if(food)addFood({...food});}
+function addMeal(i){const meal=S.meals[i];if(!meal)return;meal.foods.forEach(f=>addFoodSilent(f));save();renderAll()}
+function addRecipe(i){const recipe=S.recipes[i];if(!recipe)return;recipe.foods.forEach(f=>addFoodSilent({...f,k:f.k/recipe.servings,p:f.p/recipe.servings,c:f.c/recipe.servings,f:f.f/recipe.servings,fi:f.fi/recipe.servings,s:f.s/recipe.servings,sa:f.sa/recipe.servings}));save();renderAll()}
+function addFoodSilent(f){D().foods.push({...f,id:Date.now()+Math.random()})}
+function exerciseForm(){openM('Exercise',`<label>Exercise name<input id="en"></label><label>Muscle group<select id="em"><option>Chest</option><option>Back</option><option>Shoulders</option><option>Biceps</option><option>Triceps</option><option>Legs</option><option>Glutes</option><option>Abs/Core</option><option>Calves</option></select></label><button type="button" onclick="saveExerciseForm()">Save exercise</button>`)}
+function saveExerciseForm(){const name=(byId('en')?.value||'').trim(),muscle=byId('em')?.value||'';if(!name){alert('Please enter an exercise name.');return}S.exercises.push({name,muscle});save();closeModal();renderWorkout()}
 function workoutForm(){openM('Log workout',`<label>Name<input id="wn" value="Workout"></label><label>Muscle groups<input id="wm" placeholder="Chest, triceps"></label><div class="grid2"><label>Duration (min)<input id="wd" type="number"></label><label>Notes<input id="wno"></label></div><h3>Exercises</h3><div id="setRows"></div><button class="light" onclick="addSetRow()">＋ Add exercise set</button><button onclick="saveWorkout()">Save workout</button>`);addSetRow()}
 function addSetRow(){let e=document.getElementById('setRows');if(!e)return;e.insertAdjacentHTML('beforeend',`<div class="grid3" style="margin:7px 0"><input class="sx" placeholder="Exercise"><input class="sr" type="number" placeholder="Reps"><input class="sw" type="number" step=".5" placeholder="kg"></div>`)}
 function saveWorkout(){const get=id=>byId(id)?.value||'';let rows=[...document.querySelectorAll('#setRows>div')].map(r=>({exercise:r.querySelector('.sx')?.value||'',reps:+(r.querySelector('.sr')?.value||0),weight:+(r.querySelector('.sw')?.value||0)}));S.workouts.push({date:localDateKey(),name:get('wn').trim()||'Workout',muscles:get('wm').trim(),duration:+get('wd')||0,notes:get('wno').trim(),sets:rows});D().checks.workout=true;save();closeModal();renderAll()}
@@ -579,7 +637,7 @@ function saveProfile(){
   }
   save();updateMode();renderAll();
 }
-function renderGoals(){let p=S.profile;['sex','age','height','weight','activity','phase','calGoal','goalWeight','proteinGoal','carbsGoal','fatGoal','fibreGoal','waterGoal','stepsGoal'].forEach(k=>{let e=document.getElementById(k);if(e)e.value=p[k]});updateMode()}
+function renderGoals(){let p=S.profile;['sex','age','height','weight','activity','phase','calGoal','goalWeight','proteinGoal','carbsGoal','fatGoal','fibreGoal','waterGoal','stepsGoal'].forEach(k=>{let e=document.getElementById(k);if(e)e.value=p[k]});updateMode();renderMacroSuggestions()}
 function getSuggestedMacros(){
   /*
     Macro suggestion based on the user's current profile.
@@ -662,18 +720,10 @@ function renderHomeExtras(){
   if(wf)wf.style.width=Math.min(100,(d.water||0)/wg*100)+'%';
   // Weight card: use the dedicated weight history as the source of truth.
   // Older entries stored on daily records are imported so upgrades don't lose data.
-  ensureWeightHistory();
-  Object.entries(S.days||{}).forEach(([date,day])=>{
-    const w=Number(day&&day.weight);
-    if(Number.isFinite(w)&&w>0&&!S.weightHistory.some(x=>x&&x.date===date)){
-      S.weightHistory.push({date,weight:w});
-    }
-  });
-  S.weightHistory.sort((a,b)=>a.date.localeCompare(b.date));
-  const validWeights=S.weightHistory.filter(x=>x&&x.date&&Number.isFinite(Number(x.weight))&&Number(x.weight)>0);
-  const latestWeight=validWeights.length?Number(validWeights[validWeights.length-1].weight):null;
-  const latestWeightDate=validWeights.length?validWeights[validWeights.length-1].date:'';
-  const homeW=byId('homeWeight'),homeWM=byId('homeWeightMeta');if(homeW)homeW.textContent=latestWeight!==null?latestWeight.toFixed(1)+' kg':'-- kg';if(homeWM)homeWM.textContent=latestWeight!==null?'Latest weigh-in · '+latestWeightDate:'No entry yet';
+  const latest=getLatestWeight();
+  const homeW=byId('homeWeight'),homeWM=byId('homeWeightMeta');
+  if(homeW)homeW.textContent=latest?latest.weight.toFixed(1)+' kg':'-- kg';
+  if(homeWM)homeWM.textContent=latest?'Latest weigh-in · '+latest.date:'No entry yet';
   const names=['Creatine','Vitamin D3','Vitamin C','Magnesium','Zinc','Iron','B12','Omega-3','Multivitamin'],taken=names.filter(n=>S.supps[n]).length;
   if(document.getElementById('homeSupps'))document.getElementById('homeSupps').textContent=taken+' / '+names.length+' taken';
   if(document.getElementById('homeSuppBar'))document.getElementById('homeSuppBar').style.width=(taken/names.length*100)+'%';
@@ -682,10 +732,6 @@ function renderHomeExtras(){
   const c=d.checks||{}, checks=[['💧','Water',''+((d.water||0)/1000).toFixed(1)+' L / '+(wg/1000).toFixed(1)+' L','water'],['🏋️','Workout',tw?'Done':'Rest Day','workout'],['💊','Supplements',taken+'/'+names.length,'supp'],['🍎','Calories',Math.round(x.k)+' / '+(+p.calGoal||0),'cal']];
   const hcEl=document.getElementById('homeChecks'); if(hcEl)hcEl.innerHTML=checks.map(q=>{let done=q[3]==='water'?(d.water||0)>=wg:q[3]==='supp'?taken===names.length:q[3]==='cal'?x.k<=p.calGoal&&x.k>0:!!c[q[3]];return `<div class="check-tile ${done?'done':''}"><div class="ci">${q[0]}</div><b>${q[1]}</b><small>${q[2]}</small><div class="check-circle"></div></div>`}).join('');
 }
-const _oldRenderToday=renderToday;
-renderToday=function(){_oldRenderToday();renderHomeExtras();};
-const _oldRenderGoals=renderGoals;
-renderGoals=function(){_oldRenderGoals();const h=document.getElementById('headerSex');if(h)h.value=S.profile.sex||'male';renderMacroSuggestions();};
 /* ============================================================
    STARTUP
    Keep startup calls inside this script block.
