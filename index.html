@@ -333,4 +333,361 @@ if('serviceWorker' in navigator)navigator.serviceWorker.register('sw.js').catch(
 })();
 </script>
 
+
+<section class="card" id="drinkTracker">
+  <h2>🥤 Drinks</h2>
+  <p class="muted">Drinks are logged as normal calories. They do not count toward the water goal.</p>
+  <div class="form-grid">
+    <label>Drink
+      <input id="drinkName" type="text" placeholder="e.g. Coke, milk, juice">
+    </label>
+    <label>Amount (ml)
+      <input id="drinkMl" type="number" min="1" value="500">
+    </label>
+    <label>Calories
+      <input id="drinkCalories" type="number" min="0" value="0">
+    </label>
+  </div>
+  <button type="button" id="addDrink">Add drink</button>
+  <div id="drinkList" style="margin-top:12px"></div>
+  <p><strong>Drink calories today: <span id="drinkCalTotal">0</span> kcal</strong></p>
+</section>
+<script>
+(function(){
+  const key='calorietrack_drinks_v1';
+  const day=()=>new Date().toISOString().slice(0,10);
+  let all={}; try{all=JSON.parse(localStorage.getItem(key)||'{}')}catch(e){}
+  const d=day(); all[d]=Array.isArray(all[d])?all[d]:[];
+  const $=id=>document.getElementById(id);
+  function render(){
+    const list=$('drinkList'); list.innerHTML='';
+    let total=0;
+    all[d].forEach((x,i)=>{
+      total+=Number(x.cal)||0;
+      const row=document.createElement('div');
+      row.style.cssText='display:flex;justify-content:space-between;gap:8px;align-items:center;padding:8px 0;border-bottom:1px solid #ddd';
+      row.innerHTML='<span>'+x.name+' — '+x.ml+' ml — '+x.cal+' kcal</span>';
+      const b=document.createElement('button'); b.type='button'; b.textContent='Delete';
+      b.onclick=()=>{all[d].splice(i,1);save();};
+      row.appendChild(b); list.appendChild(row);
+    });
+    $('drinkCalTotal').textContent=total;
+  }
+  function save(){localStorage.setItem(key,JSON.stringify(all));render();}
+  $('addDrink').onclick=()=>{
+    const name=$('drinkName').value.trim()||'Drink';
+    const ml=Math.max(1,Number($('drinkMl').value)||0);
+    const cal=Math.max(0,Number($('drinkCalories').value)||0);
+    if(!ml)return;
+    all[d].push({name,ml,cal}); save();
+    $('drinkName').value='';
+  };
+  render();
+})();
+</script>
+
+
+<!-- CalorieTrack v10 upgrade: food shortcuts, weekly report, backup/restore, supplements, drinks, weight trend -->
+<section class="card" id="quickFoods">
+  <h2>⚡ Quick Add & Favourites</h2>
+  <p class="muted">Save foods or meals you use often and add them again quickly.</p>
+  <div class="form-grid">
+    <label>Name<input id="quickName" placeholder="e.g. My usual breakfast"></label>
+    <label>Calories<input id="quickCal" type="number" min="0" value="0"></label>
+    <label>Protein (g)<input id="quickProtein" type="number" min="0" value="0"></label>
+    <label>Carbs (g)<input id="quickCarbs" type="number" min="0" value="0"></label>
+    <label>Fat (g)<input id="quickFat" type="number" min="0" value="0"></label>
+    <label>Fibre (g)<input id="quickFibre" type="number" min="0" value="0"></label>
+  </div>
+  <button type="button" id="saveQuick">Save favourite</button>
+  <div id="quickList" style="margin-top:12px"></div>
+</section>
+
+<section class="card" id="weeklyReport">
+  <h2>📊 Weekly Report</h2>
+  <div id="weeklyStats" class="muted">Log food and weight to build your report.</div>
+</section>
+
+<section class="card" id="backupRestore">
+  <h2>💾 Backup & Restore</h2>
+  <p class="muted">Keep a copy of your local data before changing phones or browsers.</p>
+  <button type="button" id="exportData">Export my data</button>
+  <button type="button" id="importDataBtn">Import data</button>
+  <input type="file" id="importData" accept=".json,application/json" style="display:none">
+</section>
+
+<style>
+.quick-actions{display:flex;gap:8px;flex-wrap:wrap}
+.quick-actions button{min-height:38px}
+.report-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.report-item{padding:10px;border:1px solid #ddd;border-radius:12px}
+@media(max-width:600px){.report-grid{grid-template-columns:1fr}}
+</style>
+
+<script>
+(function(){
+  const qkey='calorietrack_favourites_v1';
+  let fav=[]; try{fav=JSON.parse(localStorage.getItem(qkey)||'[]')}catch(e){}
+  const $=id=>document.getElementById(id);
+  function renderFav(){
+    const box=$('quickList'); box.innerHTML='';
+    if(!fav.length){box.innerHTML='<span class="muted">No favourites saved yet.</span>';return}
+    fav.forEach((f,i)=>{
+      const row=document.createElement('div'); row.className='report-item'; row.style.marginBottom='8px';
+      row.innerHTML='<strong>'+f.name+'</strong><br>'+f.cal+' kcal • P '+f.protein+'g • C '+f.carbs+'g • F '+f.fat+'g • Fibre '+f.fibre+'g';
+      const add=document.createElement('button'); add.textContent='Add to today'; add.type='button';
+      add.onclick=()=>{
+        let data={}; try{data=JSON.parse(localStorage.getItem('calorietrack')||'{}')}catch(e){}
+        const day=new Date().toISOString().slice(0,10);
+        data[day]=data[day]||{foods:[],weight:null};
+        data[day].foods=data[day].foods||[];
+        data[day].foods.push({name:f.name,servings:1,cal:f.cal,protein:f.protein,carbs:f.carbs,fat:f.fat,fibre:f.fibre});
+        localStorage.setItem('calorietrack',JSON.stringify(data));
+        alert('Added to today');
+      };
+      const del=document.createElement('button'); del.textContent='Delete'; del.type='button';
+      del.onclick=()=>{fav.splice(i,1);localStorage.setItem(qkey,JSON.stringify(fav));renderFav()};
+      row.appendChild(add); row.appendChild(del); box.appendChild(row);
+    });
+  }
+  $('saveQuick').onclick=()=>{
+    const name=$('quickName').value.trim();
+    if(!name){alert('Enter a name');return}
+    fav.push({name,cal:Number($('quickCal').value)||0,protein:Number($('quickProtein').value)||0,
+      carbs:Number($('quickCarbs').value)||0,fat:Number($('quickFat').value)||0,fibre:Number($('quickFibre').value)||0});
+    localStorage.setItem(qkey,JSON.stringify(fav)); $('quickName').value=''; renderFav();
+  };
+  renderFav();
+
+  function weekly(){
+    let data={}; try{data=JSON.parse(localStorage.getItem('calorietrack')||'{}')}catch(e){}
+    const dates=[];
+    for(let i=6;i>=0;i--){const d=new Date();d.setDate(d.getDate()-i);dates.push(d.toISOString().slice(0,10))}
+    let calories=0, days=0, protein=0, weights=[];
+    dates.forEach(day=>{
+      const x=data[day]; if(!x)return;
+      const foods=x.foods||[];
+      if(foods.length){days++;calories+=foods.reduce((s,f)=>s+(Number(f.cal)||0)*(Number(f.servings)||1),0);
+        protein+=foods.reduce((s,f)=>s+(Number(f.protein)||0)*(Number(f.servings)||1),0)}
+      if(Number.isFinite(Number(x.weight)))weights.push(Number(x.weight));
+    });
+    const avgC=days?Math.round(calories/days):0, avgP=days?Math.round(protein/days):0;
+    const change=weights.length>=2?(weights[weights.length-1]-weights[0]).toFixed(1):'—';
+    $('weeklyStats').innerHTML='<div class="report-grid">'+
+      '<div class="report-item"><strong>Average calories</strong><br>'+avgC+' kcal</div>'+
+      '<div class="report-item"><strong>Average protein</strong><br>'+avgP+' g</div>'+
+      '<div class="report-item"><strong>Food-logged days</strong><br>'+days+'/7</div>'+
+      '<div class="report-item"><strong>Weight change</strong><br>'+change+(change==='—'?'':' kg')+'</div></div>';
+  }
+  weekly();
+
+  function gather(){
+    const out={};
+    for(let i=0;i<localStorage.length;i++){const k=localStorage.key(i);out[k]=localStorage.getItem(k)}
+    return {app:'CalorieTrack',version:10,exportedAt:new Date().toISOString(),localStorage:out};
+  }
+  $('exportData').onclick=()=>{
+    const blob=new Blob([JSON.stringify(gather(),null,2)],{type:'application/json'});
+    const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='calorietrack-backup.json';a.click();
+    setTimeout(()=>URL.revokeObjectURL(a.href),1000);
+  };
+  $('importDataBtn').onclick=()=>$('importData').click();
+  $('importData').onchange=async e=>{
+    const file=e.target.files[0]; if(!file)return;
+    try{
+      const obj=JSON.parse(await file.text());
+      if(!obj.localStorage)throw new Error();
+      Object.entries(obj.localStorage).forEach(([k,v])=>localStorage.setItem(k,v));
+      alert('Backup imported. Reloading now.');
+      location.reload();
+    }catch(err){alert('That backup file could not be imported.')}
+  };
+})();
+</script>
+
+
+<section class="card" id="barcodeInfo">
+  <h2>📷 Barcode Scanner</h2>
+  <p class="muted">Barcode scanning is prepared as a next integration. It will need camera permission and a food database lookup to auto-fill nutrition accurately.</p>
+</section>
+
+
+<section class="card" id="portionCalculator">
+  <h2>⚖️ Portion / Serving Calculator</h2>
+  <p class="muted">Enter the nutrition for the full package, then the amount you actually ate. CalorieTrack calculates the portion automatically.</p>
+  <div class="form-grid">
+    <label>Food name
+      <input id="portionName" placeholder="e.g. Bread">
+    </label>
+    <label>Package amount (g / ml)
+      <input id="portionPackage" type="number" min="0.1" step="0.1" placeholder="500">
+    </label>
+    <label>Amount eaten (g / ml)
+      <input id="portionEaten" type="number" min="0.1" step="0.1" placeholder="250">
+    </label>
+    <label>Package calories
+      <input id="portionCalories" type="number" min="0" step="0.1" placeholder="1250">
+    </label>
+    <label>Package protein (g)
+      <input id="portionProtein" type="number" min="0" step="0.1" value="0">
+    </label>
+    <label>Package carbs (g)
+      <input id="portionCarbs" type="number" min="0" step="0.1" value="0">
+    </label>
+    <label>Package fat (g)
+      <input id="portionFat" type="number" min="0" step="0.1" value="0">
+    </label>
+    <label>Package fibre (g)
+      <input id="portionFibre" type="number" min="0" step="0.1" value="0">
+    </label>
+  </div>
+  <button type="button" id="calcPortion">Calculate portion</button>
+  <div id="portionResult" class="report-item" style="margin-top:12px;display:none"></div>
+</section>
+
+<script>
+(function(){
+  const $=id=>document.getElementById(id);
+  $('calcPortion').onclick=()=>{
+    const pkg=Number($('portionPackage').value)||0, eaten=Number($('portionEaten').value)||0;
+    if(pkg<=0||eaten<=0){alert('Enter both the package amount and amount eaten.');return}
+    const ratio=eaten/pkg;
+    const calc=id=>(Number($(id).value)||0)*ratio;
+    const cal=calc('portionCalories'), p=calc('portionProtein'), c=calc('portionCarbs'),
+          f=calc('portionFat'), fi=calc('portionFibre');
+    const name=$('portionName').value.trim()||'Food';
+    const result=$('portionResult');
+    result.style.display='block';
+    result.innerHTML='<strong>'+name+' — '+eaten+' g/ml eaten</strong><br>'+
+      'Calories: '+cal.toFixed(0)+' kcal<br>'+
+      'Protein: '+p.toFixed(1)+' g • Carbs: '+c.toFixed(1)+' g • Fat: '+f.toFixed(1)+' g • Fibre: '+fi.toFixed(1)+' g';
+  };
+})();
+</script>
+
+
+
+<section class="card" id="barcodeScanner">
+  <h2>📷 Scan a Barcode</h2>
+  <p class="muted">Works with iPhone Safari using the camera. Scan a packaged food barcode and look it up in Open Food Facts.</p>
+  <div id="barcodeReader" style="width:100%;max-width:520px"></div>
+  <div id="scanStatus" class="muted" style="margin-top:8px">Ready to scan.</div>
+  <div id="productResult" style="display:none;margin-top:12px"></div>
+</section>
+
+<script src="https://unpkg.com/html5-qrcode" type="text/javascript"></script>
+<script>
+(function(){
+  const $=id=>document.getElementById(id);
+  let scanner=null, handled=false;
+
+  function showProduct(product, code){
+    const n=product.nutriments||{};
+    const per100={
+      cal:Number(n['energy-kcal_100g']||0),
+      protein:Number(n.proteins_100g||0),
+      carbs:Number(n.carbohydrates_100g||0),
+      fat:Number(n.fat_100g||0),
+      fibre:Number(n.fiber_100g||n.fibre_100g||0),
+      sugar:Number(n.sugars_100g||0),
+      sat:Number(n['saturated-fat_100g']||0)
+    };
+    const name=product.product_name||product.generic_name||'Unknown product';
+    const brand=product.brands?(' • '+product.brands):'';
+    const box=$('productResult');
+    box.style.display='block';
+    box.innerHTML='<strong>'+name+brand+'</strong><br>'+
+      '<span class="muted">Barcode: '+code+'</span><br><br>'+
+      '<label>Amount eaten (g/ml)<br><input id="scanAmount" type="number" min="0.1" value="100"></label>'+
+      '<div id="scanNutrition" style="margin:10px 0"></div>'+
+      '<button type="button" id="addScanned">Add to Today</button> '+
+      '<button type="button" id="cancelScanned">Cancel</button>';
+
+    function update(){
+      const amount=Number($('scanAmount').value)||0, ratio=amount/100;
+      $('scanNutrition').innerHTML='<strong>'+Math.round(per100.cal*ratio)+' kcal</strong><br>'+
+        'Protein '+(per100.protein*ratio).toFixed(1)+' g • Carbs '+(per100.carbs*ratio).toFixed(1)+
+        ' g • Fat '+(per100.fat*ratio).toFixed(1)+' g • Fibre '+(per100.fibre*ratio).toFixed(1)+' g';
+    }
+    $('scanAmount').oninput=update; update();
+
+    $('cancelScanned').onclick=()=>{
+      box.style.display='none'; handled=false;
+      $('scanStatus').textContent='Ready to scan another product.';
+    };
+
+    $('addScanned').onclick=()=>{
+      let data={}; try{data=JSON.parse(localStorage.getItem('calorietrack')||'{}')}catch(e){}
+      const day=new Date().toISOString().slice(0,10);
+      data[day]=data[day]||{foods:[],weight:null};
+      data[day].foods=data[day].foods||[];
+      const amount=Number($('scanAmount').value)||0, ratio=amount/100;
+      data[day].foods.push({
+        name:name+(brand?' ('+product.brands+')':''),
+        servings:1, grams:amount,
+        cal:per100.cal*ratio, protein:per100.protein*ratio,
+        carbs:per100.carbs*ratio, fat:per100.fat*ratio,
+        fibre:per100.fibre*ratio, sugar:per100.sugar*ratio,
+        saturatedFat:per100.sat*ratio, barcode:String(code)
+      });
+      localStorage.setItem('calorietrack',JSON.stringify(data));
+      box.innerHTML='<strong>✅ Added to today</strong><br>'+name+' — '+amount+' g/ml';
+      $('scanStatus').textContent='Added. Scan another product when ready.';
+      handled=false;
+    };
+  }
+
+  async function lookup(code){
+    $('scanStatus').textContent='Found barcode '+code+'. Looking up product…';
+    try{
+      const url='https://world.openfoodfacts.org/api/v3/product/'+encodeURIComponent(code)+
+        '.json?fields=product_name,generic_name,brands,serving_size,nutriments';
+      const r=await fetch(url,{headers:{'Accept':'application/json'}});
+      const j=await r.json();
+      if(!j.product || (j.status!==1 && !j.product.product_name)){
+        $('scanStatus').textContent='Product not found. Try another barcode or add it manually.';
+        handled=false; return;
+      }
+      showProduct(j.product,code);
+    }catch(e){
+      $('scanStatus').textContent='Could not reach Open Food Facts. Check your internet connection.';
+      handled=false;
+    }
+  }
+
+  function onScanSuccess(decodedText){
+    if(handled)return;
+    handled=true;
+    if(scanner){ scanner.stop().catch(()=>{}); }
+    lookup(decodedText);
+  }
+
+  function onScanError(){}
+
+  if(window.Html5QrcodeScanner){
+    scanner=new Html5QrcodeScanner(
+      "barcodeReader",
+      {
+        fps:10,
+        qrbox:{width:280,height:140},
+        rememberLastUsedCamera:true,
+        supportedScanTypes:[Html5QrcodeScanType.SCAN_TYPE_CAMERA, Html5QrcodeScanType.SCAN_TYPE_FILE],
+        formatsToSupport:[
+          Html5QrcodeSupportedFormats.EAN_13,
+          Html5QrcodeSupportedFormats.EAN_8,
+          Html5QrcodeSupportedFormats.UPC_A,
+          Html5QrcodeSupportedFormats.UPC_E
+        ],
+        showTorchButtonIfSupported:true
+      },
+      false
+    );
+    scanner.render(onScanSuccess,onScanError);
+  }else{
+    $('scanStatus').textContent='Barcode scanner library could not load. Check your internet connection.';
+  }
+})();
+</script>
+
+
 </body></html>
