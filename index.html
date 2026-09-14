@@ -37,7 +37,7 @@ button{background:#111827;color:#fff;border:0;font-weight:650}.small{width:auto;
 <p><span class="pill">Sugar <b id="su">0</b>g</span><span class="pill">Sat fat <b id="sa">0</b>g</span></p></section>
 
 <section class="card"><h2>Water</h2><div class="row"><strong><span id="wat">0</span> ml</strong><span class="sub">Goal <span id="watgoal">2000</span> ml</span></div>
-<div class="bar"><div id="watbar" class="fill"></div></div><div class="grid"><button onclick="addWater(250)">+250 ml</button><button onclick="addWater(500)">+500 ml</button></div></section>
+<div class="bar"><div id="watbar" class="fill"></div></div><div class="grid"><button onclick="addWater(250)">+250 ml</button><button type="button" id="removeWater250">−250 ml</button><button onclick="addWater(500)">+500 ml</button><button type="button" id="removeWater500">−500 ml</button></div></section>
 
 <section class="card"><h2>Today's food</h2><div id="diary"></div><button onclick="tab('add')">+ Add food</button></section>
 </div>
@@ -689,5 +689,26 @@ if('serviceWorker' in navigator)navigator.serviceWorker.register('sw.js').catch(
 })();
 </script>
 
+
+
+<script>
+(function(){
+  function ctRemoveWater(amount){
+    const day=new Date().toISOString().slice(0,10);
+    let obj={};
+    try{obj=JSON.parse(localStorage.getItem('calorietrack_water_v2')||'{}')}catch(e){}
+    const current=Math.max(0,Number(obj[day])||0);
+    obj[day]=Math.max(0,current-amount);
+    localStorage.setItem('calorietrack_water_v2',JSON.stringify(obj));
+    // Keep the older single-value key in sync when present.
+    localStorage.setItem('calorietrack_water',String(obj[day]));
+    location.reload();
+  }
+  const a=document.getElementById('removeWater250');
+  const b=document.getElementById('removeWater500');
+  if(a)a.addEventListener('click',()=>ctRemoveWater(250));
+  if(b)b.addEventListener('click',()=>ctRemoveWater(500));
+})();
+</script>
 
 </body></html>
