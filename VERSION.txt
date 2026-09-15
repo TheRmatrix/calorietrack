@@ -1,11 +1,2 @@
-CalorieTrack 1.2
-
-Changes:
-- Multi-source food lookup: Open Food Facts + USDA FoodData Central fallback.
-- Barcode lookup tries CalorieTrack local cache, Open Food Facts regional/global sources, then USDA branded/reference data.
-- Search combines Open Food Facts and USDA results and removes duplicates.
-- Barcode normalization handles common EAN/UPC leading-zero variants.
-- Home weight card now refreshes independently from the dedicated weight history.
-- Legacy daily weights are migrated into the dedicated history and persisted.
-- Existing localStorage key retained for compatibility with CalorieTrack 1.0/1.1 data.
-- No Apple Health/steps integration added.
+CalorieTrack 1.6
+Complete Food System Release

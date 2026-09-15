@@ -10,7 +10,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="theme-color" content="#0d1422" id="themeColor">
-<title>CalorieTrack 1.3</title>
+<title>CalorieTrack 1.6</title>
 
 <style>
 /* ========================= BASE THEME ========================= */
@@ -31,7 +31,7 @@ button,input,select,textarea{font:inherit}button{border:0;background:var(--navy)
 .bottom{position:fixed;z-index:30;bottom:0;left:0;right:0;background:color-mix(in srgb,var(--card) 94%,transparent);backdrop-filter:blur(18px);border-top:1px solid var(--line);padding:7px 6px calc(7px + env(safe-area-inset-bottom));display:flex;justify-content:center;gap:4px}.bottom button{background:transparent;color:var(--muted);padding:8px 9px;font-size:10px}.bottom button.active{color:var(--blue);font-weight:850}
 canvas{width:100%;height:190px;background:var(--blue2);border-radius:15px}
 .calendar{display:grid;grid-template-columns:repeat(7,1fr);gap:5px}.week{display:grid;grid-template-columns:repeat(7,1fr);gap:5px;margin-bottom:5px}.week span{text-align:center;color:var(--muted);font-size:10px;font-weight:750}.calday{min-height:42px;border-radius:12px;background:var(--bg);display:flex;flex-direction:column;align-items:center;justify-content:center;font-size:12px}.calday.muted{opacity:.3}.calday.period{background:var(--red);color:var(--redink);font-weight:800}.calday.fertile{background:var(--teal);color:var(--tealink);font-weight:800}.calday.today{outline:2px solid var(--blue);outline-offset:1px}.dot{width:5px;height:5px;border-radius:50%;background:currentColor;margin-top:3px}.legend{display:flex;gap:14px;flex-wrap:wrap;font-size:11px;color:var(--muted);margin-top:10px}.legend i{display:inline-block;width:10px;height:10px;border-radius:4px;margin-right:5px}.lp{background:var(--red)}.lf{background:var(--teal)}
-.modal{position:fixed;inset:0;background:#0008;z-index:50;padding:14px;overflow:auto}.sheet{max-width:700px;margin:25px auto;background:var(--card);border-radius:24px;padding:17px}.sheethead{display:flex;justify-content:space-between;align-items:center}.sheet h2{margin:0 0 12px}.macro-suggestion{margin-top:10px;padding:13px;border:1px dashed var(--line);background:var(--bg);border-radius:16px}.macro-suggestion b{font-size:14px}.macro-suggestion .msgrid{display:grid;grid-template-columns:repeat(3,1fr);gap:7px;margin-top:9px}.macro-suggestion .msitem{background:var(--card);border:1px solid var(--line);border-radius:13px;padding:9px;text-align:center}.macro-suggestion .msitem strong{display:block;font-size:17px}.macro-suggestion .msitem small{color:var(--muted);font-size:10px}.app-version{text-align:center;color:var(--muted);font-size:10px;font-weight:650;padding:20px 0 16px}.close{width:38px!important;height:38px!important;padding:0!important;background:var(--blue2)!important;color:var(--ink)!important}
+.modal{position:fixed;inset:0;background:#0008;z-index:50;padding:14px;overflow:auto}.sheet{max-width:700px;margin:25px auto;background:var(--card);border-radius:24px;padding:17px}.sheethead{display:flex;justify-content:space-between;align-items:center}.sheet h2{margin:0 0 12px}.macro-suggestion{margin-top:10px;padding:13px;border:1px dashed var(--line);background:var(--bg);border-radius:16px}.macro-suggestion b{font-size:14px}.macro-suggestion .msgrid{display:grid;grid-template-columns:repeat(3,1fr);gap:7px;margin-top:9px}.macro-suggestion .msitem{background:var(--card);border:1px solid var(--line);border-radius:13px;padding:9px;text-align:center}.macro-suggestion .msitem strong{display:block;font-size:17px}.macro-suggestion .msitem small{color:var(--muted);font-size:10px}.app-version{text-align:center;color:var(--muted);font-size:10px;font-weight:650;padding:20px 0 16px}.close{width:38px!important;height:38px!important;padding:0!important;background:var(--blue2)!important;color:var(--ink)!important}.ocr-progress{height:8px;background:var(--line);border-radius:99px;overflow:hidden;margin:10px 0}.ocr-progress i{display:block;height:100%;width:0;background:var(--blue);transition:width .2s}.ocr-fields{display:grid;grid-template-columns:1fr 1fr;gap:9px}.ocr-note{padding:10px 12px;border-radius:13px;background:var(--blue2);font-size:11px;color:var(--muted);line-height:1.4}@media(max-width:430px){.ocr-fields{grid-template-columns:1fr 1fr}}
 @media(max-width:430px){.app{padding-left:11px;padding-right:11px}.brand{font-size:25px}.hero .big{font-size:43px}.grid3{grid-template-columns:1fr 1fr}.bottom button{padding-left:7px;padding-right:7px}}
 </style>
 
@@ -126,7 +126,7 @@ html.dark .hero-dashboard{background:#0a1020!important}
   <div class="hero hero-dashboard">
     <div class="hero-left">
       <small>Calories remaining</small>
-      <div class="calorie-ring" id="calorieRing" onclick="openFoodDiary()" role="button" aria-label="Open today’s food diary" title="Tap to view, edit or remove today’s food"><div><strong id="remain">0</strong><span>kcal left</span></div></div>
+      <div class="calorie-ring" id="calorieRing" onclick="openFoodDiary()" onkeydown="if(event.key==='Enter'||event.key===' ')openFoodDiary()" role="button" tabindex="0" aria-label="Open today’s food diary" title="Tap to view, edit or remove today’s food"><div><strong id="remain">0</strong><span>kcal left</span></div></div>
       <div class="hero-total"><span id="eaten">0 eaten</span><span id="goalTxt">0 goal</span></div>
     </div>
     <div class="hero-macros">
@@ -199,7 +199,7 @@ html.dark .hero-dashboard{background:#0a1020!important}
 </section>
 
 <section id="pageFood">
-<div class="section card"><div class="sectiontitle">Food library</div><div class="grid2"><button onclick="foodSearch()">⌕ Search database</button><button class="light" onclick="customFood()">＋ Custom food</button><button class="light" onclick="mealForm()">＋ Saved meal</button><button class="light" onclick="recipeForm()">＋ Recipe</button><button class="light" onclick="portion()">🧮 Portion calculator</button><button class="light" onclick="drinkForm()">🥤 Add drink</button></div></div>
+<div class="section card"><div class="sectiontitle">Food library</div><div class="grid2"><button onclick="foodSearch()">⌕ Search database</button><button class="light" onclick="customFood()">＋ Custom food</button><button class="light" onclick="mealForm()">＋ Saved meal</button><button class="light" onclick="recipeForm()">＋ Recipe</button><button class="light" onclick="portion()">🧮 Portion calculator</button><button class="light" onclick="scanNutritionLabel()">📷 Scan nutrition label</button><button class="light" onclick="drinkForm()">🥤 Add drink</button></div></div>
 <div class="section card"><div class="sectiontitle">Favourites & recent</div><div id="favourites"></div></div>
 <div class="section card"><div class="sectiontitle">Saved meals</div><div id="meals"></div></div>
 <div class="section card"><div class="sectiontitle">Recipes</div><div id="recipes"></div></div>
@@ -231,14 +231,14 @@ html.dark .hero-dashboard{background:#0a1020!important}
 <div class="section card"><div class="sectiontitle">Tools & privacy</div><div class="notice">Your data is stored locally in this browser.</div><div class="grid2"><button onclick="backup()">Export backup</button><button class="light" onclick="document.getElementById('restore').click()">Restore backup</button></div><input id="restore" type="file" accept=".json" class="hidden" onchange="restore(event)"><button class="light" onclick="csv()">Export food CSV</button></div>
 </section>
 </div>
-<div class="app-version">CalorieTrack 1.3</div>
+<div class="app-version">CalorieTrack 1.6</div>
 </div>
 
 <nav class="bottom"><button onclick="go('pageToday',this)" class="active">Today</button><button onclick="go('pageProgress',this)">Progress</button><button onclick="go('pageFood',this)">Food</button><button onclick="go('pageWorkout',this)">Workout</button><button onclick="go('pageGoals',this)">Goals</button><button onclick="goMore(this)">More</button></nav>
 <div id="modal" class="modal hidden"><div class="sheet"><div class="sheethead"><h2 id="modalTitle"></h2><button class="close" onclick="closeModal()">✕</button></div><div id="modalBody"></div></div></div>
 
 <script>
-/* CalorieTrack v1.3 — food logging upgrade. No Apple Health integration. */
+/* CalorieTrack v1.5 — food logging + nutrition label OCR upgrade. No Apple Health integration. */
 /* ============================================================
    DATA + STORAGE
    All app data is kept locally in the browser.
@@ -318,14 +318,35 @@ function closeModal(){stopScanner().catch(()=>{});document.getElementById('modal
 function addFood(f){D().foods.push({...f,id:Date.now()});save();closeModal();renderAll()}
 function customFood(){openM('Add custom food',`<div class="grid2"><label>Name<input id="fn"></label><label>Calories<input id="fk" type="number"></label><label>Protein<input id="fp" type="number"></label><label>Carbs<input id="fc" type="number"></label><label>Fat<input id="ff" type="number"></label><label>Fibre<input id="ffi" type="number"></label><label>Sugar<input id="fs" type="number"></label><label>Sat. fat<input id="fsa" type="number"></label></div><button onclick="addCustomFood()">Add to diary</button>`)}
 function addCustomFood(){const v=id=>Number((byId(id)||{}).value)||0;const name=(byId('fn')?.value||'').trim();if(!name){alert('Please enter a food name.');return}addFood({name,k:v('fk'),p:v('fp'),c:v('fc'),f:v('ff'),fi:v('ffi'),s:v('fs'),sa:v('fsa')})}
-function foodSearch(){
-  openM('Search food',`<div class="notice"><b>Multi-source food search</b><br>Searches Open Food Facts globally and also checks regional food listings for Chile/South America and Europe. If a product is missing, you can still add it manually and CalorieTrack will remember it.</div><label>Region<select id="foodRegion"><option value="all">Global</option><option value="south-america">South America</option><option value="europe">Europe</option><option value="chile">Chile</option></select></label><input id="foodQ" placeholder="e.g. Coca-Cola, oats, bread, banana"><button onclick="searchOFF()">Search food databases</button><div id="foodResults"></div>`);
+function recentFoods(){
+  const out=[],seen=new Set();
+  const days=Object.keys(S.days||{}).sort().reverse();
+  for(const date of days){
+    for(const f of (S.days?.[date]?.foods||[]).slice().reverse()){
+      const key=(f.barcode||f.name||'').toString().toLowerCase();
+      if(!key||seen.has(key))continue; seen.add(key); out.push(f);
+      if(out.length>=8)return out;
+    }
+  }
+  return out;
 }
+function foodSearch(){
+  const favourites=(S.foods||[]).filter(f=>f.favorite).slice(0,8);
+  const favouritesHtml=favourites.length?`<div class="sectiontitle" style="margin-top:12px">Favourites</div><div id="favFoodList">${favourites.map((f,i)=>`<div class="listrow"><div><div class="foodname">⭐ ${esc(f.name)}</div><div class="foodmeta">${Math.round(f.k||0)} kcal per 100${f.baseUnit||'g'}</div></div><button class="sm" type="button" onclick="useFavouriteFood(${i})">Add</button></div>`).join('')}</div>`:''; window._foodFavourites=favourites;
+  const recent=recentFoods();
+  const recentHtml=recent.length?`<div class="sectiontitle" style="margin-top:12px">Recent foods</div><div id="recentFoodList">${recent.map((f,i)=>`<div class="listrow"><div><div class="foodname">${esc(f.name)}</div><div class="foodmeta">${Math.round(f.k||0)} kcal${f.barcode?' · barcode saved':''}</div></div><button class="sm" type="button" onclick="useRecentFood(${i})">Add</button></div>`).join('')}</div>`:'';
+  window._recentFoodList=recent;
+  openM('Search food',`<div class="notice"><b>Multi-source food search</b><br>Searches Open Food Facts globally and regional listings for Chile/South America and Europe, with USDA as a secondary source.</div><label>Region<select id="foodRegion"><option value="all">Global</option><option value="south-america">South America</option><option value="europe">Europe</option><option value="ireland">Ireland</option><option value="chile">Chile</option></select></label><input id="foodQ" placeholder="e.g. Big Mac, Supermac's chicken breast"><div class="grid2"><button onclick="searchOFF()">Search food databases</button><button class="light" onclick="searchFastFoodWeb()">🌐 Search online</button></div><div class="notice" style="margin-top:8px"><b>Fast-food coverage</b><br>Irish: McDonald's, Burger King, Supermac's, KFC, Subway, Apache Pizza, Four Star Pizza. Chile: McDonald's, Burger King, KFC, Subway, Tarragona, Doggis, Juan Maestro, Dominó, Pedro Juan & Diego.</div>${favouritesHtml}${recentHtml}<div id="foodResults"></div>`);
+}
+function useRecentFood(i){const f=window._recentFoodList?.[i];if(f)foodEntryModal({...f},null)}
+function useFavouriteFood(i){const f=window._foodFavourites?.[i];if(f)foodEntryModal({...f},null)}
+function toggleFavourite(i){const f=D().foods[i];if(!f)return;f.favorite=!f.favorite;save();renderAll();openFoodDiary()}
 
 const FOOD_REGIONS={
   'south-america':['cl','ar','br','pe','co','uy','ec','bo','py'],
   'europe':['es','pt','fr','de','gb','ie','it','nl','be','ch','at'],
   'chile':['cl'],
+  'ireland':['ie'],
   'all':['cl','ar','br','pe','co','uy','ec','bo','py','es','pt','fr','de','gb','ie','it','nl','be','ch','at']
 };
 
@@ -448,6 +469,39 @@ async function searchOFF(){
     r.innerHTML=pendingSearchFoods.map((food,i)=>`<div class="listrow"><div><div class="foodname">${esc(food.name)}</div><div class="foodmeta">${Math.round(food.k)} kcal / 100g${food.barcode?' · '+esc(food.barcode):''}</div></div><button class="sm" type="button" onclick="selectSearchFood(${i})">Add</button></div>`).join('');
   }catch(e){console.error(e);r.innerHTML='<div class="notice">The food databases could not be reached. Try again or use Custom food.</div>'}
 }
+function searchFastFoodWeb(){
+  const q=(byId('foodQ')?.value||'').trim();
+  if(!q){alert('Enter a food or restaurant item first.');return}
+  const region=byId('foodRegion')?.value||'all';
+  const countryHint=region==='ireland'?'Ireland':region==='chile'?'Chile':region==='europe'?'Ireland OR Chile':'Ireland OR Chile';
+  const query=encodeURIComponent(q+' nutrition calories protein carbs fat '+countryHint+' official');
+  const urls=['https://www.google.com/search?q='+query,'https://www.bing.com/search?q='+query];
+  const ql=q.toLowerCase();
+  const official=[];
+  const addOfficial=(name,url)=>official.push({name,url});
+  if(/tarragona/.test(ql)||region==='chile') addOfficial('Tarragona Chile','https://www.tarragona.cl/pedir');
+  if(/supermac/.test(ql)||region==='ireland') addOfficial("Supermac's Ireland",'https://supermacs.ie/');
+  if(/mcdonald/.test(ql)) addOfficial(region==='ireland'?'McDonald\'s Ireland':'McDonald\'s','https://www.mcdonalds.com/');
+  if(/burger king/.test(ql)) addOfficial('Burger King','https://www.burgerking.com/');
+  if(/kfc/.test(ql)) addOfficial('KFC','https://www.kfc.com/');
+  if(/subway/.test(ql)) addOfficial('Subway','https://www.subway.com/');
+  const unique=[];const seen=new Set();official.forEach(x=>{if(!seen.has(x.url)){seen.add(x.url);unique.push(x)}});
+  const officialHtml=unique.length ? '<div class="sectiontitle" style="margin-top:12px">Official restaurant pages</div>'+unique.map(function(x){return '<div class="listrow"><div><div class="foodname">'+esc(x.name)+'</div><div class="foodmeta">Open the official menu/nutrition page</div></div><button class="sm" onclick="window.open(\''+x.url+'\',\'_blank\',\'noopener\')">Open</button></div>';}).join('') : '';
+  openM('Online nutrition lookup',`<div class="notice"><b>Search current nutrition information</b><br>Prefer the restaurant's official nutrition information. Values can vary by country, size and recipe, so review everything before saving.</div><div class="listrow"><div><div class="foodname">Search: ${esc(q)}</div><div class="foodmeta">Ireland / Chile fast-food nutrition</div></div><button class="sm" onclick="window.open('${urls[0]}','_blank','noopener')">Google</button></div><div class="listrow"><div><div class="foodname">Search alternative</div><div class="foodmeta">Use if the first search doesn't find a reliable result.</div></div><button class="sm" onclick="window.open('${urls[1]}','_blank','noopener')">Bing</button></div>${officialHtml}<button type="button" class="light" style="margin-top:12px" onclick="saveOnlineFoodForm(${JSON.stringify(q).replace(/</g,'\\u003c')})">＋ Enter result & save to My Foods</button><div class="notice" style="margin-top:10px">Saved online foods stay on this device and can be reused from Favourites/Recent foods.</div>`);
+}
+function saveOnlineFoodForm(name='Online food'){
+  openM('Save online food',`<div class="notice"><b>${esc(name)}</b><br>Enter the nutrition values from the official page or label. They should be for the serving shown below.</div><label>Food name<input id="ofn" value="${esc(name)}"></label><div class="grid2"><label>Serving amount<input id="ofa" type="number" step="0.1" value="100"></label><label>Unit<select id="ofu"><option value="g">g</option><option value="ml">ml</option><option value="piece">piece</option><option value="serving">serving</option></select></label><label>Calories<input id="ofk" type="number" step="0.1"></label><label>Protein (g)<input id="ofp" type="number" step="0.1"></label><label>Carbs (g)<input id="ofc" type="number" step="0.1"></label><label>Fat (g)<input id="off" type="number" step="0.1"></label><label>Fibre (g)<input id="offi" type="number" step="0.1"></label><label>Sugar (g)<input id="ofs" type="number" step="0.1"></label><label>Sat. fat (g)<input id="ofsa" type="number" step="0.1"></label></div><label>Source / notes<input id="ofsour" placeholder="e.g. Tarragona official menu"></label><button type="button" onclick="saveOnlineFood()">Save to My Foods</button>`);
+}
+function saveOnlineFood(){
+  const val=id=>Number.parseFloat(String(byId(id)?.value||'0').replace(',','.'))||0;
+  const name=(byId('ofn')?.value||'').trim();if(!name){alert('Enter a food name.');return}
+  const amount=val('ofa')||100,unit=byId('ofu')?.value||'g';
+  const factor=unit==='g'||unit==='ml'?100/amount:1;
+  const baseUnit=(unit==='ml'?'ml':'g');
+  const food={name,k:val('ofk')*factor,p:val('ofp')*factor,c:val('ofc')*factor,f:val('off')*factor,fi:val('offi')*factor,s:val('ofs')*factor,sa:val('ofsa')*factor,baseUnit,servingAmount:unit==='serving'?amount:amount,servingLabel:`${amount} ${unit}`,source:(byId('ofsour')?.value||'Online nutrition').trim(),custom:true};
+  S.foods.unshift(food);save();closeModal();renderAll();alert('Saved to My Foods. You can use it again from the Food page.');
+}
+
 function selectSearchFood(index){const food=pendingSearchFoods[index];if(food)useOFF(food)}
 // ============================================================
 // FOOD ENTRY / PORTION SYSTEM
@@ -457,14 +511,21 @@ function selectSearchFood(index){const food=pendingSearchFoods[index];if(food)us
 // ============================================================
 let pendingFoodBase=null;
 let editingFoodIndex=null;
+let deletedFoodUndo=null;
 
 function unitDefinitions(food){
   const base=food?.baseUnit==='ml'?'ml':'g';
   const serving=Number(food?.servingAmount)||0;
-  const defs=base==='ml'
-    ? [{v:'ml',label:'ml',factor:1},{v:'l',label:'L',factor:1000},{v:'serving',label:'serving',factor:serving||250},{v:'cup',label:'cup',factor:240},{v:'tbsp',label:'tbsp',factor:15},{v:'tsp',label:'tsp',factor:5}]
-    : [{v:'g',label:'g',factor:1},{v:'kg',label:'kg',factor:1000},{v:'oz',label:'oz',factor:28.3495},{v:'lb',label:'lb',factor:453.592},{v:'serving',label:'serving',factor:serving||100},{v:'piece',label:'piece',factor:100},{v:'cup',label:'cup',factor:240},{v:'tbsp',label:'tbsp',factor:15},{v:'tsp',label:'tsp',factor:5}];
-  return defs;
+  if(base==='ml') return [
+    {v:'ml',label:'ml',factor:1},{v:'l',label:'L',factor:1000},{v:'fl_oz',label:'fl oz',factor:29.5735},
+    {v:'serving',label:food?.servingLabel?`serving (${food.servingLabel})`:'serving',factor:serving||250},
+    {v:'cup',label:'cup',factor:240},{v:'tbsp',label:'tbsp',factor:15},{v:'tsp',label:'tsp',factor:5}
+  ];
+  return [
+    {v:'g',label:'g',factor:1},{v:'kg',label:'kg',factor:1000},{v:'oz',label:'oz',factor:28.3495},{v:'lb',label:'lb',factor:453.592},
+    {v:'serving',label:food?.servingLabel?`serving (${food.servingLabel})`:'serving',factor:serving||100},
+    {v:'piece',label:'piece',factor:100},{v:'cup',label:'cup',factor:240},{v:'tbsp',label:'tbsp',factor:15},{v:'tsp',label:'tsp',factor:5}
+  ];
 }
 function defaultFoodUnit(food){
   if(food?.servingAmount) return 'serving';
@@ -472,7 +533,7 @@ function defaultFoodUnit(food){
 }
 function foodEntryModal(food, index=null){
   pendingFoodBase={...food};editingFoodIndex=index;
-  const units=unitDefinitions(food),unit=defaultFoodUnit(food),amount=Number(food?.quantity)||100;
+  const units=unitDefinitions(food),unit=defaultFoodUnit(food),amount=Number(food?.quantity)||(unit==='serving'?1:100);
   const meal=food?.meal||'Snack';
   openM(index===null?'Add food':'Edit food',`<div class="notice"><b>${esc(food.name||'Food')}</b><br>Nutrition is shown per 100${food?.baseUnit==='ml'?'ml':'g'}.</div><div class="grid2"><label>Quantity<input id="foodQty" type="number" min="0.01" step="0.1" inputmode="decimal" value="${amount}"></label><label>Unit<select id="foodUnit">${units.map(u=>`<option value="${u.v}" ${u.v===unit?'selected':''}>${u.label}</option>`).join('')}</select></label></div><label>Meal<select id="foodMeal"><option ${meal==='Breakfast'?'selected':''}>Breakfast</option><option ${meal==='Lunch'?'selected':''}>Lunch</option><option ${meal==='Dinner'?'selected':''}>Dinner</option><option ${meal==='Snack'?'selected':''}>Snack</option></select></label><div id="foodPreview" class="food-preview"></div><button type="button" onclick="confirmFoodEntry()">${index===null?'＋ Add food':'Save changes'}</button>`);
   ['foodQty','foodUnit'].forEach(id=>byId(id)?.addEventListener('input',updateFoodPreview));
@@ -492,7 +553,9 @@ function foodEntryValues(){
 function updateFoodPreview(){
   const out=byId('foodPreview');if(!out)return;
   const v=foodEntryValues();if(!v||!Number.isFinite(v.qty)||v.qty<=0){out.innerHTML='<div class="notice">Enter a quantity to see nutrition.</div>';return}
-  out.innerHTML=`<div class="food-preview-title">Nutrition for ${esc(String(v.qty))} ${esc(v.unit)}</div><div class="food-preview-grid"><div><b>${Math.round(v.k)}</b><small>kcal</small></div><div><b>${round1(v.p)}g</b><small>Protein</small></div><div><b>${round1(v.c)}g</b><small>Carbs</small></div><div><b>${round1(v.f)}g</b><small>Fat</small></div><div><b>${round1(v.fi)}g</b><small>Fibre</small></div><div><b>${round1(v.s)}g</b><small>Sugar</small></div></div><div class="food-preview-note">${v.unit==='piece'||v.unit==='cup'||v.unit==='tbsp'||v.unit==='tsp'?'Unit conversion is an estimate unless the product provides a serving size.':''}</div>`;
+  const source=pendingFoodBase?.source?` · Source: ${esc(pendingFoodBase.source)}`:'';
+  const estimate=v.unit==='piece'||v.unit==='cup'||v.unit==='tbsp'||v.unit==='tsp'||v.unit==='fl_oz';
+  out.innerHTML=`<div class="food-preview-title">Nutrition for ${esc(String(v.qty))} ${esc(v.unit)}</div><div class="food-preview-grid"><div><b>${Math.round(v.k)}</b><small>kcal</small></div><div><b>${round1(v.p)}g</b><small>Protein</small></div><div><b>${round1(v.c)}g</b><small>Carbs</small></div><div><b>${round1(v.f)}g</b><small>Fat</small></div><div><b>${round1(v.fi)}g</b><small>Fibre</small></div><div><b>${round1(v.s)}g</b><small>Sugar</small></div></div><div class="food-preview-note">${estimate?'Unit conversion is an estimate unless the product provides a serving size.':''}${source}</div>`;
 }
 function round1(n){return Math.round((Number(n)||0)*10)/10}
 function confirmFoodEntry(){
@@ -509,9 +572,10 @@ function openFoodDiary(){
   const body=groups.map(meal=>{
     const items=foods.map((f,i)=>({...f,_i:i})).filter(f=>(f.meal||'Snack')===meal);
     if(!items.length)return '';
-    return `<div class="diary-meal"><div class="diary-meal-title">${meal}</div>${items.map(f=>`<div class="listrow"><div><div class="foodname">${esc(f.name)}</div><div class="foodmeta">${f.quantity?esc(String(f.quantity))+' '+esc(f.unit||f.baseUnit||'g')+' · ':''}${Math.round(f.k)} kcal · P ${round1(f.p)}g · C ${round1(f.c)}g · F ${round1(f.f)}g</div></div><div class="actions"><button class="sm light" type="button" onclick="editFood(${f._i})">Edit</button><button class="sm red" type="button" onclick="removeFood(${f._i})">−</button></div></div>`).join('')}</div>`;
+    return `<div class="diary-meal"><div class="diary-meal-title">${meal}</div>${items.map(f=>`<div class="listrow"><div><div class="foodname">${esc(f.name)}</div><div class="foodmeta">${f.quantity?esc(String(f.quantity))+' '+esc(f.unit||f.baseUnit||'g')+' · ':''}${Math.round(f.k)} kcal · P ${round1(f.p)}g · C ${round1(f.c)}g · F ${round1(f.f)}g</div></div><div class="actions"><button class="sm light" type="button" onclick="editFood(${f._i})">Edit</button><button class="sm light" type="button" onclick="toggleFavourite(${f._i})">${f.favorite?"★":"☆"}</button><button class="sm red" type="button" onclick="removeFood(${f._i})">−</button></div></div>`).join('')}</div>`;
   }).join('')||'<div class="notice">No food logged today. Scan or search for food to add your first item.</div>';
-  openM('Today’s food diary',`<div class="notice"><b>${Math.round(total)} kcal eaten</b> · Tap Edit to change a food or − to remove it.</div>${body}<button type="button" class="light" onclick="closeModal();foodSearch()">＋ Add food</button>`);
+  const undoHtml=deletedFoodUndo?`<div class="notice" style="display:flex;justify-content:space-between;align-items:center;gap:8px"><span>Food removed.</span><button type="button" class="sm light" onclick="undoRemovedFood()">Undo</button></div>`:'';
+  openM('Today’s food diary',`<div class="notice"><b>${Math.round(total)} kcal eaten</b> · Tap Edit to change a food or − to remove it.</div>${undoHtml}${body}<button type="button" class="light" onclick="closeModal();foodSearch()">＋ Add food</button>`);
 }
 function editFood(i){const f=D().foods[i];if(!f)return;if(f.k!=null&&f.baseUnit){foodEntryModal(f,i);return}editLegacyFood(i)}
 function editLegacyFood(i){
@@ -519,7 +583,17 @@ function editLegacyFood(i){
   openM('Edit food',`<div class="notice"><b>${esc(f.name)}</b></div><div class="grid2"><label>Calories<input id="efk" type="number" value="${Number(f.k)||0}"></label><label>Protein<input id="efp" type="number" value="${Number(f.p)||0}"></label><label>Carbs<input id="efc" type="number" value="${Number(f.c)||0}"></label><label>Fat<input id="eff" type="number" value="${Number(f.f)||0}"></label></div><button type="button" onclick="saveLegacyFoodEdit(${i})">Save changes</button>`);
 }
 function saveLegacyFoodEdit(i){const f=D().foods[i];if(!f)return;const v=id=>Number.parseFloat(String(byId(id)?.value||'0').replace(',','.'))||0;f.k=v('efk');f.p=v('efp');f.c=v('efc');f.f=v('eff');save();closeModal();renderAll()}
-function removeFood(i){if(!D().foods[i])return;D().foods.splice(i,1);save();closeModal();renderAll();}
+function removeFood(i){
+  const f=D().foods[i]; if(!f)return;
+  deletedFoodUndo={food:JSON.parse(JSON.stringify(f)),index:i};
+  D().foods.splice(i,1); save(); closeModal(); renderAll();
+}
+function undoRemovedFood(){
+  if(!deletedFoodUndo)return;
+  const {food,index}=deletedFoodUndo;
+  D().foods.splice(Math.max(0,Math.min(index,D().foods.length)),0,food);
+  deletedFoodUndo=null; save(); openFoodDiary(); renderAll();
+}
 
 /* ============================================================
    BARCODE SCANNER — v1.0
@@ -683,6 +757,98 @@ function saveManualBarcodeProduct(code){
   const food={name,k:val('mfk'),p:val('mfp'),c:val('mfc'),f:val('mff'),fi:val('mffi'),s:val('mfs'),sa:val('mfsa'),barcode:String(code),source:'Manual'};
   cacheFood(food);useOFF(food);
 }
+/* ============================================================
+   NUTRITION LABEL OCR
+   Uses Tesseract.js in the browser. Nothing is uploaded to a
+   CalorieTrack server. The user reviews/edit the extracted values
+   before anything is added to the diary.
+   ============================================================ */
+let ocrWorker=null;
+let ocrBusy=false;
+function loadTesseract(){
+  if(window.Tesseract) return Promise.resolve();
+  return new Promise((resolve,reject)=>{
+    const existing=document.querySelector('script[data-ocr-lib="tesseract"]');
+    if(existing){existing.addEventListener('load',resolve,{once:true});existing.addEventListener('error',()=>reject(new Error('OCR library failed to load')),{once:true});return;}
+    const s=document.createElement('script');
+    s.src='https://unpkg.com/tesseract.js@5/dist/tesseract.min.js';
+    s.async=true;s.dataset.ocrLib='tesseract';
+    s.onload=()=>resolve();s.onerror=()=>reject(new Error('OCR library failed to load'));
+    document.head.appendChild(s);
+  });
+}
+function nutritionOCRMarkup(){
+  return `<div class="ocr-note"><b>Scan the Nutrition Facts panel</b><br>Take a clear, straight-on photo of the nutrition label. CalorieTrack will read the numbers, then you can correct anything before saving.</div><input id="nutritionPhoto" type="file" accept="image/*" capture="environment" class="hidden" onchange="runNutritionOCR(event)"><button type="button" class="primary-action" onclick="document.getElementById('nutritionPhoto').click()">📷 Take photo</button><div id="ocrStatus" class="notice" style="margin-top:10px">No label scanned yet.</div><div id="ocrBar" class="ocr-progress hidden"><i></i></div><div id="ocrResult"></div>`;
+}
+async function scanNutritionLabel(){openM('Scan nutrition label',nutritionOCRMarkup());}
+function parseOCRNumber(text,patterns){
+  for(const re of patterns){const m=text.match(re);if(m){const n=Number.parseFloat(String(m[1]).replace(',','.'));if(Number.isFinite(n))return n;}}
+  return null;
+}
+function parseNutritionOCR(text){
+  const t=text.replace(/\r/g,'\n').replace(/[|]/g,' ').replace(/\s+/g,' ').trim();
+  const lower=t.toLowerCase();
+  const servingMatch=t.match(/serving size\s*[:\-]?\s*(?:about\s*)?([0-9]+(?:[\.,][0-9]+)?)\s*(g|ml|kg|l|oz|fl\s*oz)/i);
+  const servingAmount=servingMatch?Number.parseFloat(servingMatch[1].replace(',','.')):0;
+  const servingUnit=servingMatch?(servingMatch[2].toLowerCase().replace(/\s+/g,' ')):'g';
+  const val=(label,aliases=[])=>parseOCRNumber(t,[new RegExp(label+'\\s*[:\\-]?\\s*([0-9]+(?:[\\.,][0-9]+)?)','i'),...aliases.map(a=>new RegExp(a+'\\s*[:\\-]?\\s*([0-9]+(?:[\\.,][0-9]+)?)','i'))]);
+  let kcal=val('calories',['energy']);
+  let protein=val('protein');
+  let carbs=val('total carbohydrate',['total carbs','carbohydrate']);
+  let fat=val('total fat',['fat']);
+  let fibre=val('dietary fiber',['dietary fibre','fiber','fibre']);
+  let sugar=val('total sugars',['sugars','sugar']);
+  let sat=val('saturated fat',['saturated fatty acids']);
+  let sodium=val('sodium');
+  // Some labels print values on the next line or OCR punctuation poorly.
+  const lines=text.split(/\n+/).map(x=>x.trim()).filter(Boolean);
+  const lineVal=(labels)=>{
+    for(const line of lines){if(labels.some(l=>new RegExp('\\b'+l+'\\b','i').test(line))){const m=line.match(/([0-9]+(?:[\.,][0-9]+)?)/);if(m)return Number.parseFloat(m[1].replace(',','.'));}}
+    return null;
+  };
+  if(kcal==null)kcal=lineVal(['calories','energy']);
+  if(protein==null)protein=lineVal(['protein']);
+  if(carbs==null)carbs=lineVal(['total carbohydrate','carbohydrate']);
+  if(fat==null)fat=lineVal(['total fat','fat']);
+  if(fibre==null)fibre=lineVal(['dietary fiber','dietary fibre','fiber','fibre']);
+  if(sugar==null)sugar=lineVal(['total sugars','sugars','sugar']);
+  if(sat==null)sat=lineVal(['saturated fat']);
+  if(sodium==null)sodium=lineVal(['sodium']);
+  // If the label was read as a per-serving panel, convert to per 100 base units
+  // only when a serving weight/volume is available. Otherwise store as serving data.
+  const factor=servingAmount>0?100/servingAmount:1;
+  return {k:kcal??0,p:protein??0,c:carbs??0,f:fat??0,fi:fibre??0,s:sugar??0,sa:sat??0,na:sodium??0,servingAmount,servingUnit,raw:text,assumedPer100:servingAmount===0};
+}
+async function runNutritionOCR(event){
+  const file=event?.target?.files?.[0]; if(!file||ocrBusy)return;
+  const status=byId('ocrStatus'),bar=byId('ocrBar'),result=byId('ocrResult');
+  ocrBusy=true;if(status)status.textContent='Preparing OCR…';if(bar){bar.classList.remove('hidden');bar.querySelector('i').style.width='3%';}
+  try{
+    await loadTesseract();
+    if(status)status.textContent='Reading the nutrition label…';
+    const out=await window.Tesseract.recognize(file,'eng',{logger:m=>{if(m?.status==='recognizing text'&&bar){bar.querySelector('i').style.width=Math.max(5,Math.round((m.progress||0)*100))+'%';}}});
+    const parsed=parseNutritionOCR(out?.data?.text||'');
+    renderOCRResult(parsed);
+    if(status)status.textContent='Done — please check the extracted numbers before saving.';
+    if(bar)bar.querySelector('i').style.width='100%';
+  }catch(e){console.error(e);if(status)status.innerHTML='<b>Couldn’t read the label.</b><br>Try a closer, brighter photo with the whole Nutrition Facts panel visible.';}
+  finally{ocrBusy=false;if(event?.target)event.target.value='';}
+}
+function renderOCRResult(d){
+  const r=byId('ocrResult');if(!r)return;
+  r.innerHTML=`<div class="sectiontitle" style="margin-top:14px">Check extracted values</div><div class="grid2"><label>Product name<input id="ocrName" placeholder="e.g. Chicken Sandwich"></label><label>Serving amount<input id="ocrServing" type="number" step="0.1" value="${d.servingAmount||100}"></label></div><label>Serving unit<select id="ocrServingUnit"><option value="g" ${d.servingUnit==='g'?'selected':''}>g</option><option value="ml" ${d.servingUnit==='ml'?'selected':''}>ml</option><option value="oz" ${d.servingUnit==='oz'?'selected':''}>oz</option><option value="fl oz" ${d.servingUnit==='fl oz'?'selected':''}>fl oz</option></select></label><div class="ocr-note" style="margin:10px 0">Values below are what OCR found. Correct them if needed. The app will use the serving amount above to calculate your eaten portion.</div><div class="ocr-fields"><label>Calories<input id="ocrK" type="number" step="0.1" value="${d.k||0}"></label><label>Protein (g)<input id="ocrP" type="number" step="0.1" value="${d.p||0}"></label><label>Carbs (g)<input id="ocrC" type="number" step="0.1" value="${d.c||0}"></label><label>Fat (g)<input id="ocrF" type="number" step="0.1" value="${d.f||0}"></label><label>Fibre (g)<input id="ocrFi" type="number" step="0.1" value="${d.fi||0}"></label><label>Sugar (g)<input id="ocrS" type="number" step="0.1" value="${d.s||0}"></label><label>Sat. fat (g)<input id="ocrSa" type="number" step="0.1" value="${d.sa||0}"></label><label>Sodium (mg)<input id="ocrNa" type="number" step="1" value="${d.na||0}"></label></div><button type="button" style="margin-top:12px" onclick="saveOCRFood()">＋ Use these values</button>`;
+}
+function saveOCRFood(){
+  const num=id=>Number.parseFloat(String(byId(id)?.value||'0').replace(',','.'))||0;
+  const name=(byId('ocrName')?.value||'Scanned nutrition label').trim();
+  const serving=Math.max(0.01,num('ocrServing'));const unit=byId('ocrServingUnit')?.value||'g';
+  const baseAmount=unit==='kg'?serving*1000:unit==='oz'?serving*28.3495:unit==='fl oz'?serving*29.5735:unit==='ml'?serving:serving;
+  // OCR values are per serving. Convert them to the app's per-100g/ml basis.
+  const factor=100/baseAmount;
+  const food={name,k:num('ocrK')*factor,p:num('ocrP')*factor,c:num('ocrC')*factor,f:num('ocrF')*factor,fi:num('ocrFi')*factor,s:num('ocrS')*factor,sa:num('ocrSa')*factor,na:num('ocrNa')*factor,source:'Nutrition label OCR',baseUnit:unit==='ml'||unit==='fl oz'?'ml':'g',servingAmount:baseAmount,servingLabel:`${serving} ${unit}`};
+  foodEntryModal(food,null);
+}
+
 function portion(){openM('Portion calculator',`<div class="grid2"><label>Package amount (g)<input id="pg" type="number"></label><label>Amount eaten (g)<input id="eg" type="number"></label><label>Package kcal<input id="pk" type="number"></label><label>Package protein<input id="pp" type="number"></label><label>Package carbs<input id="pc" type="number"></label><label>Package fat<input id="pf" type="number"></label></div><button onclick="calcPortion()">Calculate</button><div id="por"></div>`)}
 function calcPortion(){const v=id=>+((document.getElementById(id)||{}).value||0);const m=v('eg')/Math.max(1,v('pg'));const out=document.getElementById('por');if(out)out.innerHTML=`<div class="card"><b>${Math.round(v('pk')*m)} kcal</b><br>Protein ${Math.round(v('pp')*m*10)/10}g · Carbs ${Math.round(v('pc')*m*10)/10}g · Fat ${Math.round(v('pf')*m*10)/10}g</div>`}
 function drinkForm(){openM('Add drink',`<div class="grid2"><label>Name<input id="dn"></label><label>Calories<input id="dk" type="number"></label><label>Volume (ml)<input id="dm" type="number"></label></div><button onclick="const n=document.getElementById('dn'),k=document.getElementById('dk'),m=document.getElementById('dm');D().drinks.push({name:n.value.trim()||'Drink',k:+k.value||0,ml:+m.value||0});save();closeModal();renderToday()">Add drink</button>`)}
@@ -957,5 +1123,6 @@ function renderHomeExtras(){
    ============================================================ */
 const dateEl=byId('todayDate');if(dateEl)dateEl.textContent=new Date().toLocaleDateString(undefined,{weekday:'long',month:'long',day:'numeric'});applyTheme();updateMode();renderAll();
 </script>
+<div id="versionBadge" style="position:fixed;bottom:76px;left:50%;transform:translateX(-50%);font-size:10px;color:var(--muted);pointer-events:none">CalorieTrack 1.6</div>
 </body>
 </html>
