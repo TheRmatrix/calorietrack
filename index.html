@@ -10,7 +10,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="theme-color" content="#0d1422" id="themeColor">
-<title>CalorieTrack 1.2</title>
+<title>CalorieTrack 1.3</title>
 
 <style>
 /* ========================= BASE THEME ========================= */
@@ -48,6 +48,8 @@ body{background:var(--bg)}
 .info-card{min-height:138px;position:relative;padding:15px}.info-icon{font-size:23px;display:block;margin-bottom:5px}.info-card>b{display:block;font-size:15px}.info-card strong{display:block;font-size:21px;margin-top:12px}.info-card small{display:block;color:var(--muted);font-size:11px;margin-top:2px}.arrow{position:absolute;right:13px;top:50%;font-size:25px;color:var(--ink)}.supp-bar{height:8px;background:var(--line);border-radius:99px;margin-top:9px;overflow:hidden}.supp-bar i{display:block;width:0;height:100%;background:#29c78d;border-radius:99px}
 .check-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:7px}.check-tile{border:1px solid var(--line);border-radius:14px;padding:10px 5px;min-height:78px;text-align:center}.check-tile .ci{font-size:19px}.check-tile b{display:block;font-size:11px;margin-top:3px}.check-tile small{display:block;color:var(--muted);font-size:9px;margin-top:4px}.check-circle{width:20px;height:20px;border:3px solid #bdc9d8;border-radius:50%;margin:5px auto 0}.check-tile.done .check-circle{background:#27c98a;border-color:#27c98a;position:relative}.check-tile.done .check-circle:after{content:"✓";color:#fff;font-size:12px;position:absolute;left:3px;top:-1px}
 .bottom{padding-top:7px}.bottom button{font-size:10px}.bottom button.active{color:#246ff2}
+
+.food-preview{margin:12px 0;padding:14px;border-radius:18px;background:var(--soft);border:1px solid var(--border)}.food-preview-title{font-weight:800;margin-bottom:10px}.food-preview-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}.food-preview-grid>div{padding:9px;border-radius:12px;background:var(--card);text-align:center}.food-preview-grid b{display:block;font-size:18px}.food-preview-grid small{display:block;color:var(--muted);font-weight:700;font-size:11px}.food-preview-note{font-size:11px;color:var(--muted);margin-top:9px}.diary-meal{margin:12px 0}.diary-meal-title{font-weight:850;font-size:16px;margin:8px 0}.calorie-ring{cursor:pointer}
 @media(max-width:520px){.hero-dashboard{grid-template-columns:1fr;gap:8px;min-height:0}.calorie-ring{width:155px;height:155px}.calorie-ring:after{inset:11px}.calorie-ring strong{font-size:35px}.hero-macros{gap:10px}.stat-strip{grid-template-columns:repeat(4,1fr)}.mini-stat{padding:9px 2px}.mini-stat b{font-size:14px}.check-grid{grid-template-columns:repeat(4,1fr)}.mode-select{min-width:105px}.tagline{max-width:230px}.water-buttons button{font-size:10px}}
 </style>
 
@@ -124,7 +126,7 @@ html.dark .hero-dashboard{background:#0a1020!important}
   <div class="hero hero-dashboard">
     <div class="hero-left">
       <small>Calories remaining</small>
-      <div class="calorie-ring" id="calorieRing"><div><strong id="remain">0</strong><span>kcal left</span></div></div>
+      <div class="calorie-ring" id="calorieRing" onclick="openFoodDiary()" role="button" aria-label="Open today’s food diary" title="Tap to view, edit or remove today’s food"><div><strong id="remain">0</strong><span>kcal left</span></div></div>
       <div class="hero-total"><span id="eaten">0 eaten</span><span id="goalTxt">0 goal</span></div>
     </div>
     <div class="hero-macros">
@@ -229,14 +231,14 @@ html.dark .hero-dashboard{background:#0a1020!important}
 <div class="section card"><div class="sectiontitle">Tools & privacy</div><div class="notice">Your data is stored locally in this browser.</div><div class="grid2"><button onclick="backup()">Export backup</button><button class="light" onclick="document.getElementById('restore').click()">Restore backup</button></div><input id="restore" type="file" accept=".json" class="hidden" onchange="restore(event)"><button class="light" onclick="csv()">Export food CSV</button></div>
 </section>
 </div>
-<div class="app-version">CalorieTrack 1.2</div>
+<div class="app-version">CalorieTrack 1.3</div>
 </div>
 
 <nav class="bottom"><button onclick="go('pageToday',this)" class="active">Today</button><button onclick="go('pageProgress',this)">Progress</button><button onclick="go('pageFood',this)">Food</button><button onclick="go('pageWorkout',this)">Workout</button><button onclick="go('pageGoals',this)">Goals</button><button onclick="goMore(this)">More</button></nav>
 <div id="modal" class="modal hidden"><div class="sheet"><div class="sheethead"><h2 id="modalTitle"></h2><button class="close" onclick="closeModal()">✕</button></div><div id="modalBody"></div></div></div>
 
 <script>
-/* CalorieTrack v1.0 — cleaned stability base. No Apple Health integration. */
+/* CalorieTrack v1.3 — food logging upgrade. No Apple Health integration. */
 /* ============================================================
    DATA + STORAGE
    All app data is kept locally in the browser.
@@ -292,7 +294,7 @@ function renderToday(){
  const wg=+S.profile.waterGoal||0,wp=wg?Math.min(100,d.water/wg*100):0;document.getElementById('waterTxt').textContent=d.water+' / '+wg+' ml';document.getElementById('waterFill').style.width=wp+'%';
  const stepGoal=+S.profile.stepsGoal||0,stepCount=Number(d.steps)||0;const stepTxt=byId('stepsTxt'),stepFill=byId('stepsFill'),stepInput=byId('stepsInput');if(stepTxt)stepTxt.textContent=stepCount.toLocaleString()+' / '+stepGoal.toLocaleString();if(stepFill)stepFill.style.width=(stepGoal?Math.min(100,stepCount/stepGoal*100):0)+'%';if(stepInput)stepInput.value=stepCount||'';
  document.getElementById('foodNum').textContent=d.foods.length+' items';
- document.getElementById('diary').innerHTML=d.foods.length?d.foods.map((f,i)=>`<div class="listrow"><div><div class="foodname">${esc(f.name)}</div><div class="foodmeta">${Math.round(f.k)} kcal · P ${Math.round(f.p)}g · C ${Math.round(f.c)}g · F ${Math.round(f.f)}g</div></div><div class="actions"><button class="sm light" onclick="fav(${i})">☆</button><button class="sm red" onclick="delFood(${i})">−</button></div></div>`).join(''):'<div class="notice">No food logged yet.</div>';
+ document.getElementById('diary').innerHTML=d.foods.length?d.foods.map((f,i)=>`<div class="listrow"><div><div class="foodname">${esc(f.name)}</div><div class="foodmeta">${f.quantity?esc(String(f.quantity))+' '+esc(f.unit||f.baseUnit||'g')+' · ':''}${Math.round(f.k)} kcal · P ${round1(f.p)}g · C ${round1(f.c)}g · F ${round1(f.f)}g</div></div><div class="actions"><button class="sm light" onclick="editFood(${i})">Edit</button><button class="sm red" onclick="delFood(${i})">−</button></div></div>`).join(''):'<div class="notice">No food logged yet.</div>';
  document.getElementById('drinks').innerHTML=d.drinks.length?d.drinks.map((x,i)=>`<div class="listrow"><div><div class="foodname">${esc(x.name)}</div><div class="foodmeta">${x.k} kcal · ${x.ml} ml</div></div><button class="sm red" onclick="delDrink(${i})">−</button></div>`).join(''):'<div class="notice">No drinks logged.</div>';
  const checks=[['cal','Calories target'],['protein','Protein target'],['fibre','Fibre target'],['water','Water target'],['steps','Steps target'],['workout','Workout/rest day logged']];
  document.getElementById('checks').innerHTML=checks.map(([k,n])=>`<label class="check"><input type="checkbox" ${d.checks[k]?'checked':''} onchange="check('${k}',this.checked)"><span>${n}</span></label>`).join('');
@@ -329,16 +331,23 @@ const FOOD_REGIONS={
 
 function foodFromOFF(product, barcode=''){
   const n=product?.nutriments||{};
-  const k=Number(n['energy-kcal_100g']??n['energy-kcal_value']??0)||0;
+  const nutritionPer=String(product?.nutrition_data_per||'100g').toLowerCase();
+  const baseUnit=nutritionPer.includes('100ml')?'ml':'g';
+  const k=Number(n[baseUnit==='ml'?'energy-kcal_100ml':'energy-kcal_100g']??n['energy-kcal_value']??0)||0;
+  const pick=(g,m)=>Number(n[baseUnit==='ml'?g.replace('_100g','_100ml'):g]??n[m]??0)||0;
+  const servingText=String(product?.serving_size||'');
+  const match=servingText.replace(',','.').match(/([0-9]+(?:\.[0-9]+)?)\s*(ml|g|kg|l)/i);
+  const servingAmount=match?Number(match[1])*(/kg/i.test(match[2])?1000:/l/i.test(match[2])?1000:1):0;
   return {
     name:((product?.brands?product.brands+' ':'')+(product?.product_name||product?.generic_name||'Food')).trim(),
-    k,p:Number(n.proteins_100g||0)||0,c:Number(n.carbohydrates_100g||0)||0,
-    f:Number(n.fat_100g||0)||0,fi:Number(n.fiber_100g||n['fiber_100g']||0)||0,
-    s:Number(n.sugars_100g||0)||0,sa:Number(n['saturated-fat_100g']||0)||0,
-    barcode:String(barcode||product?.code||''),source:'Open Food Facts'
+    k:pick('energy-kcal_100g','energy-kcal_value'),
+    p:pick('proteins_100g','proteins_100g'),c:pick('carbohydrates_100g','carbohydrates_100g'),
+    f:pick('fat_100g','fat_100g'),fi:pick('fiber_100g','fiber_100g'),
+    s:pick('sugars_100g','sugars_100g'),sa:pick('saturated-fat_100g','saturated-fat_100g'),
+    barcode:String(barcode||product?.code||''),source:'Open Food Facts',baseUnit,servingAmount:servingAmount||0,
+    servingLabel:servingText
   };
 }
-
 function cacheFood(food){
   if(!food?.barcode)return;
   const code=String(food.barcode).replace(/\D/g,'');
@@ -383,7 +392,7 @@ function foodFromUSDA(food,barcode=''){
     name:String(food?.description||'USDA food').trim(),
     k:val([1008]), p:val([1003]), c:val([1005]), f:val([1004]),
     fi:val([1079]), s:val([2000]), sa:val([1258]),
-    barcode:code, source:'USDA FoodData Central', brand:String(food?.brandOwner||food?.brandName||'').trim()
+    barcode:code, source:'USDA FoodData Central', brand:String(food?.brandOwner||food?.brandName||'').trim(), baseUnit:'g', servingAmount:0, servingLabel:''
   };
 }
 async function fetchUSDAByBarcode(code){
@@ -440,23 +449,78 @@ async function searchOFF(){
   }catch(e){console.error(e);r.innerHTML='<div class="notice">The food databases could not be reached. Try again or use Custom food.</div>'}
 }
 function selectSearchFood(index){const food=pendingSearchFoods[index];if(food)useOFF(food)}
-function useOFF(f){
-  // Keep product data out of inline HTML/onclick attributes. Product names can contain
-  // apostrophes and other characters that can break an inline JSON handler on Safari.
-  pendingBarcodeFood={...f};
-  openM('Amount eaten',`<div class="notice">Nutrition is per 100g.</div><label>Grams<input id="offg" type="number" min="1" step="1" value="100" inputmode="decimal"></label><button type="button" onclick="addPendingFood()">Add</button>`);
-}
+// ============================================================
+// FOOD ENTRY / PORTION SYSTEM
+// Inspired by the workflow used by mature nutrition trackers:
+// choose a quantity + unit, preview the nutrition, choose a meal,
+// then explicitly confirm with Add. No fragile inline food objects.
+// ============================================================
+let pendingFoodBase=null;
+let editingFoodIndex=null;
 
-function addPendingFood(){
-  const food=pendingBarcodeFood;
-  const input=document.getElementById('offg');
-  const grams=Number.parseFloat(String(input?.value||'100').replace(',','.'));
-  if(!food){alert('No food is waiting to be added. Please scan the barcode again.');return}
-  if(!Number.isFinite(grams)||grams<=0){alert('Please enter a valid amount in grams.');return}
-  const m=grams/100;
-  addFood({...food,name:food.name+' ('+grams+'g)',k:food.k*m,p:food.p*m,c:food.c*m,f:food.f*m,fi:food.fi*m,s:food.s*m,sa:food.sa*m});
-  pendingBarcodeFood=null;
+function unitDefinitions(food){
+  const base=food?.baseUnit==='ml'?'ml':'g';
+  const serving=Number(food?.servingAmount)||0;
+  const defs=base==='ml'
+    ? [{v:'ml',label:'ml',factor:1},{v:'l',label:'L',factor:1000},{v:'serving',label:'serving',factor:serving||250},{v:'cup',label:'cup',factor:240},{v:'tbsp',label:'tbsp',factor:15},{v:'tsp',label:'tsp',factor:5}]
+    : [{v:'g',label:'g',factor:1},{v:'kg',label:'kg',factor:1000},{v:'oz',label:'oz',factor:28.3495},{v:'lb',label:'lb',factor:453.592},{v:'serving',label:'serving',factor:serving||100},{v:'piece',label:'piece',factor:100},{v:'cup',label:'cup',factor:240},{v:'tbsp',label:'tbsp',factor:15},{v:'tsp',label:'tsp',factor:5}];
+  return defs;
 }
+function defaultFoodUnit(food){
+  if(food?.servingAmount) return 'serving';
+  return food?.baseUnit==='ml'?'ml':'g';
+}
+function foodEntryModal(food, index=null){
+  pendingFoodBase={...food};editingFoodIndex=index;
+  const units=unitDefinitions(food),unit=defaultFoodUnit(food),amount=Number(food?.quantity)||100;
+  const meal=food?.meal||'Snack';
+  openM(index===null?'Add food':'Edit food',`<div class="notice"><b>${esc(food.name||'Food')}</b><br>Nutrition is shown per 100${food?.baseUnit==='ml'?'ml':'g'}.</div><div class="grid2"><label>Quantity<input id="foodQty" type="number" min="0.01" step="0.1" inputmode="decimal" value="${amount}"></label><label>Unit<select id="foodUnit">${units.map(u=>`<option value="${u.v}" ${u.v===unit?'selected':''}>${u.label}</option>`).join('')}</select></label></div><label>Meal<select id="foodMeal"><option ${meal==='Breakfast'?'selected':''}>Breakfast</option><option ${meal==='Lunch'?'selected':''}>Lunch</option><option ${meal==='Dinner'?'selected':''}>Dinner</option><option ${meal==='Snack'?'selected':''}>Snack</option></select></label><div id="foodPreview" class="food-preview"></div><button type="button" onclick="confirmFoodEntry()">${index===null?'＋ Add food':'Save changes'}</button>`);
+  ['foodQty','foodUnit'].forEach(id=>byId(id)?.addEventListener('input',updateFoodPreview));
+  byId('foodMeal')?.addEventListener('change',updateFoodPreview);
+  updateFoodPreview();
+}
+function useOFF(f){foodEntryModal(f,null)}
+function foodEntryValues(){
+  const food=pendingFoodBase;if(!food)return null;
+  const qty=Number.parseFloat(String(byId('foodQty')?.value||'0').replace(',','.'));
+  const unit=byId('foodUnit')?.value||defaultFoodUnit(food);
+  const def=unitDefinitions(food).find(x=>x.v===unit)||unitDefinitions(food)[0];
+  const baseAmount=qty*(def?.factor||1);
+  const mult=baseAmount/100;
+  return {qty,unit,baseAmount,mult,meal:byId('foodMeal')?.value||'Snack',k:food.k*mult,p:food.p*mult,c:food.c*mult,f:food.f*mult,fi:food.fi*mult,s:food.s*mult,sa:food.sa*mult};
+}
+function updateFoodPreview(){
+  const out=byId('foodPreview');if(!out)return;
+  const v=foodEntryValues();if(!v||!Number.isFinite(v.qty)||v.qty<=0){out.innerHTML='<div class="notice">Enter a quantity to see nutrition.</div>';return}
+  out.innerHTML=`<div class="food-preview-title">Nutrition for ${esc(String(v.qty))} ${esc(v.unit)}</div><div class="food-preview-grid"><div><b>${Math.round(v.k)}</b><small>kcal</small></div><div><b>${round1(v.p)}g</b><small>Protein</small></div><div><b>${round1(v.c)}g</b><small>Carbs</small></div><div><b>${round1(v.f)}g</b><small>Fat</small></div><div><b>${round1(v.fi)}g</b><small>Fibre</small></div><div><b>${round1(v.s)}g</b><small>Sugar</small></div></div><div class="food-preview-note">${v.unit==='piece'||v.unit==='cup'||v.unit==='tbsp'||v.unit==='tsp'?'Unit conversion is an estimate unless the product provides a serving size.':''}</div>`;
+}
+function round1(n){return Math.round((Number(n)||0)*10)/10}
+function confirmFoodEntry(){
+  const food=pendingFoodBase,v=foodEntryValues();
+  if(!food||!v||!Number.isFinite(v.qty)||v.qty<=0){alert('Please enter a valid quantity.');return}
+  const entry={...food,id:Date.now()+Math.random(),quantity:v.qty,unit:v.unit,meal:v.meal,k:v.k,p:v.p,c:v.c,f:v.f,fi:v.fi,s:v.s,sa:v.sa,baseUnit:food.baseUnit||'g'};
+  if(editingFoodIndex===null) D().foods.push(entry); else if(D().foods[editingFoodIndex]) D().foods[editingFoodIndex]=entry;
+  save();pendingFoodBase=null;editingFoodIndex=null;closeModal();renderAll();
+}
+function openFoodDiary(){
+  const foods=D().foods||[];
+  const total=sums().k;
+  const groups=['Breakfast','Lunch','Dinner','Snack'];
+  const body=groups.map(meal=>{
+    const items=foods.map((f,i)=>({...f,_i:i})).filter(f=>(f.meal||'Snack')===meal);
+    if(!items.length)return '';
+    return `<div class="diary-meal"><div class="diary-meal-title">${meal}</div>${items.map(f=>`<div class="listrow"><div><div class="foodname">${esc(f.name)}</div><div class="foodmeta">${f.quantity?esc(String(f.quantity))+' '+esc(f.unit||f.baseUnit||'g')+' · ':''}${Math.round(f.k)} kcal · P ${round1(f.p)}g · C ${round1(f.c)}g · F ${round1(f.f)}g</div></div><div class="actions"><button class="sm light" type="button" onclick="editFood(${f._i})">Edit</button><button class="sm red" type="button" onclick="removeFood(${f._i})">−</button></div></div>`).join('')}</div>`;
+  }).join('')||'<div class="notice">No food logged today. Scan or search for food to add your first item.</div>';
+  openM('Today’s food diary',`<div class="notice"><b>${Math.round(total)} kcal eaten</b> · Tap Edit to change a food or − to remove it.</div>${body}<button type="button" class="light" onclick="closeModal();foodSearch()">＋ Add food</button>`);
+}
+function editFood(i){const f=D().foods[i];if(!f)return;if(f.k!=null&&f.baseUnit){foodEntryModal(f,i);return}editLegacyFood(i)}
+function editLegacyFood(i){
+  const f=D().foods[i];if(!f)return;
+  openM('Edit food',`<div class="notice"><b>${esc(f.name)}</b></div><div class="grid2"><label>Calories<input id="efk" type="number" value="${Number(f.k)||0}"></label><label>Protein<input id="efp" type="number" value="${Number(f.p)||0}"></label><label>Carbs<input id="efc" type="number" value="${Number(f.c)||0}"></label><label>Fat<input id="eff" type="number" value="${Number(f.f)||0}"></label></div><button type="button" onclick="saveLegacyFoodEdit(${i})">Save changes</button>`);
+}
+function saveLegacyFoodEdit(i){const f=D().foods[i];if(!f)return;const v=id=>Number.parseFloat(String(byId(id)?.value||'0').replace(',','.'))||0;f.k=v('efk');f.p=v('efp');f.c=v('efc');f.f=v('eff');save();closeModal();renderAll()}
+function removeFood(i){if(!D().foods[i])return;D().foods.splice(i,1);save();closeModal();renderAll();}
+
 /* ============================================================
    BARCODE SCANNER — v1.0
    Live scanning uses ZXing's browser decoder for 1D product barcodes.
